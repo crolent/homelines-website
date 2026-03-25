@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us – Homelines Cleaning</title>
+  <meta name="description" content="Get in touch with Homelines Cleaning. We're available 24/7 to answer your questions and help you book a cleaning." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg class="nav-logo-svg" viewBox="0 0 100 78" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="12,38 50,8 88,38" stroke="#1e3a5c" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="35" x2="16" y2="70" stroke="#1e3a5c" stroke-width="7" stroke-linecap="round"/>
+          <line x1="84" y1="35" x2="84" y2="70" stroke="#1e3a5c" stroke-width="7" stroke-linecap="round"/>
+          <polyline points="28,38 50,20 72,38" stroke="#4db6e8" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 32 70 Q 32 50 50 50 Q 68 50 68 70" stroke="#4db6e8" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="nav-logo-text">
+          <span>Homelines</span>
+          <span>Cleaning</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link" data-page="index.html" data-i18n="nav_home">Home</a></li>
+        <li><a href="booking.html" class="nav-link" data-page="booking.html" data-i18n="nav_book_now">Book Now</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact.html" data-i18n="nav_contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <div class="online-badge">
+          <div class="online-dot"></div>
+          <span data-i18n="nav_online">Online 24/7</span>
+        </div>
+        <div class="lang-picker"></div>
+        <a href="booking.html" class="btn btn-primary btn-sm nav-book-btn" data-i18n="nav_book_btn">Book a Clean</a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="menu-bubbles" id="menuBubbles"></div>
+  <a href="index.html" class="nav-link" data-page="index.html" data-i18n="nav_home">Home</a>
+  <a href="booking.html" class="nav-link" data-page="booking.html" data-i18n="nav_book_now">Book Now</a>
+  <a href="contact.html" class="nav-link" data-page="contact.html" data-i18n="nav_contact">Contact</a>
+  <div class="lang-picker mobile-lang-picker" style="margin-top:8px;"></div>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <span style="color: rgba(255,255,255,0.7)">Contact Us</span>
+    </div>
+    <h1 class="reveal" data-i18n="contact_hero_title">Get In Touch</h1>
+    <p class="reveal" data-i18n="contact_hero_subtitle">We're available 24 hours a day, 7 days a week. Reach out anytime — we'd love to help.</p>
+  </div>
+</section>
+
+<!-- ===== CONTACT MAIN ===== -->
+<section class="section-padding">
+  <div class="container">
+    <div class="contact-grid">
+
+      <!-- Info Side -->
+      <div>
+        <div class="contact-info-cards">
+          <div class="contact-card reveal reveal-delay-1">
+            <div class="contact-card-icon">📞</div>
+            <div class="contact-card-text">
+              <h4>Phone</h4>
+              <p><a href="tel:+18005553252">+1 (800) 555-CLEAN</a></p>
+              <p style="font-size:0.82rem; margin-top:4px; color: var(--gray-mid);">Available 24/7 for calls & texts</p>
+            </div>
+          </div>
+
+          <div class="contact-card reveal reveal-delay-2">
+            <div class="contact-card-icon">✉️</div>
+            <div class="contact-card-text">
+              <h4>Email</h4>
+              <p><a href="mailto:hello@homelinescleaning.com">hello@homelinescleaning.com</a></p>
+              <p style="font-size:0.82rem; margin-top:4px; color: var(--gray-mid);">We reply within 1 hour</p>
+            </div>
+          </div>
+
+          <div class="contact-card reveal reveal-delay-3">
+            <div class="contact-card-icon">📍</div>
+            <div class="contact-card-text">
+              <h4>Service Areas</h4>
+              <p>New York, NY · Chicago, IL<br>Los Angeles, CA · Miami, FL</p>
+            </div>
+          </div>
+
+          <div class="contact-card reveal reveal-delay-4">
+            <div class="contact-card-icon">💬</div>
+            <div class="contact-card-text">
+              <h4>Live Chat</h4>
+              <p>Chat with us directly on our website</p>
+              <p style="font-size:0.82rem; margin-top:4px; color: var(--gray-mid);">Average response time: under 2 min</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-hours reveal" style="margin-top:24px">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px">
+            <div class="online-dot"></div>
+            <h4 style="color:var(--white); margin:0">We Are Open 24/7</h4>
+          </div>
+          <div class="hours-row">
+            <span class="day">Monday – Friday</span>
+            <span class="time">24 Hours</span>
+          </div>
+          <div class="hours-row">
+            <span class="day">Saturday</span>
+            <span class="time">24 Hours</span>
+          </div>
+          <div class="hours-row">
+            <span class="day">Sunday</span>
+            <span class="time">24 Hours</span>
+          </div>
+          <div class="hours-row">
+            <span class="day">Public Holidays</span>
+            <span class="time">24 Hours</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Side -->
+      <div class="contact-form-wrap reveal-right">
+        <h3 data-i18n="contact_form_title">Send Us a Message</h3>
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="contactFirstName" data-i18n="contact_name">First Name *</label>
+              <input type="text" id="contactFirstName" class="form-input" placeholder="John" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contactLastName">Last Name *</label>
+              <input type="text" id="contactLastName" class="form-input" placeholder="Smith" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="contactEmail" data-i18n="contact_email">Email Address *</label>
+              <input type="email" id="contactEmail" class="form-input" placeholder="john@email.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contactPhone" data-i18n="contact_phone">Phone Number</label>
+              <input type="tel" id="contactPhone" class="form-input" placeholder="+1 (555) 000-0000" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contactService" data-i18n="contact_service">Service of Interest</label>
+            <select id="contactService" class="form-select">
+              <option value="" data-i18n="contact_service_ph">— Select a service —</option>
+              <option data-i18n="svc1_name">Standard Cleaning</option>
+              <option data-i18n="svc2_name">Deep Cleaning</option>
+              <option>Move In / Out Cleaning</option>
+              <option data-i18n="svc4_name">Office Cleaning</option>
+              <option data-i18n="svc5_name">Window Cleaning</option>
+              <option data-i18n="svc6_name">Sofa/Mattress Cleaning</option>
+              <option>Other / General Inquiry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contactMessage" data-i18n="contact_message">Message *</label>
+            <textarea id="contactMessage" class="form-input" data-i18n-ph="contact_message_ph" placeholder="Tell us about your cleaning needs, property size, preferred timing, or any special requests..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg form-submit" data-i18n="contact_submit">Send Message →</button>
+          <div class="form-success" id="formSuccess">
+            ✅ Your message has been sent! We'll get back to you within 1 hour.
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Map Placeholder -->
+    <div class="map-wrap reveal">
+      <div class="map-pin">
+        <span class="map-pin-icon">📍</span>
+        <p style="color: rgba(255,255,255,0.85); font-weight: 600; font-size: 1.1rem;">Serving New York · Chicago · Los Angeles · Miami</p>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 6px;">And expanding to more cities soon!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section-padding bg-light">
+  <div class="container" style="max-width: 800px">
+    <h2 class="section-title reveal" data-i18n="contact_faq_title">Frequently Asked Questions</h2>
+    <p class="section-subtitle reveal">Got questions? We've got answers.</p>
+
+    <div id="faqList" style="display:flex; flex-direction:column; gap: 12px;"></div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-banner">
+  <div class="container">
+    <h2 class="reveal" data-i18n="cta_title">Ready to Book?</h2>
+    <p class="reveal" data-i18n="cta_desc">Skip the wait — book your cleaning online in under 3 minutes.</p>
+    <div class="cta-buttons reveal">
+      <a href="booking.html" class="btn btn-primary btn-lg" data-i18n="cta_btn1">Book Online Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg width="44" height="35" viewBox="0 0 100 78" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="12,38 50,8 88,38" stroke="#4db6e8" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="35" x2="16" y2="70" stroke="#4db6e8" stroke-width="7" stroke-linecap="round"/>
+            <line x1="84" y1="35" x2="84" y2="70" stroke="#4db6e8" stroke-width="7" stroke-linecap="round"/>
+            <polyline points="28,38 50,20 72,38" stroke="#7dcef5" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 32 70 Q 32 50 50 50 Q 68 50 68 70" stroke="#7dcef5" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div class="footer-logo-text">
+            <span>Homelines</span>
+            <span>Cleaning</span>
+          </div>
+        </div>
+        <p class="footer-desc" data-i18n="footer_desc">Professional cleaning services available 24 hours a day, 7 days a week. Your satisfaction is our guarantee.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn" aria-label="Facebook">f</a>
+          <a href="#" class="social-btn" aria-label="Instagram">in</a>
+          <a href="#" class="social-btn" aria-label="Twitter">tw</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_services">Services</h4>
+        <ul class="footer-links">
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl1">→ Standard Cleaning</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl2">→ Deep Cleaning</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl3">→ Move In/Out</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl4">→ Office Cleaning</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl5">→ Window Cleaning</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_fl6">→ Sofa/Mattress Cleaning</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_company">Company</h4>
+        <ul class="footer-links">
+          <li><a href="index.html" class="footer-link" data-i18n="footer_cl1">→ Home</a></li>
+          <li><a href="booking.html" class="footer-link" data-i18n="footer_cl2">→ Book a Clean</a></li>
+          <li><a href="contact.html" class="footer-link" data-i18n="footer_cl3">→ Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">📞</span>
+          <span>+1 (800) 555-CLEAN</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">✉️</span>
+          <span>hello@homelinescleaning.com</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">🕐</span>
+          <span>Open 24/7 — Always Available</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 Homelines Cleaning. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#" class="footer-bottom-link">Privacy Policy</a>
+        <a href="#" class="footer-bottom-link">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/i18n.js?v=1"></script>
+<script src="js/main.js?v=3"></script>
+<script>
+  /* FAQ Accordion */
+  const faqs = [
+    { q: 'How do I book a cleaning?', a: 'Simply click "Book a Clean" and follow our 4-step process: enter your contact info, choose a service, pick a date and time, and confirm. It takes less than 3 minutes!' },
+    { q: 'Are you really available 24/7?', a: 'Yes! We offer cleaning services around the clock, including weekends and public holidays. Just pick any time slot that works for you when booking.' },
+    { q: 'Do I need to provide cleaning supplies?', a: 'No — our cleaners bring all professional equipment and eco-friendly products. Just let us know if you have any specific product preferences.' },
+    { q: 'Are your cleaners insured and background-checked?', a: 'Absolutely. Every member of our team is fully vetted, background-checked, and insured. Your safety and peace of mind are our top priority.' },
+    { q: 'What is your cancellation policy?', a: 'You can cancel or reschedule for free up to 24 hours before your appointment. Cancellations within 24 hours may incur a small fee.' },
+    { q: 'What areas do you serve?', a: 'We currently serve New York, Chicago, Los Angeles, and Miami — with more cities being added regularly. Contact us to confirm availability in your area.' },
+  ];
+
+  const faqList = document.getElementById('faqList');
+  if (faqList) {
+    faqs.forEach((item, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'reveal';
+      wrap.style.cssText = `background: var(--white); border: 1px solid var(--gray); border-radius: var(--radius); overflow: hidden; transition: var(--transition);`;
+      wrap.setAttribute(`reveal-delay-${(i % 3) + 1}`, '');
+
+      const btn = document.createElement('button');
+      btn.style.cssText = `width:100%; display:flex; justify-content:space-between; align-items:center; padding: 20px 24px; background:none; border:none; cursor:pointer; font-weight:600; font-size:0.97rem; color:var(--navy); text-align:left; gap:12px;`;
+      btn.innerHTML = `<span>${item.q}</span><span class="faq-icon" style="font-size:1.2rem; transition: transform 0.3s ease; flex-shrink:0">+</span>`;
+
+      const answer = document.createElement('div');
+      answer.style.cssText = `max-height:0; overflow:hidden; transition: max-height 0.35s ease, padding 0.35s ease; padding: 0 24px;`;
+      const p = document.createElement('p');
+      p.style.cssText = `padding-bottom: 20px; font-size: 0.93rem; color: var(--gray-dark);`;
+      p.textContent = item.a;
+      answer.appendChild(p);
+
+      let open = false;
+      btn.addEventListener('click', () => {
+        open = !open;
+        answer.style.maxHeight = open ? answer.scrollHeight + 40 + 'px' : '0';
+        btn.querySelector('.faq-icon').style.transform = open ? 'rotate(45deg)' : 'rotate(0)';
+        wrap.style.borderColor = open ? 'var(--blue)' : 'var(--gray)';
+        wrap.style.boxShadow = open ? 'var(--shadow-sm)' : 'none';
+      });
+
+      wrap.appendChild(btn);
+      wrap.appendChild(answer);
+      faqList.appendChild(wrap);
+    });
+  }
+</script>
+</body>
+</html>
