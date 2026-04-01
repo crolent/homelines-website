@@ -442,8 +442,11 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                      type:         'admin_notification',
                       email:        bookingData.email,
                       first_name:   bookingData.first_name,
+                      last_name:    bookingData.last_name,
+                      phone:        bookingData.phone,
                       ref_code:     bookingData.ref_code,
                       service:      bookingData.service,
                       booking_date: bookingData.booking_date,
@@ -456,9 +459,9 @@
                 );
                 const emailResult = await emailRes.json();
                 if (emailRes.ok) {
-                  console.log('Confirmation email sent:', emailResult.id);
+                  console.log('Admin notification sent:', emailResult.id);
                 } else {
-                  console.error('Email send failed:', emailResult);
+                  console.error('Admin notification failed:', emailResult);
                 }
               } catch (emailErr) {
                 console.error('Email function error:', emailErr);
@@ -468,17 +471,6 @@
             console.error('Booking insert exception:', e);
           }
 
-          /* Step C: send magic-link so user can manage their booking later */
-          if (u.email) {
-            try {
-              await window.supabase.auth.signInWithOtp({
-                email: u.email,
-                options: { shouldCreateUser: true, emailRedirectTo: 'https://homelinescleaning.com/booking.html' }
-              });
-            } catch (otpErr) {
-              console.error('OTP error:', otpErr);
-            }
-          }
         }
 
         document.getElementById('bookingConfirmId').textContent = refCode;

@@ -412,6 +412,28 @@ serve(async (req: Request) => {
 </body>
 </html>`;
 
+    if (type === 'admin_notification') {
+      const adminRes = await sendEmail({
+        from: FROM_EMAIL,
+        to: [ADMIN_TO_EMAIL],
+        reply_to: email,
+        subject: `🔔 New Booking – ${ref_code} | ${service}`,
+        html: adminHtml,
+      });
+      const adminResult = await adminRes.json();
+      if (!adminRes.ok) {
+        console.error('Resend admin_notification error:', adminResult);
+        return new Response(JSON.stringify({ error: adminResult }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, id: adminResult.id }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
     if (type === 'confirmation') {
       const customerRes = await sendEmail({
         from: FROM_EMAIL,
