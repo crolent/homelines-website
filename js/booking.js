@@ -361,15 +361,19 @@
           : 0;
 
         const bookingData = {
-          ref_code: refCode,
-          name: `${u.name}${u.surname ? ' ' + u.surname : ''}`,
-          email: u.email || '',
-          phone: u.phone || '',
-          address: u.address ? `${u.address}${u.apt ? ' ' + u.apt : ''}, ${u.city}${u.zip ? ' ' + u.zip : ''}` : '',
-          service: serviceNames,
+          ref_code:     refCode,
+          first_name:   u.name    || '',
+          last_name:    u.surname || '',
+          email:        u.email   || '',
+          phone:        u.phone   || '',
+          address:      u.address ? `${u.address}${u.apt ? ' ' + u.apt : ''}` : '',
+          city:         u.city    || '',
+          zip:          u.zip     || '',
+          service:      serviceNames,
+          price:        totalPrice,
           booking_date: state.date ? state.date.toISOString().split('T')[0] : null,
           booking_time: state.time || '',
-          price: totalPrice
+          status:       'pending'
         };
 
         if (window.supabase) {
@@ -382,6 +386,7 @@
           }
 
           /* Step B: always attempt the insert */
+          console.log('Inserting booking:', JSON.stringify(bookingData, null, 2));
           try {
             const { data: insertData, error } = await window.supabase
               .from('bookings')
