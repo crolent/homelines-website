@@ -93,6 +93,17 @@
       });
     });
 
+    document.querySelectorAll('.btn-google').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.supabase) {
+          window.supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.href }
+          });
+        }
+      });
+    });
+
     /* Guest form submit */
     const guestForm = document.getElementById('guestForm');
     if (guestForm) {
@@ -384,25 +395,53 @@
   function initStep4() {
     const confirmBtn = document.getElementById('confirmBooking');
     if (confirmBtn) {
-      confirmBtn.addEventListener('click', () => {
+      confirmBtn.addEventListener('click', async () => {
         confirmBtn.textContent = T('bk_processing') || 'Processing...';
         confirmBtn.disabled = true;
-        setTimeout(() => {
-          const bookingId = 'HL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-          document.getElementById('bookingConfirmId').textContent = bookingId;
-          document.getElementById('step4').style.display = 'none';
-          const success = document.getElementById('stepSuccess');
-          if (success) {
-            success.style.display = 'block';
-            success.style.animation = 'fade-in-up 0.5s ease both';
+
+        const refCode = 'HL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        const u = state.user;
+        const serviceNames = state.services.map(s => T(s.nameKey) || s.nameKey).join(', ') || '';
+        const totalPrice = state.services.length
+          ? state.services.reduce((sum, s) => sum + parseInt(s.price.replace('$', '')), 0)
+          : 0;
+
+        const bookingData = {
+          ref_code: refCode,
+          name: `${u.name}${u.surname ? ' ' + u.surname : ''}`,
+          email: u.email || '',
+          phone: u.phone || '',
+          address: u.address ? `${u.address}${u.apt ? ' ' + u.apt : ''}, ${u.city}${u.zip ? ' ' + u.zip : ''}` : '',
+          service: serviceNames,
+          date: state.date ? state.date.toISOString().split('T')[0] : null,
+          time: state.time || '',
+          price: totalPrice
+        };
+
+        if (window.supabase) {
+          try {
+            const { data: { user } } = await window.supabase.auth.getUser();
+            if (user) bookingData.user_id = user.id;
+            const { error } = await window.supabase.from('bookings').insert([bookingData]);
+            if (error) console.error('Booking save error:', error);
+          } catch (e) {
+            console.error('Supabase error:', e);
           }
-          for (let i = 1; i <= 4; i++) {
-            const circle = document.getElementById(`progressStep${i}`);
-            if (circle) circle.classList.add('done');
-          }
-          document.querySelectorAll('.progress-line').forEach(l => l.classList.add('done'));
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1800);
+        }
+
+        document.getElementById('bookingConfirmId').textContent = refCode;
+        document.getElementById('step4').style.display = 'none';
+        const success = document.getElementById('stepSuccess');
+        if (success) {
+          success.style.display = 'block';
+          success.style.animation = 'fade-in-up 0.5s ease both';
+        }
+        for (let i = 1; i <= 4; i++) {
+          const circle = document.getElementById(`progressStep${i}`);
+          if (circle) circle.classList.add('done');
+        }
+        document.querySelectorAll('.progress-line').forEach(l => l.classList.add('done'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
 

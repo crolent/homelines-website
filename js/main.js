@@ -139,28 +139,49 @@
   const counters = document.querySelectorAll('[data-count]');
   if (!counters.length) return;
 
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = parseInt(el.dataset.count);
-        const duration = 1800;
-        const step = target / (duration / 16);
-        let current = 0;
-        const timer = setInterval(() => {
-          current += step;
-          if (current >= target) {
-            current = target;
-            clearInterval(timer);
-          }
-          el.textContent = Math.floor(current).toLocaleString();
-        }, 16);
-        counterObserver.unobserve(el);
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.count);
+    const duration = 1800;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
       }
-    });
-  }, { threshold: 0.5 });
+      el.textContent = Math.floor(current).toLocaleString();
+    }, 16);
+  }
 
-  counters.forEach(el => counterObserver.observe(el));
+  function startCounters() {
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(el => counterObserver.observe(el));
+  }
+
+  const homesEl = document.querySelector('.hero-stat:first-child [data-count]');
+  if (homesEl && window.supabase) {
+    let started = false;
+    const fallback = setTimeout(() => { if (!started) { started = true; startCounters(); } }, 2000);
+    window.supabase
+      .from('bookings')
+      .select('*', { count: 'exact', head: true })
+      .then(({ count }) => {
+        clearTimeout(fallback);
+        if (typeof count === 'number' && count > 0) homesEl.dataset.count = count;
+        if (!started) { started = true; startCounters(); }
+      })
+      .catch(() => { clearTimeout(fallback); if (!started) { started = true; startCounters(); } });
+  } else {
+    startCounters();
+  }
 })();
 
 /* ===== CONTACT FORM ===== */
@@ -168,20 +189,51 @@
   const form = document.getElementById('contactForm');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('.form-submit');
-    const success = document.getElementById('formSuccess');
+    const successEl = document.getElementById('formSuccess');
+    const originalText = btn.textContent;
     btn.textContent = 'Sending...';
     btn.disabled = true;
 
-    setTimeout(() => {
-      form.reset();
-      btn.textContent = 'Send Message';
+    const data = {
+      first_name: document.getElementById('contactFirstName')?.value.trim() || '',
+      last_name:  document.getElementById('contactLastName')?.value.trim()  || '',
+      email:      document.getElementById('contactEmail')?.value.trim()     || '',
+      phone:      document.getElementById('contactPhone')?.value.trim()     || '',
+      service:    document.getElementById('contactService')?.value          || '',
+      message:    document.getElementById('contactMessage')?.value.trim()   || ''
+    };
+
+    function showMsg(text, isError) {
+      btn.textContent = originalText;
       btn.disabled = false;
-      if (success) { success.classList.add('show'); }
-      setTimeout(() => { if (success) success.classList.remove('show'); }, 5000);
-    }, 1400);
+      if (!successEl) return;
+      successEl.textContent = text;
+      if (isError) {
+        successEl.style.color = '#dc2626';
+        successEl.style.background = 'rgba(220,38,38,0.08)';
+        successEl.style.borderColor = 'rgba(220,38,38,0.25)';
+      } else {
+        successEl.style.color = '';
+        successEl.style.background = '';
+        successEl.style.borderColor = '';
+      }
+      successEl.classList.add('show');
+      setTimeout(() => successEl.classList.remove('show'), 5000);
+    }
+
+    try {
+      if (!window.supabase) throw new Error('Supabase not loaded');
+      const { error } = await window.supabase.from('contact_messages').insert([data]);
+      if (error) throw error;
+      form.reset();
+      showMsg('\u2705 Your message has been sent!', false);
+    } catch (err) {
+      console.error('Contact form error:', err);
+      showMsg('\u274c Something went wrong. Please try again.', true);
+    }
   });
 })();
 
