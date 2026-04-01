@@ -1878,53 +1878,64 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   .svc-modal-meta { gap: 8px; }
   .svc-modal-price, .svc-modal-duration { font-size: 0.78rem; padding: 3px 10px; }
 
-  /* Body: flex column, gap:12px between all sections, CTA pinned bottom */
+  /* Body: flex column, 10px gaps, fits without scroll */
   .svc-modal-body {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: 12px 16px 16px;
-    gap: 12px;
+    padding: 10px 14px 14px;
+    gap: 10px;
   }
 
-  /* Full description, no clamp, no extra margin */
+  /* Description — full text, smaller font */
   .svc-modal-desc {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.45;
     flex-shrink: 0;
   }
 
-  /* Section label: only bottom margin */
-  .svc-modal-section-title { margin: 0 0 8px; flex-shrink: 0; }
+  /* Section label */
+  .svc-modal-section-title {
+    font-size: 0.7rem;
+    margin: 0 0 6px;
+    flex-shrink: 0;
+  }
 
-  /* All items in 2-column grid, tight gap */
+  /* All 8 items, 2-column grid */
   .svc-modal-list {
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
     margin: 0;
     flex-shrink: 0;
   }
-  .svc-modal-list li { font-size: 0.8125rem; }
+  .svc-modal-list li { font-size: 0.75rem; }
   .svc-modal-list li:nth-child(n+5) { display: flex; }
 
-  /* Expect: italic gray one-liner, no box/header, tight top margin */
+  /* Expect box — same blue box as desktop, tighter padding */
   .svc-modal-expect {
     display: block;
-    background: none;
-    border: none;
-    padding: 0;
+    background: #f0f7ff;
+    border-left: 3px solid #4db6e8;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    color: #374151;
+    line-height: 1.45;
     margin: 0;
-    font-size: 0.78rem;
-    font-style: italic;
-    color: #9ca3af;
-    line-height: 1.4;
     flex-shrink: 0;
   }
-  .svc-modal-expect strong { display: none; }
+  .svc-modal-expect strong {
+    display: block;
+    color: #1a2b4a;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 3px;
+  }
 
-  /* CTA: full width, 44px, pushed to bottom via margin-top auto */
+  /* CTA: full width, 44px, pushed to bottom */
   .svc-modal-cta {
     display: flex;
     align-items: center;
@@ -1935,7 +1946,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     padding: 0 16px;
     margin-top: auto;
     flex-shrink: 0;
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
   }
 }
 
