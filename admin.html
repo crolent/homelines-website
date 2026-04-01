@@ -353,6 +353,73 @@
       margin: 0 auto 12px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- Filter Bar ---- */
+    .filter-bar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    @media (min-width: 600px) { .filter-bar { padding: 12px 22px; } }
+    .filter-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gray);
+      white-space: nowrap;
+    }
+    .date-input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 0.85rem;
+      outline: none;
+      color: #1e293b;
+      background: #fff;
+      transition: border-color .2s;
+      min-height: 36px;
+    }
+    .date-input:focus { border-color: var(--blue); }
+    .filter-btn {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+      min-height: 36px;
+    }
+    .filter-btn:hover { background: #2d5a8e; }
+    .clear-btn {
+      background: #fff;
+      color: var(--gray);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s;
+      min-height: 36px;
+    }
+    .clear-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .filter-active-badge {
+      display: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
   </style>
 </head>
 <body>
@@ -427,6 +494,17 @@
           <button class="refresh-btn" onclick="loadBookings()">↺ Refresh</button>
         </div>
       </div>
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <span class="filter-label">📅 Date Range:</span>
+        <input type="date" id="filterFrom" class="date-input" title="From date" />
+        <span class="filter-label" style="color:#94a3b8;">→</span>
+        <input type="date" id="filterTo" class="date-input" title="To date" />
+        <button class="filter-btn" onclick="applyDateFilter()">Filter</button>
+        <button class="clear-btn" onclick="clearDateFilter()">✕ Clear</button>
+        <span class="filter-active-badge" id="filterBadge">Filtered</span>
+      </div>
+
       <div class="table-wrap">
         <div id="tableContainer">
           <div class="state-msg"><div class="spinner"></div>Loading bookings…</div>
@@ -442,6 +520,8 @@
   const CORRECT_PWD = 'homelines2026';
 
   let allBookings = [];
+  let dateFrom = null;
+  let dateTo   = null;
 
   /* ===== Auth ===== */
   function handleLogin(e) {
@@ -487,8 +567,8 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { bookings } = await res.json();
       allBookings = bookings || [];
-      updateCards(allBookings);
-      renderTable(allBookings);
+      updateCards(getFiltered(), allBookings);
+      renderTable(getFiltered());
       document.getElementById('topbarMeta').textContent =
         'Updated ' + new Date().toLocaleTimeString();
     } catch (e) {
@@ -498,15 +578,17 @@
   }
 
   /* ===== Cards ===== */
-  function updateCards(data) {
+  /* filtered = currently displayed set; all = unfiltered full set */
+  function updateCards(filtered, all) {
+    all = all || filtered;
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('cardTotal').textContent   = data.length;
+    document.getElementById('cardTotal').textContent   = filtered.length;
     document.getElementById('cardRevenue').textContent =
-      '$' + data.reduce((s, b) => s + (b.price || 0), 0).toLocaleString();
+      '$' + filtered.reduce((s, b) => s + (b.price || 0), 0).toLocaleString();
     document.getElementById('cardToday').textContent   =
-      data.filter(b => (b.created_at || '').startsWith(today)).length;
+      all.filter(b => (b.created_at || '').startsWith(today)).length;
     document.getElementById('cardPending').textContent =
-      data.filter(b => (b.status || 'pending') === 'pending').length;
+      all.filter(b => (b.status || 'pending') === 'pending').length;
   }
 
   /* ===== Render Table ===== */
@@ -581,7 +663,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const booking = allBookings.find(b => b.id === id);
       if (booking) booking.status = status;
-      updateCards(allBookings);
+      updateCards(getFiltered(), allBookings);
       if (badge) {
         badge.textContent = status;
         badge.className   = 'badge ' + (status === 'confirmed' ? 'badge-confirmed'
@@ -594,14 +676,48 @@
     }
   }
 
+  /* ===== Date filter helpers ===== */
+  function applyDateFilter() {
+    dateFrom = document.getElementById('filterFrom').value || null;
+    dateTo   = document.getElementById('filterTo').value   || null;
+    const badge = document.getElementById('filterBadge');
+    badge.style.display = (dateFrom || dateTo) ? 'inline-block' : 'none';
+    badge.textContent = dateFrom && dateTo
+      ? `${dateFrom} → ${dateTo}`
+      : dateFrom ? `From ${dateFrom}` : `To ${dateTo}`;
+    const filtered = getFiltered();
+    updateCards(filtered, allBookings);
+    renderTable(filtered);
+  }
+
+  function clearDateFilter() {
+    dateFrom = null;
+    dateTo   = null;
+    document.getElementById('filterFrom').value = '';
+    document.getElementById('filterTo').value   = '';
+    document.getElementById('filterBadge').style.display = 'none';
+    const filtered = getFiltered();
+    updateCards(filtered, allBookings);
+    renderTable(filtered);
+  }
+
+  /* Returns bookings matching both date range AND search query */
+  function getFiltered() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    return allBookings.filter(b => {
+      if (dateFrom && b.booking_date && b.booking_date < dateFrom) return false;
+      if (dateTo   && b.booking_date && b.booking_date > dateTo)   return false;
+      if (q && ![b.ref_code, b.first_name, b.last_name, b.email, b.service, b.phone]
+        .join(' ').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+
   /* ===== Search ===== */
   function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    if (!q) { renderTable(allBookings); return; }
-    renderTable(allBookings.filter(b =>
-      [b.ref_code, b.first_name, b.last_name, b.email, b.service, b.phone]
-        .join(' ').toLowerCase().includes(q)
-    ));
+    const filtered = getFiltered();
+    updateCards(filtered, allBookings);
+    renderTable(filtered);
   }
 
   /* ===== Util ===== */
