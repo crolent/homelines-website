@@ -84,7 +84,7 @@
     <div class="booking-progress">
       <div class="progress-step" id="progressStep1">
         <div class="progress-step-circle">1</div>
-        <div class="progress-step-label" data-i18n="step_label1">Your Info</div>
+        <div class="progress-step-label" data-i18n="step_label1">Email</div>
       </div>
       <div class="progress-line" id="progressLine1"></div>
       <div class="progress-step" id="progressStep2">
@@ -99,24 +99,39 @@
       <div class="progress-line" id="progressLine3"></div>
       <div class="progress-step" id="progressStep4">
         <div class="progress-step-circle">4</div>
-        <div class="progress-step-label" data-i18n="step_label4">Confirm</div>
+        <div class="progress-step-label" data-i18n="step_label4">Details</div>
+      </div>
+      <div class="progress-line" id="progressLine4"></div>
+      <div class="progress-step" id="progressStep5">
+        <div class="progress-step-circle">5</div>
+        <div class="progress-step-label" data-i18n="step_label5">Confirm</div>
       </div>
     </div>
 
-    <!-- ===== STEP 1: YOUR INFO ===== -->
+    <!-- ===== STEP 1: EMAIL ===== -->
     <div class="booking-card" id="step1">
-      <h2 data-i18n="bk_s1_title">Your Contact Details</h2>
-      <p class="step-desc" data-i18n="bk_s1_desc">Please log in with your details or continue as a guest. We'll use this information to confirm your booking.</p>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-panel="panelGuest" data-i18n="auth_guest_tab">Continue as Guest</button>
-        <button class="auth-tab" data-panel="panelLogin" data-i18n="auth_returning_tab">Login</button>
-        <button class="auth-tab" data-panel="panelSignIn" data-i18n="auth_signin_tab">Sign In</button>
+      <div style="text-align:center; margin-bottom: 28px;">
+        <div style="font-size:2.8rem; margin-bottom:10px;">📬</div>
+        <h2 data-i18n="bk_s1_title">Get Started</h2>
+        <p class="step-desc" style="margin-top:8px;" data-i18n="bk_s1_desc">Enter your email to book your cleaning. No account needed.</p>
       </div>
+      <form id="emailForm" novalidate>
+        <div class="form-group">
+          <input type="email" id="bookingEmail" class="form-input" style="font-size:1.05rem; padding:16px 18px;" placeholder="your@email.com" autocomplete="email" />
+          <span class="error-msg" id="bookingEmailErr"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%; justify-content:center; margin-top:4px;" data-i18n="bk_email_continue">Continue →</button>
+        <div class="or-divider"><span data-i18n="bk_or">or</span></div>
+        <button type="button" class="btn-google" id="googleAuthBtn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.64 9.2a10.34 10.34 0 0 0-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.013 17.64 11.706 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259a5.4 5.4 0 0 1-3.048.861c-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.707a5.41 5.41 0 0 1-.282-1.707c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.826.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.453 3.44 1.345l2.582-2.58A8.964 8.964 0 0 0 9 0 8.997 8.997 0 0 0 .957 4.961L3.964 7.293A5.364 5.364 0 0 1 9 3.58z" fill="#EA4335"/></svg>
+          <span data-i18n="bk_google_continue">Continue with Google</span>
+        </button>
+      </form>
+      <p style="text-align:center; font-size:0.82rem; color:var(--gray-mid); margin-top:24px;" data-i18n="bk_notice">🔒 Your information is secure and will only be used to confirm and manage your booking.</p>
+    </div>
 
-      <!-- Guest Panel -->
-      <div class="auth-panel active" id="panelGuest">
-        <form id="guestForm" novalidate>
+    <!-- PLACEHOLDER to satisfy old edit tool (removed guest/login/signin forms) -->
+    <div style="display:none" id="panelGuest"><form id="guestForm" novalidate>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="guestName" data-i18n="bk_fname">First Name *</label>
@@ -166,130 +181,6 @@
           </div>
           <div style="margin-top: 4px; padding: 14px 16px; background: var(--blue-pale); border-radius: var(--radius); border: 1px solid rgba(77,182,232,0.3);">
             <p style="font-size: 0.85rem; color: var(--navy);" data-i18n="bk_notice">🔒 Your information is secure and will only be used to confirm and manage your booking.</p>
-          </div>
-          <div class="booking-nav" style="border-top: none; padding-top: 20px; justify-content: flex-end;">
-            <button type="submit" class="btn btn-primary btn-lg" data-i18n="bk_continue1">Continue to Services →</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Login Panel -->
-      <div class="auth-panel" id="panelLogin">
-        <form id="loginForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="loginEmail" data-i18n="bk_email_lbl">Email Address *</label>
-            <input type="email" id="loginEmail" class="form-input" placeholder="john@email.com" autocomplete="email" />
-            <span class="error-msg" id="loginEmailErr"></span>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="loginPassword" data-i18n="bk_password">Password *</label>
-            <input type="password" id="loginPassword" class="form-input" data-i18n-ph="bk_ph_password" placeholder="••••••••" autocomplete="current-password" />
-            <span class="error-msg" id="loginPasswordErr"></span>
-          </div>
-          <div class="or-divider"><span data-i18n="bk_or">or</span></div>
-          <button type="button" class="btn-google">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.64 9.2a10.34 10.34 0 0 0-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.013 17.64 11.706 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259a5.4 5.4 0 0 1-3.048.861c-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.707a5.41 5.41 0 0 1-.282-1.707c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.826.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.453 3.44 1.345l2.582-2.58A8.964 8.964 0 0 0 9 0 8.997 8.997 0 0 0 .957 4.961L3.964 7.293A5.364 5.364 0 0 1 9 3.58z" fill="#EA4335"/></svg>
-            <span data-i18n="bk_login_google">Login with Google</span>
-          </button>
-          <p class="address-section-label" data-i18n="bk_booking_address">📍 Booking Address</p>
-          <div class="form-row" style="grid-template-columns: 2fr 1fr;">
-            <div class="form-group">
-              <label class="form-label" for="loginAddress" data-i18n="bk_address">Street Address *</label>
-              <input type="text" id="loginAddress" class="form-input" data-i18n-ph="bk_ph_address" placeholder="123 Main St" autocomplete="street-address" />
-              <span class="error-msg" id="loginAddressErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="loginApt" data-i18n="bk_apt">Apt / Unit #</label>
-              <input type="text" id="loginApt" class="form-input" data-i18n-ph="bk_ph_apt" placeholder="Apt 4B" autocomplete="address-line2" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="loginCity" data-i18n="bk_city">City *</label>
-              <input type="text" id="loginCity" class="form-input" data-i18n-ph="bk_ph_city" placeholder="New York" autocomplete="address-level2" />
-              <span class="error-msg" id="loginCityErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="loginZip" data-i18n="bk_zip">ZIP / Postal Code *</label>
-              <input type="text" id="loginZip" class="form-input" data-i18n-ph="bk_ph_zip" placeholder="10001" autocomplete="postal-code" />
-              <span class="error-msg" id="loginZipErr"></span>
-            </div>
-          </div>
-          <div style="margin-top: 4px; padding: 14px 16px; background: var(--blue-pale); border-radius: var(--radius); border: 1px solid rgba(77,182,232,0.3);">
-            <p style="font-size: 0.85rem; color: var(--navy);" data-i18n="bk_notice">🔒 Your information is secure and will only be used to confirm and manage your booking.</p>
-          </div>
-          <div class="booking-nav" style="border-top: none; padding-top: 20px; justify-content: flex-end;">
-            <button type="submit" class="btn btn-primary btn-lg" data-i18n="bk_continue1">Continue to Services →</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Sign In Panel -->
-      <div class="auth-panel" id="panelSignIn">
-        <form id="signInForm" novalidate>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="siName" data-i18n="bk_fname">First Name *</label>
-              <input type="text" id="siName" class="form-input" data-i18n-ph="bk_ph_fname" placeholder="John" autocomplete="given-name" />
-              <span class="error-msg" id="siNameErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="siSurname" data-i18n="bk_lname">Last Name *</label>
-              <input type="text" id="siSurname" class="form-input" data-i18n-ph="bk_ph_lname" placeholder="Smith" autocomplete="family-name" />
-              <span class="error-msg" id="siSurnameErr"></span>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="siEmail" data-i18n="bk_email_lbl">Email Address *</label>
-              <input type="email" id="siEmail" class="form-input" placeholder="john@email.com" autocomplete="email" />
-              <span class="error-msg" id="siEmailErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="siPhone" data-i18n="bk_phone_lbl">Phone Number *</label>
-              <input type="tel" id="siPhone" class="form-input" placeholder="+1 (555) 000-0000" autocomplete="tel" />
-              <span class="error-msg" id="siPhoneErr"></span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="siPassword" data-i18n="bk_password">Password *</label>
-            <input type="password" id="siPassword" class="form-input" data-i18n-ph="bk_ph_password" placeholder="••••••••" autocomplete="new-password" />
-            <span class="error-msg" id="siPasswordErr"></span>
-          </div>
-          <div class="or-divider"><span data-i18n="bk_or">or</span></div>
-          <button type="button" class="btn-google">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.64 9.2a10.34 10.34 0 0 0-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.013 17.64 11.706 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259a5.4 5.4 0 0 1-3.048.861c-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.707a5.41 5.41 0 0 1-.282-1.707c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.826.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.453 3.44 1.345l2.582-2.58A8.964 8.964 0 0 0 9 0 8.997 8.997 0 0 0 .957 4.961L3.964 7.293A5.364 5.364 0 0 1 9 3.58z" fill="#EA4335"/></svg>
-            <span data-i18n="bk_signin_google">Sign In with Google</span>
-          </button>
-          <p class="address-section-label" data-i18n="bk_booking_address">📍 Booking Address</p>
-          <div class="form-row" style="grid-template-columns: 2fr 1fr;">
-            <div class="form-group">
-              <label class="form-label" for="siAddress" data-i18n="bk_address">Street Address *</label>
-              <input type="text" id="siAddress" class="form-input" data-i18n-ph="bk_ph_address" placeholder="123 Main St" autocomplete="street-address" />
-              <span class="error-msg" id="siAddressErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="siApt" data-i18n="bk_apt">Apt / Unit #</label>
-              <input type="text" id="siApt" class="form-input" data-i18n-ph="bk_ph_apt" placeholder="Apt 4B" autocomplete="address-line2" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="siCity" data-i18n="bk_city">City *</label>
-              <input type="text" id="siCity" class="form-input" data-i18n-ph="bk_ph_city" placeholder="New York" autocomplete="address-level2" />
-              <span class="error-msg" id="siCityErr"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="siZip" data-i18n="bk_zip">ZIP / Postal Code *</label>
-              <input type="text" id="siZip" class="form-input" data-i18n-ph="bk_ph_zip" placeholder="10001" autocomplete="postal-code" />
-              <span class="error-msg" id="siZipErr"></span>
-            </div>
-          </div>
-          <div style="margin-top: 4px; padding: 14px 16px; background: var(--blue-pale); border-radius: var(--radius); border: 1px solid rgba(77,182,232,0.3);">
-            <p style="font-size: 0.85rem; color: var(--navy);" data-i18n="bk_notice">🔒 Your information is secure and will only be used to confirm and manage your booking.</p>
-          </div>
-          <div class="booking-nav" style="border-top: none; padding-top: 20px; justify-content: flex-end;">
-            <button type="submit" class="btn btn-primary btn-lg" data-i18n="bk_continue1">Continue to Services →</button>
           </div>
         </form>
       </div>
@@ -351,14 +242,66 @@
 
       <div class="booking-nav">
         <button class="btn btn-outline" id="step3Back" style="color: var(--navy); border-color: var(--gray);" data-i18n="bk_back">← Back</button>
-        <button class="btn btn-primary btn-lg" id="step3Next" disabled data-i18n="bk_next3">Review Booking →</button>
+        <button class="btn btn-primary btn-lg" id="step3Next" disabled data-i18n="bk_next3">Your Details →</button>
       </div>
     </div>
 
-    <!-- ===== STEP 4: CONFIRM ===== -->
+    <!-- ===== STEP 4: YOUR DETAILS ===== -->
     <div class="booking-card" id="step4">
-      <h2 data-i18n="bk_s4_title">Confirm Your Booking</h2>
-      <p class="step-desc" data-i18n="bk_s4_desc">Please review your booking details below before confirming.</p>
+      <h2 data-i18n="bk_s4_title">Your Details</h2>
+      <p class="step-desc" data-i18n="bk_s4_desc">Tell us where to clean and how to reach you.</p>
+      <form id="detailsForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="detailsName" data-i18n="bk_fname">First Name *</label>
+            <input type="text" id="detailsName" class="form-input" placeholder="John" autocomplete="given-name" />
+            <span class="error-msg" id="detailsNameErr"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="detailsSurname" data-i18n="bk_lname">Last Name *</label>
+            <input type="text" id="detailsSurname" class="form-input" placeholder="Smith" autocomplete="family-name" />
+            <span class="error-msg" id="detailsSurnameErr"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="detailsPhone" data-i18n="bk_phone_lbl">Phone Number *</label>
+          <input type="tel" id="detailsPhone" class="form-input" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+          <span class="error-msg" id="detailsPhoneErr"></span>
+        </div>
+        <div class="form-row" style="grid-template-columns: 2fr 1fr;">
+          <div class="form-group">
+            <label class="form-label" for="detailsAddress" data-i18n="bk_address">Street Address *</label>
+            <input type="text" id="detailsAddress" class="form-input" placeholder="123 Main St" autocomplete="street-address" />
+            <span class="error-msg" id="detailsAddressErr"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="detailsApt" data-i18n="bk_apt">Apt / Unit #</label>
+            <input type="text" id="detailsApt" class="form-input" placeholder="Apt 4B" autocomplete="address-line2" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="detailsCity" data-i18n="bk_city">City *</label>
+            <input type="text" id="detailsCity" class="form-input" placeholder="New York" autocomplete="address-level2" />
+            <span class="error-msg" id="detailsCityErr"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="detailsZip" data-i18n="bk_zip">ZIP / Postal Code *</label>
+            <input type="text" id="detailsZip" class="form-input" placeholder="10001" autocomplete="postal-code" />
+            <span class="error-msg" id="detailsZipErr"></span>
+          </div>
+        </div>
+        <div class="booking-nav" style="border-top: none; padding-top: 20px;">
+          <button type="button" class="btn btn-outline" id="step4Back" style="color: var(--navy); border-color: var(--gray);" data-i18n="bk_back">← Back</button>
+          <button type="submit" class="btn btn-primary btn-lg" data-i18n="bk_next4">Review Booking →</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== STEP 5: CONFIRM ===== -->
+    <div class="booking-card" id="step5">
+      <h2 data-i18n="bk_s5_title">Confirm Your Booking</h2>
+      <p class="step-desc" data-i18n="bk_s5_desc">Please review your booking details below before confirming.</p>
 
       <div class="confirmation-summary">
         <div class="summary-row">
@@ -394,17 +337,17 @@
           <span class="value" id="sumDuration">—</span>
         </div>
         <div class="summary-row total">
-          <span class="label" style="font-weight: 700; color: var(--navy);">💳 <span data-i18n="sum_price">Estimated Price</span></span>
+          <span class="label" style="font-weight:700; color:var(--navy);">💳 <span data-i18n="sum_price">Estimated Price</span></span>
           <span class="value" id="sumPrice">—</span>
         </div>
       </div>
 
-      <div style="padding: 16px; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); border-radius: var(--radius); margin-bottom: 24px;">
-        <p style="font-size: 0.88rem; color: #16a34a; font-weight: 500;" data-i18n="bk_agree">✅ By confirming you agree to our Terms of Service. A confirmation will be sent to your email.</p>
+      <div style="padding:16px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:var(--radius); margin-bottom:24px;">
+        <p style="font-size:0.88rem; color:#16a34a; font-weight:500;" data-i18n="bk_agree">✅ By confirming you agree to our Terms of Service. A confirmation will be sent to your email.</p>
       </div>
 
       <div class="booking-nav">
-        <button class="btn btn-outline" id="step4Back" style="color: var(--navy); border-color: var(--gray);" data-i18n="bk_edit">← Edit Booking</button>
+        <button class="btn btn-outline" id="step5Back" style="color:var(--navy); border-color:var(--gray);" data-i18n="bk_edit">← Edit Booking</button>
         <button class="btn btn-primary btn-lg" id="confirmBooking" data-i18n="bk_confirm_btn">✓ Confirm Booking</button>
       </div>
     </div>

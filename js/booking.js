@@ -2,7 +2,7 @@
 (function () {
   const state = {
     step: 1,
-    totalSteps: 4,
+    totalSteps: 5,
     user: null,
     isGuest: true,
     services: [],
@@ -78,125 +78,30 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /* ---- Step 1: Auth ---- */
+  /* ---- Step 1: Email ---- */
   function initStep1() {
-    const tabs = document.querySelectorAll('.auth-tab');
-    const panels = document.querySelectorAll('.auth-panel');
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        const target = document.getElementById(tab.dataset.panel);
-        if (target) target.classList.add('active');
+    const emailForm = document.getElementById('emailForm');
+    if (emailForm) {
+      emailForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = (document.getElementById('bookingEmail')?.value || '').trim();
+        if (!validateEmail(email)) {
+          showError('bookingEmailErr', T('err_email') || 'Please enter a valid email address');
+          return;
+        }
+        state.user = { name: '', surname: '', phone: '', email, address: '', apt: '', city: '', zip: '' };
+        goToStep(2);
       });
-    });
+    }
 
-    document.querySelectorAll('.btn-google').forEach(btn => {
-      btn.addEventListener('click', () => {
+    const googleBtn = document.getElementById('googleAuthBtn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => {
         if (window.supabase) {
           window.supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: 'https://homelinescleaning.com/booking.html' }
           });
-        }
-      });
-    });
-
-    /* Guest form submit */
-    const guestForm = document.getElementById('guestForm');
-    if (guestForm) {
-      guestForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearErrors(guestForm);
-        let valid = true;
-
-        const name = guestForm.querySelector('#guestName').value.trim();
-        const surname = guestForm.querySelector('#guestSurname').value.trim();
-        const phone = guestForm.querySelector('#guestPhone').value.trim();
-        const email = guestForm.querySelector('#guestEmail').value.trim();
-        const address = guestForm.querySelector('#guestAddress').value.trim();
-        const apt = guestForm.querySelector('#guestApt').value.trim();
-        const city = guestForm.querySelector('#guestCity').value.trim();
-        const zip = guestForm.querySelector('#guestZip').value.trim();
-
-        if (!name) { showError('guestNameErr', T('err_name') || 'Please enter your name'); valid = false; }
-        if (!surname) { showError('guestSurnameErr', T('err_surname') || 'Please enter your surname'); valid = false; }
-        if (!validatePhone(phone)) { showError('guestPhoneErr', T('err_phone') || 'Please enter a valid phone number'); valid = false; }
-        if (!validateEmail(email)) { showError('guestEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
-        if (!address) { showError('guestAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
-        if (!city) { showError('guestCityErr', T('err_city') || 'Please enter your city'); valid = false; }
-        if (!zip) { showError('guestZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
-
-        if (valid) {
-          state.user = { name, surname, phone, email, address, apt, city, zip };
-          state.isGuest = true;
-          goToStep(2);
-        }
-      });
-    }
-
-    /* Login form submit */
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearErrors(loginForm);
-        let valid = true;
-
-        const email = loginForm.querySelector('#loginEmail').value.trim();
-        const password = loginForm.querySelector('#loginPassword').value.trim();
-        const address = loginForm.querySelector('#loginAddress').value.trim();
-        const apt = loginForm.querySelector('#loginApt').value.trim();
-        const city = loginForm.querySelector('#loginCity').value.trim();
-        const zip = loginForm.querySelector('#loginZip').value.trim();
-
-        if (!validateEmail(email)) { showError('loginEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
-        if (!password) { showError('loginPasswordErr', T('err_password') || 'Please enter your password'); valid = false; }
-        if (!address) { showError('loginAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
-        if (!city) { showError('loginCityErr', T('err_city') || 'Please enter your city'); valid = false; }
-        if (!zip) { showError('loginZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
-
-        if (valid) {
-          state.user = { name: email.split('@')[0], surname: '', phone: '', email, address, apt, city, zip };
-          state.isGuest = false;
-          goToStep(2);
-        }
-      });
-    }
-
-    /* Sign In form submit */
-    const signInForm = document.getElementById('signInForm');
-    if (signInForm) {
-      signInForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearErrors(signInForm);
-        let valid = true;
-
-        const name = signInForm.querySelector('#siName').value.trim();
-        const surname = signInForm.querySelector('#siSurname').value.trim();
-        const email = signInForm.querySelector('#siEmail').value.trim();
-        const phone = signInForm.querySelector('#siPhone').value.trim();
-        const password = signInForm.querySelector('#siPassword').value.trim();
-        const address = signInForm.querySelector('#siAddress').value.trim();
-        const apt = signInForm.querySelector('#siApt').value.trim();
-        const city = signInForm.querySelector('#siCity').value.trim();
-        const zip = signInForm.querySelector('#siZip').value.trim();
-
-        if (!name) { showError('siNameErr', T('err_name') || 'Please enter your name'); valid = false; }
-        if (!surname) { showError('siSurnameErr', T('err_surname') || 'Please enter your surname'); valid = false; }
-        if (!validateEmail(email)) { showError('siEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
-        if (!validatePhone(phone)) { showError('siPhoneErr', T('err_phone') || 'Please enter a valid phone number'); valid = false; }
-        if (!password) { showError('siPasswordErr', T('err_password') || 'Please enter a password (min 6 characters)'); valid = false; }
-        if (!address) { showError('siAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
-        if (!city) { showError('siCityErr', T('err_city') || 'Please enter your city'); valid = false; }
-        if (!zip) { showError('siZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
-
-        if (valid) {
-          state.user = { name, surname, phone, email, address, apt, city, zip };
-          state.isGuest = false;
-          goToStep(2);
         }
       });
     }
@@ -363,7 +268,7 @@
       nextBtn.disabled = true;
       nextBtn.addEventListener('click', () => {
         if (state.date && state.time) {
-          populateSummary();
+          prefillDetailsForm();
           goToStep(4);
         }
       });
@@ -373,7 +278,56 @@
     if (backBtn) backBtn.addEventListener('click', () => goToStep(2));
   }
 
-  /* ---- Step 4: Confirmation ---- */
+  /* ---- Step 4: Your Details ---- */
+  function prefillDetailsForm() {
+    const u = state.user;
+    if (!u) return;
+    const fill = (id, val) => { const el = document.getElementById(id); if (el && !el.value && val) el.value = val; };
+    fill('detailsName',    u.name);
+    fill('detailsSurname', u.surname);
+    fill('detailsPhone',   u.phone);
+    fill('detailsAddress', u.address);
+    fill('detailsApt',     u.apt);
+    fill('detailsCity',    u.city);
+    fill('detailsZip',     u.zip);
+  }
+
+  function initStep4() {
+    const detailsForm = document.getElementById('detailsForm');
+    if (!detailsForm) return;
+
+    detailsForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      clearErrors(detailsForm);
+      let valid = true;
+
+      const name    = document.getElementById('detailsName').value.trim();
+      const surname = document.getElementById('detailsSurname').value.trim();
+      const phone   = document.getElementById('detailsPhone').value.trim();
+      const address = document.getElementById('detailsAddress').value.trim();
+      const apt     = document.getElementById('detailsApt').value.trim();
+      const city    = document.getElementById('detailsCity').value.trim();
+      const zip     = document.getElementById('detailsZip').value.trim();
+
+      if (!name)                  { showError('detailsNameErr',    T('err_name')    || 'Please enter your first name');       valid = false; }
+      if (!surname)               { showError('detailsSurnameErr', T('err_surname') || 'Please enter your last name');        valid = false; }
+      if (!validatePhone(phone))  { showError('detailsPhoneErr',   T('err_phone')   || 'Please enter a valid phone number'); valid = false; }
+      if (!address)               { showError('detailsAddressErr', T('err_address') || 'Please enter your street address');   valid = false; }
+      if (!city)                  { showError('detailsCityErr',    T('err_city')    || 'Please enter your city');             valid = false; }
+      if (!zip)                   { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');          valid = false; }
+
+      if (valid) {
+        state.user = { ...state.user, name, surname, phone, address, apt, city, zip };
+        populateSummary();
+        goToStep(5);
+      }
+    });
+
+    const backBtn = document.getElementById('step4Back');
+    if (backBtn) backBtn.addEventListener('click', () => goToStep(3));
+  }
+
+  /* ---- Step 5: Confirmation ---- */
   function populateSummary() {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     const u = state.user;
@@ -392,7 +346,7 @@
     set('sumDuration', state.services.map(s => s.duration).join(' + ') || '—');
   }
 
-  function initStep4() {
+  function initStep5() {
     const confirmBtn = document.getElementById('confirmBooking');
     if (confirmBtn) {
       confirmBtn.addEventListener('click', async () => {
@@ -427,16 +381,26 @@
           } catch (e) {
             console.error('Supabase error:', e);
           }
+          if (u.email) {
+            try {
+              await window.supabase.auth.signInWithOtp({
+                email: u.email,
+                options: { shouldCreateUser: true, emailRedirectTo: 'https://homelinescleaning.com/booking.html' }
+              });
+            } catch (otpErr) {
+              console.error('OTP error:', otpErr);
+            }
+          }
         }
 
         document.getElementById('bookingConfirmId').textContent = refCode;
-        document.getElementById('step4').style.display = 'none';
+        document.getElementById('step5').style.display = 'none';
         const success = document.getElementById('stepSuccess');
         if (success) {
           success.style.display = 'block';
           success.style.animation = 'fade-in-up 0.5s ease both';
         }
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 5; i++) {
           const circle = document.getElementById(`progressStep${i}`);
           if (circle) circle.classList.add('done');
         }
@@ -445,8 +409,8 @@
       });
     }
 
-    const backBtn = document.getElementById('step4Back');
-    if (backBtn) backBtn.addEventListener('click', () => goToStep(3));
+    const backBtn = document.getElementById('step5Back');
+    if (backBtn) backBtn.addEventListener('click', () => goToStep(4));
   }
 
   /* ---- Supabase session / OAuth handler ---- */
@@ -493,6 +457,7 @@
     initStep2();
     initStep3();
     initStep4();
+    initStep5();
     updateProgress();
 
     if (!window.i18nOnLang) window.i18nOnLang = [];
@@ -503,7 +468,7 @@
       renderCalendar();
     });
 
-    for (let i = 2; i <= 4; i++) {
+    for (let i = 2; i <= 5; i++) {
       const el = stepEl(i);
       if (el) el.style.display = 'none';
     }
