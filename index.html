@@ -156,7 +156,7 @@
     <p class="section-subtitle reveal" data-i18n="services_subtitle">From everyday tidying to comprehensive deep cleans — we cover every corner of your home or office.</p>
 
     <div class="services-grid">
-      <div class="service-card reveal reveal-delay-1">
+      <div class="service-card reveal reveal-delay-1" data-modal="svcModal1" role="button" tabindex="0">
         <div class="service-icon">🏠</div>
         <h3 data-i18n="svc1_name">Standard Cleaning</h3>
         <p data-i18n="svc1_desc">Perfect for regular maintenance. We dust, vacuum, mop and sanitize all key areas of your home.</p>
@@ -169,7 +169,7 @@
         </div>
       </div>
 
-      <div class="service-card reveal reveal-delay-2">
+      <div class="service-card reveal reveal-delay-2" data-modal="svcModal2" role="button" tabindex="0">
         <div class="service-icon">✨</div>
         <h3 data-i18n="svc2_name">Deep Cleaning</h3>
         <p data-i18n="svc2_desc">A thorough top-to-bottom clean for when your home needs extra attention and care.</p>
@@ -182,7 +182,7 @@
         </div>
       </div>
 
-      <div class="service-card reveal reveal-delay-3">
+      <div class="service-card reveal reveal-delay-3" data-modal="svcModal3" role="button" tabindex="0">
         <div class="service-icon">📦</div>
         <h3 data-i18n="svc3_name">Move In / Out</h3>
         <p data-i18n="svc3_desc">Get your new home spotless before moving in, or leave your old one in perfect condition.</p>
@@ -195,7 +195,7 @@
         </div>
       </div>
 
-      <div class="service-card reveal reveal-delay-1">
+      <div class="service-card reveal reveal-delay-1" data-modal="svcModal4" role="button" tabindex="0">
         <div class="service-icon">🏢</div>
         <h3 data-i18n="svc4_name">Office Cleaning</h3>
         <p data-i18n="svc4_desc">Maintain a pristine and professional workspace that keeps your team motivated.</p>
@@ -208,7 +208,7 @@
         </div>
       </div>
 
-      <div class="service-card reveal reveal-delay-2">
+      <div class="service-card reveal reveal-delay-2" data-modal="svcModal5" role="button" tabindex="0">
         <div class="service-icon">🪟</div>
         <h3 data-i18n="svc5_name">Window Cleaning</h3>
         <p data-i18n="svc5_desc">Crystal-clear windows, inside and out — we use streak-free professional techniques.</p>
@@ -221,7 +221,7 @@
         </div>
       </div>
 
-      <div class="service-card reveal reveal-delay-3">
+      <div class="service-card reveal reveal-delay-3" data-modal="svcModal6" role="button" tabindex="0">
         <div class="service-icon">🛋️</div>
         <h3 data-i18n="svc6_name">Sofa/Mattress Cleaning</h3>
         <p data-i18n="svc6_desc">Deep clean and sanitize your sofas and mattresses — removing stains, allergens and odors.</p>
@@ -485,5 +485,223 @@
 
 <script src="js/i18n.js?v=1"></script>
 <script src="js/main.js?v=3"></script>
+
+<!-- ===== SERVICE MODALS ===== -->
+
+<!-- Modal 1: Standard Cleaning -->
+<div class="svc-modal-overlay" id="svcModal1">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">🏠</div>
+      <h2 class="svc-modal-title">Standard Cleaning</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $89</span>
+        <span class="svc-modal-duration">⏱ 2–3 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">Perfect for weekly or bi-weekly home maintenance. Our team arrives fully equipped with eco-friendly supplies and takes care of every key area in your home.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Kitchen deep wipe-down</li>
+        <li>Bathroom sanitizing</li>
+        <li>Dusting all surfaces</li>
+        <li>Vacuuming all rooms</li>
+        <li>Floor mopping</li>
+        <li>Trash removal</li>
+        <li>Mirrors & glass surfaces</li>
+        <li>Countertops & sinks</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>Our team arrives with all eco-friendly supplies. Perfect for weekly or bi-weekly maintenance to keep your home consistently clean and fresh.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Deep Cleaning -->
+<div class="svc-modal-overlay" id="svcModal2">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">✨</div>
+      <h2 class="svc-modal-title">Deep Cleaning</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $149</span>
+        <span class="svc-modal-duration">⏱ 4–6 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">A thorough top-to-bottom clean for when your home needs serious attention. We go beyond the surface to tackle every corner, appliance, and hidden area.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Everything in Standard</li>
+        <li>Inside oven & fridge</li>
+        <li>Baseboards & vents</li>
+        <li>Cabinet interiors</li>
+        <li>Window sills</li>
+        <li>Light fixtures</li>
+        <li>Behind furniture</li>
+        <li>Grout & tile scrubbing</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>Recommended for first-time clients or homes that haven't been cleaned in a while. Leaves your home looking and smelling brand new.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: Move In / Out -->
+<div class="svc-modal-overlay" id="svcModal3">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">📦</div>
+      <h2 class="svc-modal-title">Move In / Out</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $199</span>
+        <span class="svc-modal-duration">⏱ 5–7 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">Full property top-to-bottom cleaning designed for move-in or move-out. We make sure you get your security deposit back or your new home is spotless from day one.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Full property clean</li>
+        <li>Walls & windows</li>
+        <li>Deep appliance clean</li>
+        <li>Garage & storage areas</li>
+        <li>Inside all cabinets</li>
+        <li>Carpet cleaning</li>
+        <li>Closets & shelving</li>
+        <li>All fixtures & fittings</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>We make sure you get your security deposit back or your new home is spotless from day one. Our most comprehensive residential service.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: Office Cleaning -->
+<div class="svc-modal-overlay" id="svcModal4">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">🏢</div>
+      <h2 class="svc-modal-title">Office Cleaning</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $129</span>
+        <span class="svc-modal-duration">⏱ 2–4 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">Maintain a pristine and professional workspace that keeps your team motivated and clients impressed. Tailored to your office layout and schedule.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Desks & workstations</li>
+        <li>Kitchenette & bathrooms</li>
+        <li>Floors & carpets</li>
+        <li>Waste management</li>
+        <li>Reception area</li>
+        <li>Conference rooms</li>
+        <li>Electronics dusting</li>
+        <li>Entrance & hallways</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>We work around your schedule including evenings and weekends to avoid disrupting your team. Recurring contracts available at a discount.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: Window Cleaning -->
+<div class="svc-modal-overlay" id="svcModal5">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">🪟</div>
+      <h2 class="svc-modal-title">Window Cleaning</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $79</span>
+        <span class="svc-modal-duration">⏱ 1–3 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">Crystal-clear windows inside and out using professional squeegee technique. We leave zero streaks and handle everything from frames to screens.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Interior & exterior windows</li>
+        <li>Streak-free finish</li>
+        <li>Frames & tracks</li>
+        <li>Window screens</li>
+        <li>Skylights (if accessible)</li>
+        <li>Sill & ledge cleaning</li>
+        <li>All window types</li>
+        <li>Storm windows</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>Professional squeegee technique for crystal-clear results that last. We use purified water and professional-grade solutions for a flawless finish.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 6: Sofa/Mattress Cleaning -->
+<div class="svc-modal-overlay" id="svcModal6">
+  <div class="svc-modal" role="dialog" aria-modal="true">
+    <div class="svc-modal-header">
+      <div class="svc-modal-icon">🛋️</div>
+      <h2 class="svc-modal-title">Sofa / Mattress Cleaning</h2>
+      <div class="svc-modal-meta">
+        <span class="svc-modal-price">From $99</span>
+        <span class="svc-modal-duration">⏱ 2–4 hrs</span>
+      </div>
+      <button class="svc-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="svc-modal-body">
+      <p class="svc-modal-desc">Deep clean and sanitize your sofas and mattresses using professional-grade steam equipment. We remove allergens, dust mites, stains and odors effectively.</p>
+      <p class="svc-modal-section-title">What's Included</p>
+      <ul class="svc-modal-list">
+        <li>Hot steam cleaning</li>
+        <li>Stain removal</li>
+        <li>Deodorizing treatment</li>
+        <li>All fabric types</li>
+        <li>Cushions & armrests</li>
+        <li>Allergen elimination</li>
+        <li>Dust mite treatment</li>
+        <li>Mattress sanitizing</li>
+      </ul>
+      <div class="svc-modal-expect"><strong>What to Expect</strong>We use professional-grade equipment to remove allergens, dust mites and odors. Fabric is treated to dry quickly — typically within 2–4 hours.</div>
+      <a href="booking.html" class="svc-modal-cta">Book This Service →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  function openModal(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Open on card click / keyboard
+  document.querySelectorAll('.service-card[data-modal]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.modal));
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.modal); } });
+  });
+  // Close on X button or overlay click
+  document.querySelectorAll('.svc-modal-overlay').forEach(overlay => {
+    overlay.querySelector('.svc-modal-close').addEventListener('click', () => closeModal(overlay));
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
+  });
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.svc-modal-overlay.open').forEach(closeModal);
+  });
+})();
+</script>
+
 </body>
 </html>
