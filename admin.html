@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Homelines Cleaning</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #1e3a5c;
+      --navy-dark: #1a2b4a;
+      --blue:      #4db6e8;
+      --green:     #16a34a;
+      --yellow:    #ca8a04;
+      --red:       #dc2626;
+      --bg:        #f0f4f8;
+      --white:     #ffffff;
+      --border:    #e2e8f0;
+      --gray:      #64748b;
+      --radius:    10px;
+      --shadow:    0 2px 12px rgba(30,58,92,.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ---- Top Bar ---- */
+    .topbar {
+      background: var(--navy-dark);
+      color: #fff;
+      padding: 0 28px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-brand {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .topbar-brand span { color: var(--blue); }
+    .topbar-meta { font-size: 0.8rem; color: #94a3b8; }
+
+    /* ---- Main ---- */
+    .main { max-width: 1300px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    h1.page-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 22px;
+    }
+
+    /* ---- Summary Cards ---- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--navy);
+    }
+    .card.green  { border-color: var(--green); }
+    .card.blue   { border-color: var(--blue); }
+    .card.yellow { border-color: #eab308; }
+    .card-label { font-size: 0.75rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+    .card-value { font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; }
+    .card-icon  { font-size: 1.6rem; float: right; margin-top: -4px; }
+
+    /* ---- Table Panel ---- */
+    .panel {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
+
+    .search-input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 0.875rem;
+      outline: none;
+      width: 240px;
+      transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--blue); }
+
+    .refresh-btn {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .refresh-btn:hover { background: #2d5a8e; }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    thead tr { background: #f8fafc; }
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--gray);
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .ref-code {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--navy);
+      background: #eff6ff;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    /* ---- Status Badge ---- */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .badge-pending   { background: #fef9c3; color: #854d0e; }
+    .badge-confirmed { background: #dcfce7; color: #166534; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+
+    /* ---- Status Dropdown ---- */
+    .status-select {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      background: #fff;
+      transition: border-color .2s;
+    }
+    .status-select:focus { border-color: var(--blue); }
+
+    /* ---- Loading / Empty ---- */
+    .state-msg {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+    .state-msg .icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 4px solid var(--border);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 600px) {
+      .search-input { width: 100%; }
+      .card-value { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">🏠 Homelines <span>Cleaning</span> — Admin</div>
+  <div class="topbar-meta" id="topbarMeta">Loading...</div>
+</div>
+
+<div class="main">
+  <h1 class="page-title">📊 Bookings Dashboard</h1>
+
+  <!-- Summary Cards -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <div class="card-label">Total Bookings</div>
+      <div class="card-value" id="cardTotal">—</div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">💰</div>
+      <div class="card-label">Total Revenue</div>
+      <div class="card-value" id="cardRevenue">—</div>
+    </div>
+    <div class="card blue">
+      <div class="card-icon">📅</div>
+      <div class="card-label">Bookings Today</div>
+      <div class="card-value" id="cardToday">—</div>
+    </div>
+    <div class="card yellow">
+      <div class="card-icon">⏳</div>
+      <div class="card-label">Pending</div>
+      <div class="card-value" id="cardPending">—</div>
+    </div>
+  </div>
+
+  <!-- Bookings Table -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">All Bookings</span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍  Search by name, email, ref…" oninput="filterTable()" />
+        <button class="refresh-btn" onclick="loadBookings()">↺ Refresh</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div id="tableContainer">
+        <div class="state-msg"><div class="spinner"></div>Loading bookings…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const EDGE_URL  = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/admin-bookings';
+  const ADMIN_PWD = sessionStorage.getItem('hl_admin_pwd');
+
+  /* ---- Auth Gate ---- */
+  (function authCheck() {
+    const stored = sessionStorage.getItem('hl_admin_pwd');
+    if (stored === 'homelines2026') return;
+    const pwd = prompt('🔒 Enter admin password:');
+    if (pwd === 'homelines2026') {
+      sessionStorage.setItem('hl_admin_pwd', pwd);
+    } else {
+      alert('Incorrect password.');
+      window.location.href = 'index.html';
+    }
+  })();
+
+  let allBookings = [];
+
+  /* ---- Load Bookings ---- */
+  async function loadBookings() {
+    document.getElementById('tableContainer').innerHTML =
+      '<div class="state-msg"><div class="spinner"></div>Loading bookings…</div>';
+
+    try {
+      const res = await fetch(EDGE_URL, {
+        headers: { 'x-admin-password': sessionStorage.getItem('hl_admin_pwd') }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { bookings } = await res.json();
+      allBookings = bookings || [];
+      updateCards(allBookings);
+      renderTable(allBookings);
+      document.getElementById('topbarMeta').textContent =
+        `Last updated: ${new Date().toLocaleTimeString()}`;
+    } catch (e) {
+      document.getElementById('tableContainer').innerHTML =
+        `<div class="state-msg"><span class="icon">⚠️</span>Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  /* ---- Cards ---- */
+  function updateCards(data) {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('cardTotal').textContent   = data.length;
+    document.getElementById('cardRevenue').textContent = '$' + data.reduce((s, b) => s + (b.price || 0), 0).toLocaleString();
+    document.getElementById('cardToday').textContent   = data.filter(b => (b.created_at || '').startsWith(today)).length;
+    document.getElementById('cardPending').textContent = data.filter(b => b.status === 'pending').length;
+  }
+
+  /* ---- Render Table ---- */
+  function renderTable(data) {
+    if (!data.length) {
+      document.getElementById('tableContainer').innerHTML =
+        '<div class="state-msg"><span class="icon">📭</span>No bookings found.</div>';
+      return;
+    }
+
+    const rows = data.map(b => {
+      const name = [b.first_name, b.last_name].filter(Boolean).join(' ') || '—';
+      const addr = [b.address, b.city].filter(Boolean).join(', ') || '—';
+      const date = b.booking_date
+        ? new Date(b.booking_date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+        : '—';
+      const created = b.created_at
+        ? new Date(b.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+        : '—';
+      const status = b.status || 'pending';
+      const badgeClass = status === 'confirmed' ? 'badge-confirmed'
+                       : status === 'cancelled' ? 'badge-cancelled'
+                       : 'badge-pending';
+
+      return `<tr>
+        <td><span class="ref-code">${b.ref_code || '—'}</span></td>
+        <td>${escHtml(name)}</td>
+        <td><a href="mailto:${escHtml(b.email || '')}" style="color:var(--navy);text-decoration:none;">${escHtml(b.email || '—')}</a></td>
+        <td>${escHtml(b.phone || '—')}</td>
+        <td>${escHtml(b.service || '—')}</td>
+        <td style="white-space:nowrap;">${date}<br><span style="color:var(--gray);font-size:0.78rem;">${escHtml(b.booking_time || '—')}</span></td>
+        <td style="max-width:180px;">${escHtml(addr)}</td>
+        <td style="font-weight:700;color:var(--navy);">$${b.price ?? '—'}</td>
+        <td>
+          <span class="badge ${badgeClass}" id="badge-${b.id}">${status}</span>
+        </td>
+        <td>
+          <select class="status-select" onchange="updateStatus('${b.id}', this.value)" data-id="${b.id}">
+            <option value="pending"   ${status==='pending'   ? 'selected':''}>Pending</option>
+            <option value="confirmed" ${status==='confirmed' ? 'selected':''}>Confirmed</option>
+            <option value="cancelled" ${status==='cancelled' ? 'selected':''}>Cancelled</option>
+          </select>
+        </td>
+        <td style="color:var(--gray);font-size:0.8rem;white-space:nowrap;">${created}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('tableContainer').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Ref Code</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Service</th>
+            <th>Date & Time</th>
+            <th>Address</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Change Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ---- Update Status ---- */
+  async function updateStatus(id, status) {
+    const badge = document.getElementById(`badge-${id}`);
+    if (badge) badge.textContent = '…';
+
+    try {
+      const res = await fetch(EDGE_URL, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': sessionStorage.getItem('hl_admin_pwd')
+        },
+        body: JSON.stringify({ id, status })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      /* Update local data and re-render badge */
+      const booking = allBookings.find(b => b.id === id);
+      if (booking) booking.status = status;
+      updateCards(allBookings);
+
+      if (badge) {
+        badge.textContent = status;
+        badge.className = 'badge ' + (status === 'confirmed' ? 'badge-confirmed'
+                                     : status === 'cancelled' ? 'badge-cancelled'
+                                     : 'badge-pending');
+      }
+    } catch (e) {
+      alert('Failed to update status: ' + e.message);
+      if (badge) badge.textContent = 'error';
+    }
+  }
+
+  /* ---- Search Filter ---- */
+  function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    if (!q) { renderTable(allBookings); return; }
+    const filtered = allBookings.filter(b =>
+      [b.ref_code, b.first_name, b.last_name, b.email, b.service, b.phone]
+        .join(' ').toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+  }
+
+  /* ---- Util ---- */
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadBookings();
+</script>
+</body>
+</html>
