@@ -1,8 +1,7 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 const RESEND_API_KEY    = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM_EMAIL        = 'Homelines Cleaning <info@homelinescleaning.com>';
-const ADMIN_FROM_EMAIL  = 'Homelines Cleaning <noreply@homelinescleaning.com>';
+const FROM_EMAIL        = 'Homelines Cleaning <noreply@homelinescleaning.com>';
 const ADMIN_TO_EMAIL    = 'info@homelinescleaning.com';
 
 serve(async (req: Request) => {
@@ -315,11 +314,12 @@ serve(async (req: Request) => {
       sendEmail({
         from: FROM_EMAIL,
         to: [email],
+        reply_to: ADMIN_TO_EMAIL,
         subject: `✅ Booking Confirmed – ${ref_code} | Homelines Cleaning`,
         html,
       }),
       sendEmail({
-        from: ADMIN_FROM_EMAIL,
+        from: FROM_EMAIL,
         to: [ADMIN_TO_EMAIL],
         reply_to: email,
         subject: `🔔 New Booking – ${ref_code} | ${service}`,
