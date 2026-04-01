@@ -50,9 +50,12 @@ serve(async (req: Request) => {
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#1e3a5c 0%,#2d5a8e 100%);padding:36px 40px;text-align:center;">
-              <div style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">🏠 Homelines Cleaning</div>
-              <div style="font-size:14px;color:rgba(255,255,255,0.75);margin-top:6px;">Professional Cleaning Services</div>
+            <td style="background:#1a2b4a;padding:32px 40px;text-align:center;">
+              <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+                <span style="font-size:28px;line-height:1;">🏠</span>
+                <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Homelines<span style="color:#4db8e8;font-weight:800;"> Cleaning</span></span>
+              </div>
+              <div style="font-size:13px;color:#94a3b8;margin-top:8px;letter-spacing:0.3px;">Professional Cleaning Services</div>
             </td>
           </tr>
 
@@ -138,7 +141,7 @@ serve(async (req: Request) => {
             <td style="background:#f9fafb;padding:24px 40px;text-align:center;border-top:1px solid #e5e7eb;">
               <p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Questions? Contact us at</p>
               <a href="mailto:info@homelinescleaning.com" style="color:#1e3a5c;font-weight:600;font-size:14px;text-decoration:none;">info@homelinescleaning.com</a>
-              <p style="margin:16px 0 0;font-size:12px;color:#9ca3af;">© ${new Date().getFullYear()} Homelines Cleaning. All rights reserved.</p>
+              <p style="margin:16px 0 0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. All rights reserved.</p>
             </td>
           </tr>
 
