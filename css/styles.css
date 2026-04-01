@@ -82,7 +82,7 @@ p { line-height: 1.7; color: var(--gray-dark); }
 }
 .btn:hover::after { opacity: 1; }
 .btn-primary {
-  background: linear-gradient(135deg, var(--blue), var(--navy-light));
+  background: var(--blue);
   color: var(--white);
   box-shadow: 0 4px 20px rgba(77, 182, 232, 0.4);
 }
@@ -1182,6 +1182,49 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 }
 .auth-panel { display: none; }
 .auth-panel.active { display: block; animation: fade-in 0.3s ease; }
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--gray-mid);
+  font-size: 0.85rem;
+}
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+  background: var(--white);
+  color: #3c4043;
+  border: 1.5px solid #dadce0;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.btn-google:hover {
+  background: #f8f9fa;
+  border-color: #bdc1c6;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+}
+.address-section-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin: 24px 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray);
+}
 .booking-nav {
   display: flex;
   justify-content: space-between;

@@ -8,6 +8,10 @@ fi
 
 # Make sure remote is set correctly
 git remote set-url origin https://github.com/crolent/homelines-website.git
+# To avoid password prompts, replace YOUR_TOKEN below and use this line instead:
+# git remote set-url origin https://crolent:YOUR_TOKEN@github.com/crolent/homelines-website.git
+# To use SSH instead:
+# git remote set-url origin git@github.com:crolent/homelines-website.git
 
 # Stage all changes
 git add .

@@ -11,13 +11,16 @@
     calendar: { month: new Date().getMonth(), year: new Date().getFullYear() }
   };
 
+  const T = (k) => (window.i18nT && window.i18nT(k)) || k;
+  const langLocale = () => ({ en:'en-US', ru:'ru-RU', tr:'tr-TR', es:'es-ES' })[localStorage.getItem('hl_lang') || 'en'] || 'en-US';
+
   const services = [
-    { id: 'standard', icon: '🏠', name: 'Standard Cleaning', desc: 'Regular home cleaning', price: '$89', duration: '2–3 hrs' },
-    { id: 'deep', icon: '✨', name: 'Deep Cleaning', desc: 'Thorough deep clean', price: '$149', duration: '4–6 hrs' },
-    { id: 'move', icon: '📦', name: 'Move In/Out', desc: 'Full property clean', price: '$199', duration: '5–7 hrs' },
-    { id: 'office', icon: '🏢', name: 'Office Cleaning', desc: 'Commercial spaces', price: '$129', duration: '2–4 hrs' },
-    { id: 'window', icon: '🪟', name: 'Window Cleaning', desc: 'Interior & exterior', price: '$79', duration: '1–3 hrs' },
-    { id: 'sofa', icon: '🛋️', name: 'Sofa/Mattress Cleaning', desc: 'Steam & deep clean', price: '$99', duration: '2–4 hrs' }
+    { id: 'standard', icon: '🏠', nameKey: 'svc1_name', descKey: 'bsvc1_desc', price: '$89', duration: '2–3 hrs' },
+    { id: 'deep',     icon: '✨', nameKey: 'svc2_name', descKey: 'bsvc2_desc', price: '$149', duration: '4–6 hrs' },
+    { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: '5–7 hrs' },
+    { id: 'office',   icon: '🏢', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$129', duration: '2–4 hrs' },
+    { id: 'window',   icon: '🪟', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$79',  duration: '1–3 hrs' },
+    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$99',  duration: '2–4 hrs' }
   ];
 
   const timeSlots = [
@@ -102,14 +105,21 @@
         const surname = guestForm.querySelector('#guestSurname').value.trim();
         const phone = guestForm.querySelector('#guestPhone').value.trim();
         const email = guestForm.querySelector('#guestEmail').value.trim();
+        const address = guestForm.querySelector('#guestAddress').value.trim();
+        const apt = guestForm.querySelector('#guestApt').value.trim();
+        const city = guestForm.querySelector('#guestCity').value.trim();
+        const zip = guestForm.querySelector('#guestZip').value.trim();
 
-        if (!name) { showError('guestNameErr', 'Please enter your name'); valid = false; }
-        if (!surname) { showError('guestSurnameErr', 'Please enter your surname'); valid = false; }
-        if (!validatePhone(phone)) { showError('guestPhoneErr', 'Please enter a valid phone number'); valid = false; }
-        if (!validateEmail(email)) { showError('guestEmailErr', 'Please enter a valid email'); valid = false; }
+        if (!name) { showError('guestNameErr', T('err_name') || 'Please enter your name'); valid = false; }
+        if (!surname) { showError('guestSurnameErr', T('err_surname') || 'Please enter your surname'); valid = false; }
+        if (!validatePhone(phone)) { showError('guestPhoneErr', T('err_phone') || 'Please enter a valid phone number'); valid = false; }
+        if (!validateEmail(email)) { showError('guestEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
+        if (!address) { showError('guestAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
+        if (!city) { showError('guestCityErr', T('err_city') || 'Please enter your city'); valid = false; }
+        if (!zip) { showError('guestZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
 
         if (valid) {
-          state.user = { name, surname, phone, email };
+          state.user = { name, surname, phone, email, address, apt, city, zip };
           state.isGuest = true;
           goToStep(2);
         }
@@ -125,15 +135,55 @@
         let valid = true;
 
         const email = loginForm.querySelector('#loginEmail').value.trim();
-        const phone = loginForm.querySelector('#loginPhone').value.trim();
-        const name = loginForm.querySelector('#loginName').value.trim();
+        const password = loginForm.querySelector('#loginPassword').value.trim();
+        const address = loginForm.querySelector('#loginAddress').value.trim();
+        const apt = loginForm.querySelector('#loginApt').value.trim();
+        const city = loginForm.querySelector('#loginCity').value.trim();
+        const zip = loginForm.querySelector('#loginZip').value.trim();
 
-        if (!name) { showError('loginNameErr', 'Please enter your name'); valid = false; }
-        if (!validateEmail(email)) { showError('loginEmailErr', 'Please enter a valid email'); valid = false; }
-        if (!validatePhone(phone)) { showError('loginPhoneErr', 'Please enter a valid phone number'); valid = false; }
+        if (!validateEmail(email)) { showError('loginEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
+        if (!password) { showError('loginPasswordErr', T('err_password') || 'Please enter your password'); valid = false; }
+        if (!address) { showError('loginAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
+        if (!city) { showError('loginCityErr', T('err_city') || 'Please enter your city'); valid = false; }
+        if (!zip) { showError('loginZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
 
         if (valid) {
-          state.user = { name, surname: '', phone, email };
+          state.user = { name: email.split('@')[0], surname: '', phone: '', email, address, apt, city, zip };
+          state.isGuest = false;
+          goToStep(2);
+        }
+      });
+    }
+
+    /* Sign In form submit */
+    const signInForm = document.getElementById('signInForm');
+    if (signInForm) {
+      signInForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearErrors(signInForm);
+        let valid = true;
+
+        const name = signInForm.querySelector('#siName').value.trim();
+        const surname = signInForm.querySelector('#siSurname').value.trim();
+        const email = signInForm.querySelector('#siEmail').value.trim();
+        const phone = signInForm.querySelector('#siPhone').value.trim();
+        const password = signInForm.querySelector('#siPassword').value.trim();
+        const address = signInForm.querySelector('#siAddress').value.trim();
+        const apt = signInForm.querySelector('#siApt').value.trim();
+        const city = signInForm.querySelector('#siCity').value.trim();
+        const zip = signInForm.querySelector('#siZip').value.trim();
+
+        if (!name) { showError('siNameErr', T('err_name') || 'Please enter your name'); valid = false; }
+        if (!surname) { showError('siSurnameErr', T('err_surname') || 'Please enter your surname'); valid = false; }
+        if (!validateEmail(email)) { showError('siEmailErr', T('err_email') || 'Please enter a valid email'); valid = false; }
+        if (!validatePhone(phone)) { showError('siPhoneErr', T('err_phone') || 'Please enter a valid phone number'); valid = false; }
+        if (!password) { showError('siPasswordErr', T('err_password') || 'Please enter a password (min 6 characters)'); valid = false; }
+        if (!address) { showError('siAddressErr', T('err_address') || 'Please enter your street address'); valid = false; }
+        if (!city) { showError('siCityErr', T('err_city') || 'Please enter your city'); valid = false; }
+        if (!zip) { showError('siZipErr', T('err_zip') || 'Please enter your ZIP code'); valid = false; }
+
+        if (valid) {
+          state.user = { name, surname, phone, email, address, apt, city, zip };
           state.isGuest = false;
           goToStep(2);
         }
@@ -142,21 +192,24 @@
   }
 
   /* ---- Step 2: Service Selection ---- */
-  function initStep2() {
+  function renderServiceGrid() {
     const grid = document.getElementById('serviceGrid');
     if (!grid) return;
-
+    grid.innerHTML = '';
     services.forEach(svc => {
       const card = document.createElement('div');
       card.className = 'service-option';
       card.dataset.id = svc.id;
+      const svcName = T(svc.nameKey) || svc.nameKey;
+      const svcDesc = T(svc.descKey) || svc.descKey;
       card.innerHTML = `
         <div class="service-option-check">✓</div>
         <span class="service-option-icon">${svc.icon}</span>
-        <h4>${svc.name}</h4>
-        <p>${svc.desc}</p>
+        <h4>${svcName}</h4>
+        <p>${svcDesc}</p>
         <div class="option-price">${svc.price} · ${svc.duration}</div>
       `;
+      if (state.services.find(s => s.id === svc.id)) card.classList.add('selected');
       card.addEventListener('click', () => {
         const idx = state.services.findIndex(s => s.id === svc.id);
         if (idx > -1) {
@@ -171,6 +224,10 @@
       });
       grid.appendChild(card);
     });
+  }
+
+  function initStep2() {
+    renderServiceGrid();
 
     const nextBtn = document.getElementById('step2Next');
     if (nextBtn) {
@@ -187,9 +244,9 @@
   /* ---- Step 3: Calendar & Time ---- */
   function renderCalendar() {
     const { month, year } = state.calendar;
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const locale = langLocale();
     const titleEl = document.getElementById('calMonthTitle');
-    if (titleEl) titleEl.textContent = `${monthNames[month]} ${year}`;
+    if (titleEl) titleEl.textContent = new Date(year, month, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 
     const grid = document.getElementById('calGrid');
     if (!grid) return;
@@ -197,7 +254,9 @@
     const existingDays = grid.querySelectorAll('.cal-day, .cal-day-name');
     existingDays.forEach(d => d.remove());
 
-    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dayNames = Array.from({ length: 7 }, (_, i) =>
+      new Date(2024, 0, 7 + i).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase()
+    );
     dayNames.forEach(d => {
       const el = document.createElement('div');
       el.className = 'cal-day-name';
@@ -236,7 +295,7 @@
           state.date = new Date(year, month, d);
           renderCalendar();
           document.getElementById('selectedDateDisplay').textContent =
-            state.date.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+            state.date.toLocaleDateString(langLocale(), { weekday:'long', year:'numeric', month:'long', day:'numeric' });
           checkStep3();
         });
       }
@@ -310,12 +369,13 @@
     set('sumName', `${u.name}${u.surname ? ' ' + u.surname : ''}`);
     set('sumEmail', u.email);
     set('sumPhone', u.phone);
-    const serviceNames = state.services.map(s => s.name).join(', ') || '—';
+    set('sumAddress', u.address ? `${u.address}${u.apt ? ' ' + u.apt : ''}, ${u.city}${u.zip ? ' ' + u.zip : ''}` : '—');
+    const serviceNames = state.services.map(s => T(s.nameKey) || s.nameKey).join(', ') || '—';
     const totalPrice = state.services.length
       ? '$' + state.services.reduce((sum, s) => sum + parseInt(s.price.replace('$','')), 0)
       : '—';
     set('sumService', serviceNames);
-    set('sumDate', state.date?.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) || '—');
+    set('sumDate', state.date?.toLocaleDateString(langLocale(), { weekday:'long', year:'numeric', month:'long', day:'numeric' }) || '—');
     set('sumTime', state.time || '—');
     set('sumPrice', totalPrice);
     set('sumDuration', state.services.map(s => s.duration).join(' + ') || '—');
@@ -325,7 +385,7 @@
     const confirmBtn = document.getElementById('confirmBooking');
     if (confirmBtn) {
       confirmBtn.addEventListener('click', () => {
-        confirmBtn.textContent = 'Processing...';
+        confirmBtn.textContent = T('bk_processing') || 'Processing...';
         confirmBtn.disabled = true;
         setTimeout(() => {
           const bookingId = 'HL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -357,6 +417,14 @@
     initStep3();
     initStep4();
     updateProgress();
+
+    if (!window.i18nOnLang) window.i18nOnLang = [];
+    window.i18nOnLang.push(() => {
+      renderServiceGrid();
+      const nextBtn = document.getElementById('step2Next');
+      if (nextBtn) nextBtn.disabled = state.services.length === 0;
+      renderCalendar();
+    });
 
     for (let i = 2; i <= 4; i++) {
       const el = stepEl(i);
