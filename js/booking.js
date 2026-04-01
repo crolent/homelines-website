@@ -373,14 +373,30 @@
         };
 
         if (window.supabase) {
+          /* Step A: optionally attach user_id if a session already exists */
           try {
-            const { data: { user } } = await window.supabase.auth.getUser();
-            if (user) bookingData.user_id = user.id;
-            const { error } = await window.supabase.from('bookings').insert([bookingData]);
-            if (error) console.error('Booking save error:', error);
+            const { data } = await window.supabase.auth.getUser();
+            if (data?.user?.id) bookingData.user_id = data.user.id;
           } catch (e) {
-            console.error('Supabase error:', e);
+            console.warn('getUser (non-fatal):', e);
           }
+
+          /* Step B: always attempt the insert */
+          try {
+            const { data: insertData, error } = await window.supabase
+              .from('bookings')
+              .insert([bookingData])
+              .select();
+            if (error) {
+              console.error('Booking insert error:', error.message, error.details, error.hint);
+            } else {
+              console.log('Booking saved OK:', insertData);
+            }
+          } catch (e) {
+            console.error('Booking insert exception:', e);
+          }
+
+          /* Step C: send magic-link so user can manage their booking later */
           if (u.email) {
             try {
               await window.supabase.auth.signInWithOtp({
