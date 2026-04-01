@@ -201,12 +201,16 @@ serve(async (req: Request) => {
 
           <!-- Date & Time Highlight -->
           <tr>
-            <td style="padding:20px 40px 0;text-align:center;">
-              <div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:18px 24px;display:inline-block;width:100%;">
-                <div style="font-size:13px;color:#1d4ed8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">📅 Scheduled Appointment</div>
-                <div style="font-size:22px;font-weight:800;color:#1e3a5c;">${formattedDate}</div>
-                <div style="font-size:18px;font-weight:700;color:#4db6e8;margin-top:4px;">🕐 ${booking_time}</div>
-              </div>
+            <td style="padding:20px 40px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;">
+                <tr>
+                  <td style="padding:18px 24px;text-align:center;">
+                    <div style="font-size:13px;color:#1d4ed8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">📅 Scheduled Appointment</div>
+                    <div style="font-size:22px;font-weight:800;color:#1e3a5c;">${formattedDate}</div>
+                    <div style="font-size:18px;font-weight:700;color:#4db6e8;margin-top:4px;">🕐 ${booking_time}</div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
