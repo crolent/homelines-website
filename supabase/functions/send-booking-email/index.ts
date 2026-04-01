@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-const RESEND_API_KEY = 're_2gGLVKyu_Nzj7i9hJVuMJLEVt3aSccqFp';
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const FROM_EMAIL = 'Homelines Cleaning <info@homelinescleaning.com>';
 
 serve(async (req: Request) => {
