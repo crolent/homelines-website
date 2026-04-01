@@ -1888,6 +1888,8 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     margin: 0;
     line-height: 1.5;
   }
+  /* Hide sentences 3-4 on mobile — show only first 2 */
+  .svc-modal-desc .desc-extra { display: none; }
 
   /* Section label */
   .svc-modal-section-title { font-size: 0.75rem; margin: 0 0 8px; }
