@@ -1,7 +1,9 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM_EMAIL = 'Homelines Cleaning <info@homelinescleaning.com>';
+const RESEND_API_KEY    = Deno.env.get('RESEND_API_KEY') ?? '';
+const FROM_EMAIL        = 'Homelines Cleaning <info@homelinescleaning.com>';
+const ADMIN_FROM_EMAIL  = 'Homelines Cleaning <noreply@homelinescleaning.com>';
+const ADMIN_TO_EMAIL    = 'info@homelinescleaning.com';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -317,8 +319,9 @@ serve(async (req: Request) => {
         html,
       }),
       sendEmail({
-        from: FROM_EMAIL,
-        to: ['info@homelinescleaning.com'],
+        from: ADMIN_FROM_EMAIL,
+        to: [ADMIN_TO_EMAIL],
+        reply_to: email,
         subject: `🔔 New Booking – ${ref_code} | ${service}`,
         html: adminHtml,
       }),
