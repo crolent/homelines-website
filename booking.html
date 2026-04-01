@@ -219,24 +219,18 @@
           <p style="font-size: 0.85rem; color: var(--blue); margin-top: 10px; min-height: 20px; font-weight: 600;" id="selectedDateDisplay"></p>
         </div>
 
-        <!-- Time Slots -->
-        <div>
-          <label class="form-label" style="margin-bottom: 12px; display:block;" data-i18n="bk_time_lbl">Select a Time Slot</label>
-          <div class="time-slots-grid" id="timeSlotsGrid"></div>
-          <div style="margin-top: 14px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-            <div style="display:flex; align-items:center; gap:6px; font-size: 0.8rem; color: var(--gray-dark);">
-              <div style="width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,var(--blue),var(--navy-light))"></div>
-              <span data-i18n="bk_legend_sel">Selected</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size: 0.8rem; color: var(--gray-dark);">
-              <div style="width:16px;height:16px;border-radius:4px;background:var(--gray-light);border:1px solid var(--gray)"></div>
-              <span data-i18n="bk_legend_avail">Available</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size: 0.8rem; color: var(--gray-mid);">
-              <div style="width:16px;height:16px;border-radius:4px;background:var(--gray-light)"></div>
-              <span data-i18n="bk_legend_busy">Busy</span>
-            </div>
+        <!-- Time Picker (drum-roll) -->
+        <div class="tp-section">
+          <label class="form-label" style="margin-bottom:12px;display:block;" data-i18n="bk_time_lbl">Select a Time</label>
+          <div class="tp-wrap">
+            <div class="tp-highlight"></div>
+            <div class="tp-fade-top"></div>
+            <div class="tp-fade-bot"></div>
+            <div class="tp-wheel" id="hourWheel"></div>
+            <div class="tp-colon">:</div>
+            <div class="tp-wheel" id="minWheel"></div>
           </div>
+          <p class="tp-display" id="selectedTimeDisplay"></p>
         </div>
       </div>
 

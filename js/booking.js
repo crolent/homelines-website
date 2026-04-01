@@ -23,13 +23,11 @@
     { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$99',  duration: '2–4 hrs' }
   ];
 
-  const timeSlots = [
-    '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-    '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM',
-    '07:00 PM', '08:00 PM', '09:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
-  ];
-
-  const busySlots = ['11:00 AM', '02:00 PM', '05:00 PM'];
+  const ITEM_H    = 44;
+  const hourItems = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minItems  = ['00', '15', '30', '45'];
+  let pickerHourIdx = 9;
+  let pickerMinIdx  = 0;
 
   /* ---- DOM refs ---- */
   const stepEl = (n) => document.getElementById(`step${n}`);
@@ -219,28 +217,60 @@
     }
   }
 
-  function renderTimeSlots() {
-    const grid = document.getElementById('timeSlotsGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    timeSlots.forEach(slot => {
-      const el = document.createElement('div');
-      el.className = 'time-slot';
-      el.textContent = slot;
-      if (busySlots.includes(slot)) {
-        el.classList.add('busy');
-      } else {
-        if (state.time === slot) el.classList.add('selected');
-        el.addEventListener('click', () => {
-          state.time = slot;
-          grid.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-          el.classList.add('selected');
-          checkStep3();
-        });
-      }
-      grid.appendChild(el);
+  function initWheel(wheelEl, items, initialIdx, onSelect) {
+    wheelEl.innerHTML = '';
+    const mkSpacer = () => { const s = document.createElement('div'); s.style.height = (ITEM_H * 2) + 'px'; return s; };
+    wheelEl.appendChild(mkSpacer());
+    items.forEach(val => {
+      const div = document.createElement('div');
+      div.className = 'tp-item';
+      div.textContent = val;
+      wheelEl.appendChild(div);
     });
+    wheelEl.appendChild(mkSpacer());
+    requestAnimationFrame(() => {
+      wheelEl.scrollTop = initialIdx * ITEM_H;
+      applyWheelVisuals(wheelEl, initialIdx);
+    });
+    let snapTimer = null;
+    wheelEl.addEventListener('scroll', () => {
+      const liveF = wheelEl.scrollTop / ITEM_H;
+      applyWheelVisuals(wheelEl, liveF);
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const idx = Math.max(0, Math.min(items.length - 1, Math.round(wheelEl.scrollTop / ITEM_H)));
+        wheelEl.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+        applyWheelVisuals(wheelEl, idx);
+        onSelect(idx);
+      }, 120);
+    }, { passive: true });
+    wheelEl.addEventListener('click', e => {
+      const item = e.target.closest('.tp-item');
+      if (!item) return;
+      const idx = Array.from(wheelEl.querySelectorAll('.tp-item')).indexOf(item);
+      if (idx >= 0) wheelEl.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+    });
+  }
+
+  function applyWheelVisuals(wheelEl, centerF) {
+    wheelEl.querySelectorAll('.tp-item').forEach((el, i) => {
+      const dist    = Math.abs(i - centerF);
+      el.style.opacity   = Math.max(0.22, 1 - dist * 0.28);
+      el.style.transform = `scale(${Math.max(0.70, 1 - dist * 0.09)})`;
+      el.classList.toggle('tp-selected', Math.round(centerF) === i);
+    });
+  }
+
+  function updateTimePicker() {
+    const h    = hourItems[pickerHourIdx];
+    const m    = minItems[pickerMinIdx];
+    const h24  = parseInt(h, 10);
+    const ampm = h24 >= 12 ? 'PM' : 'AM';
+    const h12  = String(h24 % 12 || 12).padStart(2, '0');
+    state.time = `${h12}:${m} ${ampm}`;
+    const disp = document.getElementById('selectedTimeDisplay');
+    if (disp) disp.textContent = `Selected: ${state.time}`;
+    checkStep3();
   }
 
   function checkStep3() {
@@ -250,7 +280,16 @@
 
   function initStep3() {
     renderCalendar();
-    renderTimeSlots();
+
+    const hourWheelEl = document.getElementById('hourWheel');
+    const minWheelEl  = document.getElementById('minWheel');
+    if (hourWheelEl) {
+      initWheel(hourWheelEl, hourItems, pickerHourIdx, idx => { pickerHourIdx = idx; updateTimePicker(); });
+    }
+    if (minWheelEl) {
+      initWheel(minWheelEl, minItems, pickerMinIdx, idx => { pickerMinIdx = idx; updateTimePicker(); });
+    }
+    updateTimePicker();
 
     document.getElementById('calPrev')?.addEventListener('click', () => {
       state.calendar.month--;
