@@ -3,6 +3,8 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 const RESEND_API_KEY    = Deno.env.get('RESEND_API_KEY') ?? '';
 const FROM_EMAIL        = 'Homelines Cleaning <noreply@homelinescleaning.com>';
 const ADMIN_TO_EMAIL    = 'serdar.atamoglanov@gmail.com';
+const ADMIN_TO_EMAIL_2  = 'tsikhotskyi@icloud.com';
+const ALL_ADMINS        = [ADMIN_TO_EMAIL, ADMIN_TO_EMAIL_2];
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -412,10 +414,112 @@ serve(async (req: Request) => {
 </body>
 </html>`;
 
+    const adminConfirmHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking Confirmed</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(30,58,92,0.12);">
+          <tr>
+            <td style="background:#1a2b4a;padding:32px 40px;text-align:center;">
+              <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+                <span style="font-size:28px;line-height:1;">🏠</span>
+                <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Homelines<span style="color:#4db8e8;font-weight:800;"> Cleaning</span></span>
+              </div>
+              <div style="font-size:13px;color:#94a3b8;margin-top:8px;letter-spacing:0.3px;">Admin Notification</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#dcfce7;padding:24px 40px;text-align:center;border-bottom:1px solid #bbf7d0;">
+              <div style="font-size:36px;">✅</div>
+              <h1 style="margin:10px 0 4px;font-size:22px;font-weight:800;color:#14532d;">Booking Confirmed!</h1>
+              <p style="margin:0;font-size:14px;color:#166534;">You confirmed a booking. The customer has been notified.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 40px 0;text-align:center;">
+              <p style="margin:0 0 8px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Booking Reference</p>
+              <div style="display:inline-block;background:#1e3a5c;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:4px;padding:14px 36px;border-radius:10px;">${ref_code}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 40px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;">
+                <tr>
+                  <td style="padding:18px 24px;text-align:center;">
+                    <div style="font-size:13px;color:#1d4ed8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">📅 Scheduled Appointment</div>
+                    <div style="font-size:22px;font-weight:800;color:#1e3a5c;">${formattedDate}</div>
+                    <div style="font-size:18px;font-weight:700;color:#4db6e8;margin-top:4px;">🕐 ${booking_time}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 40px 0;">
+              <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">👤 Customer Information</h2>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Name</span></td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:700;">${fullName}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Email</span></td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><a href="mailto:${email}" style="font-size:14px;color:#1e3a5c;font-weight:700;text-decoration:none;">${email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 0;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Phone</span></td>
+                  <td style="padding:9px 0;text-align:right;"><a href="tel:${phone || ''}" style="font-size:14px;color:#1e3a5c;font-weight:700;text-decoration:none;">${phone || '—'}</a></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">📋 Booking Details</h2>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🧹 Service</span></td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📍 Address</span></td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${fullAddress || '—'}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:11px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Price</span></td>
+                  <td style="padding:11px 0 0;text-align:right;"><span style="font-size:20px;color:#1e3a5c;font-weight:800;">$${price}</span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 40px;text-align:center;">
+              <a href="https://homelinescleaning.com/admin.html" style="display:inline-block;background:#166534;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:10px;letter-spacing:0.3px;">🖥️ View in Dashboard →</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. This is an automated admin notification.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
     if (type === 'admin_notification') {
       const adminRes = await sendEmail({
         from: FROM_EMAIL,
-        to: [ADMIN_TO_EMAIL],
+        to: ALL_ADMINS,
         reply_to: email,
         subject: `🔔 New Booking – ${ref_code} | ${service}`,
         html: adminHtml,
@@ -435,22 +539,35 @@ serve(async (req: Request) => {
     }
 
     if (type === 'confirmation') {
-      const customerRes = await sendEmail({
-        from: FROM_EMAIL,
-        to: [email],
-        reply_to: ADMIN_TO_EMAIL,
-        subject: `✅ Your Booking is Confirmed – ${ref_code} | Homelines Cleaning`,
-        html: confirmationHtml,
-      });
-      const customerResult = await customerRes.json();
-      if (!customerRes.ok) {
-        console.error('Resend confirmation error:', customerResult);
-        return new Response(JSON.stringify({ error: customerResult }), {
+      const [customerRes, adminConfirmRes] = await Promise.all([
+        sendEmail({
+          from: FROM_EMAIL,
+          to: [email],
+          reply_to: ADMIN_TO_EMAIL,
+          subject: `✅ Your Booking is Confirmed – ${ref_code} | Homelines Cleaning`,
+          html: confirmationHtml,
+        }),
+        sendEmail({
+          from: FROM_EMAIL,
+          to: ALL_ADMINS,
+          reply_to: email,
+          subject: `✅ New Booking Confirmed – ${ref_code} | ${service}`,
+          html: adminConfirmHtml,
+        }),
+      ]);
+      const [customerResult, adminConfirmResult] = await Promise.all([
+        customerRes.json(),
+        adminConfirmRes.json(),
+      ]);
+      if (!customerRes.ok || !adminConfirmRes.ok) {
+        const errors = { customer: customerRes.ok ? null : customerResult, admin: adminConfirmRes.ok ? null : adminConfirmResult };
+        console.error('Resend confirmation errors:', errors);
+        return new Response(JSON.stringify({ error: errors }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         });
       }
-      return new Response(JSON.stringify({ success: true, id: customerResult.id }), {
+      return new Response(JSON.stringify({ success: true, customer: customerResult.id, admin: adminConfirmResult.id }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -466,7 +583,7 @@ serve(async (req: Request) => {
       }),
       sendEmail({
         from: FROM_EMAIL,
-        to: [ADMIN_TO_EMAIL],
+        to: ALL_ADMINS,
         reply_to: email,
         subject: `🔔 New Booking – ${ref_code} | ${service}`,
         html: adminHtml,
