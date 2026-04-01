@@ -449,6 +449,44 @@
     if (backBtn) backBtn.addEventListener('click', () => goToStep(3));
   }
 
+  /* ---- Supabase session / OAuth handler ---- */
+  function handleOAuthSession(session) {
+    if (!session) return;
+    const u = session.user;
+    const meta = u.user_metadata || {};
+    const fullName = meta.full_name || meta.name || u.email.split('@')[0];
+    const nameParts = fullName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName  = nameParts.slice(1).join(' ') || '';
+
+    state.user = {
+      name: firstName,
+      surname: lastName,
+      phone: meta.phone_number || meta.phone || '',
+      email: u.email || '',
+      address: '',
+      apt: '',
+      city: '',
+      zip: ''
+    };
+    state.isGuest = false;
+
+    const loginEmail = document.getElementById('loginEmail');
+    if (loginEmail) loginEmail.value = u.email || '';
+
+    if (state.step === 1) goToStep(2);
+  }
+
+  function initSupabaseAuth() {
+    if (!window.supabase) return;
+    window.supabase.auth.onAuthStateChange((event, session) => {
+      if (session && state.step === 1 &&
+          (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        handleOAuthSession(session);
+      }
+    });
+  }
+
   /* ---- Init all ---- */
   function init() {
     initStep1();
@@ -471,6 +509,8 @@
     }
     const success = document.getElementById('stepSuccess');
     if (success) success.style.display = 'none';
+
+    initSupabaseAuth();
   }
 
   if (document.readyState === 'loading') {
