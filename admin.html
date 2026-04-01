@@ -420,6 +420,43 @@
       padding: 3px 9px;
       border-radius: 20px;
     }
+
+    /* ---- Confirm & Notify Button ---- */
+    .confirm-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, opacity .2s;
+      line-height: 1.3;
+    }
+    .confirm-btn:hover:not(:disabled) { background: #15803d; }
+    .confirm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ---- Toast ---- */
+    .admin-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #166534;
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,.28);
+      z-index: 9999;
+      transform: translateY(16px);
+      opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+      max-width: 320px;
+    }
+    .admin-toast.show { transform: translateY(0); opacity: 1; }
   </style>
 </head>
 <body>
@@ -633,6 +670,7 @@
           </select>
         </td>
         <td style="color:var(--gray);font-size:0.78rem;white-space:nowrap;">${created}</td>
+        <td>${status === 'pending' ? `<button class="confirm-btn" data-confirm-id="${b.id}" onclick="confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>` : ''}</td>
       </tr>`;
     }).join('');
 
@@ -641,7 +679,7 @@
         <thead><tr>
           <th>Ref Code</th><th>Name</th><th>Email</th><th>Phone</th>
           <th>Service</th><th>Date & Time</th><th>Address</th>
-          <th>Price</th><th>Status</th><th>Change Status</th><th>Created</th>
+          <th>Price</th><th>Status</th><th>Change Status</th><th>Created</th><th>Actions</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
@@ -718,6 +756,76 @@
     const filtered = getFiltered();
     updateCards(filtered, allBookings);
     renderTable(filtered);
+  }
+
+  /* ===== Confirm & Notify ===== */
+  const EMAIL_EDGE = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email';
+
+  async function confirmAndNotify(id) {
+    const booking = allBookings.find(b => b.id === id);
+    if (!booking) return;
+    const btn = document.querySelector(`[data-confirm-id="${id}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    try {
+      /* 1. Update status in Supabase */
+      const patchRes = await fetch(EDGE_URL, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': sessionStorage.getItem('hl_admin_pwd')
+        },
+        body: JSON.stringify({ id, status: 'confirmed' })
+      });
+      if (!patchRes.ok) throw new Error(`Status update failed: HTTP ${patchRes.status}`);
+
+      /* 2. Send confirmation email */
+      const emailRes = await fetch(EMAIL_EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type:         'confirmation',
+          email:        booking.email,
+          first_name:   booking.first_name,
+          last_name:    booking.last_name,
+          ref_code:     booking.ref_code,
+          service:      booking.service,
+          booking_date: booking.booking_date,
+          booking_time: booking.booking_time,
+          price:        booking.price,
+          address:      booking.address,
+          city:         booking.city
+        })
+      });
+      if (!emailRes.ok) throw new Error(`Email failed: HTTP ${emailRes.status}`);
+
+      /* 3. Update UI in-place */
+      booking.status = 'confirmed';
+      const badge = document.getElementById(`badge-${id}`);
+      if (badge) { badge.textContent = 'confirmed'; badge.className = 'badge badge-confirmed'; }
+      if (btn) btn.closest('td').innerHTML = '';
+      updateCards(getFiltered(), allBookings);
+      showToast('✅ Booking confirmed & customer notified');
+
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Confirm & Notify'; }
+      alert('Error: ' + e.message);
+    }
+  }
+
+  function showToast(msg) {
+    const old = document.getElementById('adminToast');
+    if (old) old.remove();
+    const t = document.createElement('div');
+    t.id = 'adminToast';
+    t.className = 'admin-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 400);
+    }, 3500);
   }
 
   /* ===== Util ===== */
