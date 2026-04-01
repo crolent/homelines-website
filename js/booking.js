@@ -98,7 +98,7 @@
         if (window.supabase) {
           window.supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.href }
+            options: { redirectTo: 'https://homelinescleaning.com/booking.html' }
           });
         }
       });
