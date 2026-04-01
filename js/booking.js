@@ -396,6 +396,34 @@
               console.error('Booking insert error:', error.message, error.details, error.hint);
             } else {
               console.log('Booking saved OK:', insertData);
+              try {
+                const emailRes = await fetch(
+                  'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email',
+                  {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email:        bookingData.email,
+                      first_name:   bookingData.first_name,
+                      ref_code:     bookingData.ref_code,
+                      service:      bookingData.service,
+                      booking_date: bookingData.booking_date,
+                      booking_time: bookingData.booking_time,
+                      price:        bookingData.price,
+                      address:      bookingData.address,
+                      city:         bookingData.city,
+                    })
+                  }
+                );
+                const emailResult = await emailRes.json();
+                if (emailRes.ok) {
+                  console.log('Confirmation email sent:', emailResult.id);
+                } else {
+                  console.error('Email send failed:', emailResult);
+                }
+              } catch (emailErr) {
+                console.error('Email function error:', emailErr);
+              }
             }
           } catch (e) {
             console.error('Booking insert exception:', e);
