@@ -1857,19 +1857,37 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     width: 100%;
     max-width: none;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
     border-radius: 16px;
     display: block;
     animation: svcSlideUp .25s cubic-bezier(.22,1,.36,1) both;
   }
 
-  /* Compact header */
+  /* Compact header — icon inline with title */
   .svc-modal-header {
     border-radius: 16px 16px 0 0;
-    padding: 16px 20px 13px;
+    padding: 14px 20px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
   }
-  .svc-modal-icon { font-size: 1.6rem; margin-bottom: 6px; }
-  .svc-modal-title { font-size: 1.1rem; margin-bottom: 5px; }
+  .svc-modal-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0;
+    margin-right: 8px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .svc-modal-title {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    flex: 1;
+  }
+  .svc-modal-meta {
+    width: 100%;
+    margin-top: 8px;
+  }
   .svc-modal-close { top: 12px; right: 12px; width: 30px; height: 30px; font-size: 0.95rem; }
   .svc-modal-meta { gap: 8px; }
   .svc-modal-price, .svc-modal-duration { font-size: 0.8rem; padding: 3px 10px; }
