@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 const RESEND_API_KEY    = Deno.env.get('RESEND_API_KEY') ?? '';
 const FROM_EMAIL        = 'Homelines Cleaning <noreply@homelinescleaning.com>';
-const ADMIN_TO_EMAIL    = 'sardar.atamoglanov@gmail.com';
+const ADMIN_TO_EMAIL    = 'serdar.atamoglanov@gmail.com';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
