@@ -1441,7 +1441,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 }
 .success-icon {
   width: 80px; height: 80px;
-  background: linear-gradient(135deg, #4ade80, #16a34a);
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
   border-radius: 50%;
   display: flex;
   align-items: center;
