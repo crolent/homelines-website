@@ -1706,9 +1706,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   background: #fff;
   border-radius: 20px;
   width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 640px;
   box-shadow: 0 24px 80px rgba(10,22,40,.28);
   animation: svcSlideUp .28s cubic-bezier(.22,1,.36,1) both;
   position: relative;
@@ -1845,97 +1843,86 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 .svc-modal-cta:hover { background: #2da0d4; transform: translateY(-2px); }
 
 @media (max-width: 768px) {
-  /* Overlay: full-screen dark background */
+  /* Overlay: 16px padding creates equal margins around modal */
   .svc-modal-overlay {
-    padding: 0;
+    padding: 16px;
     align-items: center;
     justify-content: center;
   }
 
-  /* Modal: fixed 16px inset all sides, full height, no scroll */
+  /* Modal: auto height wraps content, centered by overlay flex */
   .svc-modal {
-    position: fixed;
-    inset: 16px;
-    width: auto;
+    position: relative;
+    inset: auto;
+    width: 100%;
     max-width: none;
-    max-height: none;
-    overflow: hidden;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: 16px;
-    display: flex;
-    flex-direction: column;
+    display: block;
     animation: svcSlideUp .25s cubic-bezier(.22,1,.36,1) both;
   }
 
   /* Compact header */
   .svc-modal-header {
-    flex-shrink: 0;
     border-radius: 16px 16px 0 0;
-    padding: 14px 16px 11px;
+    padding: 16px 20px 13px;
   }
-  .svc-modal-icon { font-size: 1.5rem; margin-bottom: 6px; }
-  .svc-modal-title { font-size: 1.125rem; margin-bottom: 5px; }
-  .svc-modal-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 0.95rem; }
+  .svc-modal-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .svc-modal-title { font-size: 1.1rem; margin-bottom: 5px; }
+  .svc-modal-close { top: 12px; right: 12px; width: 30px; height: 30px; font-size: 0.95rem; }
   .svc-modal-meta { gap: 8px; }
-  .svc-modal-price, .svc-modal-duration { font-size: 0.78rem; padding: 3px 10px; }
+  .svc-modal-price, .svc-modal-duration { font-size: 0.8rem; padding: 3px 10px; }
 
-  /* Body: flex column, 10px gaps, fits without scroll */
+  /* Body: 20px padding, 14px gap between sections */
   .svc-modal-body {
-    flex: 1;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: 10px 14px 14px;
-    gap: 10px;
+    padding: 20px;
+    gap: 14px;
   }
 
-  /* Description — full text, smaller font */
+  /* Description: 15px as requested */
   .svc-modal-desc {
-    font-size: 0.75rem;
+    font-size: 0.9375rem;
     margin: 0;
-    line-height: 1.45;
-    flex-shrink: 0;
+    line-height: 1.5;
   }
 
   /* Section label */
-  .svc-modal-section-title {
-    font-size: 0.7rem;
-    margin: 0 0 6px;
-    flex-shrink: 0;
-  }
+  .svc-modal-section-title { font-size: 0.75rem; margin: 0 0 8px; }
 
   /* All 8 items, 2-column grid */
   .svc-modal-list {
     grid-template-columns: 1fr 1fr;
     gap: 6px;
     margin: 0;
-    flex-shrink: 0;
   }
-  .svc-modal-list li { font-size: 0.75rem; }
+  .svc-modal-list li { font-size: 0.875rem; }
   .svc-modal-list li:nth-child(n+5) { display: flex; }
 
-  /* Expect box — same blue box as desktop, tighter padding */
+  /* Expect box: same blue box as desktop */
   .svc-modal-expect {
     display: block;
     background: #f0f7ff;
-    border-left: 3px solid #4db6e8;
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 0.72rem;
+    border-left: 4px solid #4db6e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.875rem;
     color: #374151;
-    line-height: 1.45;
+    line-height: 1.5;
     margin: 0;
-    flex-shrink: 0;
   }
   .svc-modal-expect strong {
     display: block;
     color: #1a2b4a;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 3px;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
   }
 
-  /* CTA: full width, 44px, pushed to bottom */
+  /* CTA: full width, 44px */
   .svc-modal-cta {
     display: flex;
     align-items: center;
@@ -1944,9 +1931,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     box-sizing: border-box;
     height: 44px;
     padding: 0 16px;
-    margin-top: auto;
-    flex-shrink: 0;
-    font-size: 0.9rem;
+    font-size: 0.9375rem;
   }
 }
 
