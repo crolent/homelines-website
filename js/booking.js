@@ -367,8 +367,8 @@
           phone: u.phone || '',
           address: u.address ? `${u.address}${u.apt ? ' ' + u.apt : ''}, ${u.city}${u.zip ? ' ' + u.zip : ''}` : '',
           service: serviceNames,
-          date: state.date ? state.date.toISOString().split('T')[0] : null,
-          time: state.time || '',
+          booking_date: state.date ? state.date.toISOString().split('T')[0] : null,
+          booking_time: state.time || '',
           price: totalPrice
         };
 
