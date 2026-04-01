@@ -1844,11 +1844,41 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 }
 .svc-modal-cta:hover { background: #2da0d4; transform: translateY(-2px); }
 
-@media (max-width: 600px) {
-  .svc-modal-overlay { padding: 0; align-items: flex-end; }
-  .svc-modal { max-width: 100%; border-radius: 20px 20px 0 0; max-height: 92vh; }
-  .svc-modal-header { border-radius: 20px 20px 0 0; }
-  .svc-modal-list { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .svc-modal-overlay {
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+  }
+  .svc-modal {
+    width: 95%;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 16px;
+    animation: svcSlideUp .28s cubic-bezier(.22,1,.36,1) both;
+  }
+  .svc-modal-header {
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px 16px;
+  }
+  .svc-modal-icon { font-size: 2rem; }
+  .svc-modal-title { font-size: 1.25rem; }
+  .svc-modal-close {
+    top: 12px;
+    right: 12px;
+  }
+  .svc-modal-body { padding: 16px 20px 20px; }
+  .svc-modal-desc { font-size: 0.875rem; }
+  .svc-modal-list {
+    grid-template-columns: 1fr;
+  }
+  .svc-modal-list li { font-size: 0.875rem; }
+  .svc-modal-expect { font-size: 0.875rem; }
+  .svc-modal-cta { width: 100%; box-sizing: border-box; }
 }
 
 /* service cards become clickable */
