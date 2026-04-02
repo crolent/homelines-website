@@ -5,7 +5,7 @@ const ADMIN_PASSWORD = 'homelines2026';
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-password',
-  'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
 };
 
 function json(data: unknown, status = 200) {
@@ -50,6 +50,19 @@ serve(async (req: Request) => {
 
     if (error) return json({ error: error.message }, 500);
     return json({ booking: data });
+  }
+
+  if (req.method === 'DELETE') {
+    const { id } = await req.json();
+    if (!id) return json({ error: 'id required' }, 400);
+
+    const { error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', id);
+
+    if (error) return json({ error: error.message }, 500);
+    return json({ success: true });
   }
 
   return json({ error: 'Method not allowed' }, 405);

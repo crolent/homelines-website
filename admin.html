@@ -396,6 +396,7 @@
     .badge-confirmed { background: #dcfce7; color: #166534; }
     .badge-cancelled { background: #fee2e2; color: #991b1b; }
     .badge-archived  { background: #f1f5f9; color: #64748b; }
+    .badge-trashed   { background: #fee2e2; color: #991b1b; }
 
     /* ---- Status Dropdown (touch-friendly) ---- */
     .status-select {
@@ -549,6 +550,73 @@
     .restore-btn:hover:not(:disabled) { background: #bfdbfe; }
     .restore-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .row-archived > td { opacity: 0.65; }
+    .row-trashed  > td { opacity: 0.55; }
+
+    /* ---- Trash / Delete Buttons ---- */
+    .trash-btn {
+      background: #fee2e2;
+      color: #991b1b;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .trash-btn:hover:not(:disabled) { background: #fecaca; }
+    .trash-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .delete-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .delete-btn:hover:not(:disabled) { background: #b91c1c; }
+    .delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ---- Bulk Action Bar ---- */
+    .bulk-bar {
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--navy-dark);
+      color: #fff;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    @media (min-width: 600px) { .bulk-bar { padding: 10px 22px; } }
+    .bulk-count {
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+    .bulk-btn {
+      padding: 6px 13px;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+    .bulk-btn:hover { opacity: 0.85; }
+    .bulk-btn-archive { background: #94a3b8; color: #fff; }
+    .bulk-btn-trash   { background: #f87171; color: #fff; }
+    .bulk-btn-restore { background: #60a5fa; color: #fff; }
+    .bulk-btn-delete  { background: #ef4444; color: #fff; }
+    .bulk-btn-cancel  { background: rgba(255,255,255,.15); color: #fff; }
+    .row-check { width: 15px; height: 15px; cursor: pointer; accent-color: var(--navy); }
 
     .filter-active-badge {
       display: none;
@@ -674,6 +742,7 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="active" onclick="switchTab('active')">📋 Active Bookings</button>
         <button class="tab-btn" data-tab="archive" onclick="switchTab('archive')">📦 Archive</button>
+        <button class="tab-btn" data-tab="trash" onclick="switchTab('trash')">🗑️ Trash</button>
       </div>
       <!-- Filter Bar -->
       <div class="filter-bar">
@@ -684,6 +753,16 @@
         <button class="filter-btn" onclick="applyDateFilter()">Filter</button>
         <button class="clear-btn" onclick="clearDateFilter()">✕ Clear</button>
         <span class="filter-active-badge" id="filterBadge">Filtered</span>
+      </div>
+
+      <!-- Bulk Action Bar -->
+      <div id="bulkBar" class="bulk-bar" style="display:none;">
+        <span id="bulkCount" class="bulk-count"></span>
+        <button id="bulkArchiveBtn" class="bulk-btn bulk-btn-archive" onclick="bulkAction('archived')">📦 Archive</button>
+        <button id="bulkTrashBtn"   class="bulk-btn bulk-btn-trash"   onclick="bulkAction('trashed')">🗑️ Move to Trash</button>
+        <button id="bulkRestoreBtn" class="bulk-btn bulk-btn-restore" onclick="bulkAction('confirmed')">↩ Restore</button>
+        <button id="bulkDeleteBtn"  class="bulk-btn bulk-btn-delete"  onclick="bulkDeletePermanently()">🗑️ Delete Permanently</button>
+        <button class="bulk-btn bulk-btn-cancel" onclick="clearSelection()">&#x2715; Cancel</button>
       </div>
 
       <div class="table-wrap">
@@ -704,6 +783,7 @@
   let dateFrom    = null;
   let dateTo      = null;
   let currentTab  = 'active';
+  let selectedIds = new Set();
 
   /* ===== Auth ===== */
   function handleLogin(e) {
@@ -767,12 +847,12 @@
     document.getElementById('cardTotal').textContent   = filtered.length;
     document.getElementById('cardRevenue').textContent =
       '$' + filtered.reduce((s, b) => s + (b.price || 0), 0).toLocaleString();
-    if (currentTab === 'archive') {
+    if (currentTab !== 'active') {
       document.getElementById('cardToday').textContent   = '—';
       document.getElementById('cardPending').textContent = '—';
     } else {
       document.getElementById('cardToday').textContent   =
-        all.filter(b => (b.created_at||'').startsWith(today) && b.status !== 'archived').length;
+        all.filter(b => (b.created_at||'').startsWith(today) && b.status !== 'archived' && b.status !== 'trashed').length;
       document.getElementById('cardPending').textContent =
         all.filter(b => (b.status || 'pending') === 'pending').length;
     }
@@ -824,42 +904,67 @@
       const badgeClass = status === 'confirmed' ? 'badge-confirmed'
                        : status === 'cancelled' ? 'badge-cancelled'
                        : status === 'archived'  ? 'badge-archived'
+                       : status === 'trashed'   ? 'badge-trashed'
                        : 'badge-pending';
-      const isPending  = status === 'pending';
+      const isPending    = status === 'pending';
       const isArchivable = (status === 'confirmed' || status === 'cancelled') && currentTab === 'active';
       const isArchived   = currentTab === 'archive';
+      const isTrash      = currentTab === 'trash';
+      const isSelected   = selectedIds.has(b.id);
 
       const confirmBtn = isPending
-        ? `<button class="confirm-btn" data-confirm-id="${b.id}" onclick="event.stopPropagation();confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>`
+        ? `<button class="confirm-btn" data-confirm-id="${b.id}" onclick="event.stopPropagation();confirmAndNotify('${b.id}')">✅ Confirm</button>`
         : '';
       const archiveBtn = isArchivable
-        ? `<button class="archive-btn" data-archive-id="${b.id}" onclick="event.stopPropagation();archiveBooking('${b.id}')">📦 Archive</button>`
+        ? `<button class="archive-btn" data-archive-id="${b.id}" onclick="event.stopPropagation();archiveBooking('${b.id}')">📦</button>`
         : '';
-      const restoreBtn = isArchived
-        ? `<button class="restore-btn" data-restore-id="${b.id}" onclick="event.stopPropagation();restoreBooking('${b.id}')">↩ Restore</button>`
+      const trashBtnC  = (!isPending && currentTab === 'active') || isArchived
+        ? `<button class="trash-btn" data-trash-id="${b.id}" onclick="event.stopPropagation();trashBooking('${b.id}')">🗑️</button>`
         : '';
+      const restoreBtn = (isArchived || isTrash)
+        ? `<button class="restore-btn" data-restore-id="${b.id}" onclick="event.stopPropagation();restoreBooking('${b.id}')">↩</button>`
+        : '';
+      const deleteBtnC = isTrash
+        ? `<button class="delete-btn" data-delete-id="${b.id}" onclick="event.stopPropagation();deleteBooking('${b.id}')">🗑️ Del</button>`
+        : '';
+
       const confirmBtnLg = isPending
         ? `<button class="confirm-btn-lg" data-confirm-id="${b.id}" onclick="confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>`
         : '';
       const archiveBtnLg = isArchivable
         ? `<button class="archive-btn" data-archive-id="${b.id}" onclick="archiveBooking('${b.id}')">📦 Archive</button>`
         : '';
-      const restoreBtnLg = isArchived
+      const trashBtnLg   = !isTrash
+        ? `<button class="trash-btn" data-trash-id="${b.id}" onclick="trashBooking('${b.id}')">🗑️ Move to Trash</button>`
+        : '';
+      const restoreBtnLg = (isArchived || isTrash)
         ? `<button class="restore-btn" data-restore-id="${b.id}" onclick="restoreBooking('${b.id}')">↩ Restore to Active</button>`
         : '';
+      const deleteBtnLg  = isTrash
+        ? `<button class="delete-btn" data-delete-id="${b.id}" onclick="deleteBooking('${b.id}')">🗑️ Delete Permanently</button>`
+        : '';
+      const statusSelect = (isArchived || isTrash) ? '' : `
+        <select class="status-select" onchange="updateStatus('${b.id}', this.value)">
+          <option value="pending"   ${status==='pending'  ?'selected':''}>Pending</option>
+          <option value="confirmed" ${status==='confirmed'?'selected':''}>Confirmed</option>
+          <option value="cancelled" ${status==='cancelled'?'selected':''}>Cancelled</option>
+        </select>`;
+
+      const rowCls = `compact-row${isArchived?' row-archived':isTrash?' row-trashed':''}`;
 
       return `
-      <tr class="compact-row${isArchived ? ' row-archived' : ''}" data-id="${b.id}" onclick="toggleRow('${b.id}')">
+      <tr class="${rowCls}" data-id="${b.id}" onclick="toggleRow('${b.id}')">
+        <td onclick="event.stopPropagation()" style="width:36px;"><input type="checkbox" class="row-check" data-id="${b.id}" ${isSelected?'checked':''} onchange="toggleSelect('${b.id}')"></td>
         <td><span class="ref-code">${escHtml(b.ref_code||'—')}</span></td>
         <td style="white-space:nowrap;">${escHtml(name)}</td>
-        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(b.service||'—')}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(b.service||'—')}</td>
         <td style="white-space:nowrap;">${date}<br><span style="color:var(--gray);font-size:0.73rem;">${escHtml(b.booking_time||'—')}</span></td>
         <td><span class="badge ${badgeClass}" id="badge-${b.id}">${status}</span></td>
-        <td onclick="event.stopPropagation()" style="white-space:nowrap;">${confirmBtn}${archiveBtn}${restoreBtn}</td>
+        <td onclick="event.stopPropagation()" style="white-space:nowrap;">${confirmBtn}${archiveBtn}${trashBtnC}${restoreBtn}${deleteBtnC}</td>
         <td style="text-align:center;width:28px;"><span class="expand-arrow">›</span></td>
       </tr>
       <tr class="detail-row" id="detail-row-${b.id}">
-        <td colspan="7">
+        <td colspan="8">
           <div class="detail-inner" id="detail-inner-${b.id}">
             <div class="detail-card">
               <div class="detail-grid">
@@ -881,14 +986,7 @@
                 <div class="detail-field"><span class="detail-label">Created</span><span class="detail-value">${created}</span></div>
               </div>
               <div class="detail-actions">
-                ${confirmBtnLg}
-                ${archiveBtnLg}
-                ${restoreBtnLg}
-                ${isArchived ? '' : `<select class="status-select" onchange="updateStatus('${b.id}', this.value)">
-                  <option value="pending"   ${status==='pending'   ?'selected':''}>Pending</option>
-                  <option value="confirmed" ${status==='confirmed' ?'selected':''}>Confirmed</option>
-                  <option value="cancelled" ${status==='cancelled' ?'selected':''}>Cancelled</option>
-                </select>`}
+                ${confirmBtnLg}${archiveBtnLg}${trashBtnLg}${restoreBtnLg}${deleteBtnLg}${statusSelect}
               </div>
             </div>
           </div>
@@ -899,11 +997,13 @@
     document.getElementById('tableContainer').innerHTML = `
       <table>
         <thead><tr>
+          <th style="width:36px;"><input type="checkbox" id="selectAllCb" onchange="toggleSelectAll(this.checked)"></th>
           <th>Ref Code</th><th>Name</th><th>Service</th>
           <th>Date &amp; Time</th><th>Status</th><th>Action</th><th></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
+    updateSelectAllState();
   }
 
   /* ===== Update Status ===== */
@@ -963,6 +1063,7 @@
   /* ===== Switch Tab ===== */
   function switchTab(tab) {
     currentTab = tab;
+    selectedIds.clear();
     document.querySelectorAll('.tab-btn').forEach(btn =>
       btn.classList.toggle('active', btn.dataset.tab === tab)
     );
@@ -970,6 +1071,7 @@
     const filtered = getFiltered();
     updateCards(filtered, allBookings);
     renderTable(filtered);
+    updateBulkBar();
   }
 
   /* ===== Archive / Restore ===== */
@@ -1020,13 +1122,155 @@
     const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
     return allBookings.filter(b => {
       const s = b.status || 'pending';
-      if (currentTab === 'archive' ? s !== 'archived' : s === 'archived') return false;
+      const isActive  = s !== 'archived' && s !== 'trashed';
+      const isArchive = s === 'archived';
+      const isTrash   = s === 'trashed';
+      if (currentTab === 'active'  && !isActive)  return false;
+      if (currentTab === 'archive' && !isArchive) return false;
+      if (currentTab === 'trash'   && !isTrash)   return false;
       if (dateFrom && b.booking_date && b.booking_date < dateFrom) return false;
       if (dateTo   && b.booking_date && b.booking_date > dateTo)   return false;
       if (q && ![b.ref_code, b.first_name, b.last_name, b.email, b.service, b.phone]
         .join(' ').toLowerCase().includes(q)) return false;
       return true;
     });
+  }
+
+  /* ===== Checkbox / Bulk Selection ===== */
+  function toggleSelect(id) {
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    updateBulkBar();
+    updateSelectAllState();
+  }
+
+  function toggleSelectAll(checked) {
+    getFiltered().forEach(b => checked ? selectedIds.add(b.id) : selectedIds.delete(b.id));
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = checked);
+    updateBulkBar();
+  }
+
+  function updateSelectAllState() {
+    const filtered = getFiltered();
+    const cb = document.getElementById('selectAllCb');
+    if (cb) cb.checked = filtered.length > 0 && filtered.every(b => selectedIds.has(b.id));
+  }
+
+  function clearSelection() {
+    selectedIds.clear();
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = false);
+    updateSelectAllState();
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulkBar');
+    if (!bar) return;
+    const n = selectedIds.size;
+    if (n === 0) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    const countEl = document.getElementById('bulkCount');
+    if (countEl) countEl.textContent = `${n} booking${n > 1 ? 's' : ''} selected`;
+    const show = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? '' : 'none'; };
+    show('bulkArchiveBtn', currentTab === 'active');
+    show('bulkTrashBtn',   currentTab !== 'trash');
+    show('bulkRestoreBtn', currentTab !== 'active');
+    show('bulkDeleteBtn',  currentTab === 'trash');
+  }
+
+  /* ===== Trash / Delete ===== */
+  async function trashBooking(id) {
+    document.querySelectorAll(`[data-trash-id="${id}"]`).forEach(b => { b.disabled = true; b.textContent = '…'; });
+    try {
+      const res = await fetch(EDGE_URL, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': sessionStorage.getItem('hl_admin_pwd') },
+        body: JSON.stringify({ id, status: 'trashed' })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const booking = allBookings.find(b => b.id === id);
+      if (booking) booking.status = 'trashed';
+      selectedIds.delete(id);
+      const filtered = getFiltered();
+      updateCards(filtered, allBookings);
+      renderTable(filtered);
+      updateBulkBar();
+      showToast('🗑️ Booking moved to trash');
+    } catch (e) {
+      document.querySelectorAll(`[data-trash-id="${id}"]`).forEach(b => { b.disabled = false; b.textContent = '🗑️'; });
+      alert('Error: ' + e.message);
+    }
+  }
+
+  async function deleteBooking(id) {
+    if (!confirm('Permanently delete this booking? This cannot be undone.')) return;
+    document.querySelectorAll(`[data-delete-id="${id}"]`).forEach(b => { b.disabled = true; b.textContent = '…'; });
+    try {
+      const res = await fetch(EDGE_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': sessionStorage.getItem('hl_admin_pwd') },
+        body: JSON.stringify({ id })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const idx = allBookings.findIndex(b => b.id === id);
+      if (idx !== -1) allBookings.splice(idx, 1);
+      selectedIds.delete(id);
+      const filtered = getFiltered();
+      updateCards(filtered, allBookings);
+      renderTable(filtered);
+      updateBulkBar();
+      showToast('❌ Booking permanently deleted');
+    } catch (e) {
+      document.querySelectorAll(`[data-delete-id="${id}"]`).forEach(b => { b.disabled = false; b.textContent = '🗑️ Delete Permanently'; });
+      alert('Error: ' + e.message);
+    }
+  }
+
+  /* ===== Bulk Actions ===== */
+  async function bulkAction(targetStatus) {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    try {
+      await Promise.all(ids.map(id =>
+        fetch(EDGE_URL, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-admin-password': sessionStorage.getItem('hl_admin_pwd') },
+          body: JSON.stringify({ id, status: targetStatus })
+        })
+      ));
+      ids.forEach(id => { const b = allBookings.find(x => x.id === id); if (b) b.status = targetStatus; });
+      selectedIds.clear();
+      const filtered = getFiltered();
+      updateCards(filtered, allBookings);
+      renderTable(filtered);
+      updateBulkBar();
+      const n = ids.length;
+      const label = targetStatus === 'archived' ? `📦 ${n} booking${n>1?'s':''} archived`
+                  : targetStatus === 'trashed'  ? `🗑️ ${n} booking${n>1?'s':''} moved to trash`
+                  : `↩ ${n} booking${n>1?'s':''} restored`;
+      showToast(label);
+    } catch (e) { alert('Error: ' + e.message); }
+  }
+
+  async function bulkDeletePermanently() {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    if (!confirm(`Permanently delete ${ids.length} booking${ids.length>1?'s':''}? This cannot be undone.`)) return;
+    try {
+      await Promise.all(ids.map(id =>
+        fetch(EDGE_URL, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'x-admin-password': sessionStorage.getItem('hl_admin_pwd') },
+          body: JSON.stringify({ id })
+        })
+      ));
+      ids.forEach(id => { const idx = allBookings.findIndex(b => b.id === id); if (idx !== -1) allBookings.splice(idx, 1); });
+      selectedIds.clear();
+      const filtered = getFiltered();
+      updateCards(filtered, allBookings);
+      renderTable(filtered);
+      updateBulkBar();
+      showToast(`❌ ${ids.length} booking${ids.length>1?'s':''} permanently deleted`);
+    } catch (e) { alert('Error: ' + e.message); }
   }
 
   /* ===== Search ===== */
