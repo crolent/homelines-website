@@ -258,21 +258,17 @@
     .refresh-btn:hover { background: #2d5a8e; }
 
     /* ---- Table ---- */
-    .table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+    .table-wrap { overflow-x: hidden; }
     table {
       width: 100%;
-      min-width: 900px;
       border-collapse: collapse;
-      font-size: 0.875rem;
+      font-size: 13px;
     }
     thead tr { background: #f8fafc; }
     th {
-      padding: 11px 14px;
+      padding: 9px 12px;
       text-align: left;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .5px;
@@ -281,12 +277,98 @@
       white-space: nowrap;
     }
     td {
-      padding: 13px 14px;
+      padding: 8px 12px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
+    .compact-row { cursor: pointer; }
+    .compact-row:hover > td { background: #f8fafc; }
+    .row-expanded > td { background: #eff6ff !important; }
+    .expand-arrow {
+      display: inline-block;
+      font-size: 1.1rem;
+      color: var(--gray);
+      transition: transform 0.25s ease;
+      line-height: 1;
+      user-select: none;
+    }
+    .row-expanded .expand-arrow { transform: rotate(90deg); }
+
+    /* ---- Detail Panel ---- */
+    .detail-row > td {
+      padding: 0 !important;
+      border-bottom: none !important;
+    }
+    .detail-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    .detail-inner.open { max-height: 1200px; }
+    .detail-card {
+      padding: 16px 20px 20px;
+      background: #f0f7ff;
+      border-bottom: 2px solid #bfdbfe;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 28px;
+      margin-bottom: 14px;
+    }
+    .detail-full {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 700px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-full { grid-template-columns: 1fr 1fr; }
+    }
+    .detail-field {
+      padding: 7px 0;
+      border-bottom: 1px solid #dbeafe;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .detail-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--gray);
+    }
+    .detail-value {
+      font-size: 0.875rem;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    .detail-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .confirm-btn-lg {
+      flex: 1;
+      min-width: 160px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, opacity .2s;
+    }
+    .confirm-btn-lg:hover:not(:disabled) { background: #15803d; }
+    .confirm-btn-lg:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .ref-code {
       font-family: monospace;
@@ -628,6 +710,30 @@
       all.filter(b => (b.status || 'pending') === 'pending').length;
   }
 
+  /* ===== Expand / Collapse ===== */
+  let expandedId = null;
+
+  function toggleRow(id) {
+    if (expandedId && expandedId !== id) {
+      const prevInner = document.getElementById(`detail-inner-${expandedId}`);
+      const prevRow   = document.querySelector(`[data-id="${expandedId}"]`);
+      if (prevInner) prevInner.classList.remove('open');
+      if (prevRow)   prevRow.classList.remove('row-expanded');
+    }
+    const inner = document.getElementById(`detail-inner-${id}`);
+    const row   = document.querySelector(`[data-id="${id}"]`);
+    if (!inner) return;
+    if (expandedId === id) {
+      inner.classList.remove('open');
+      if (row) row.classList.remove('row-expanded');
+      expandedId = null;
+    } else {
+      inner.classList.add('open');
+      if (row) row.classList.add('row-expanded');
+      expandedId = id;
+    }
+  }
+
   /* ===== Render Table ===== */
   function renderTable(data) {
     if (!data.length) {
@@ -638,7 +744,6 @@
 
     const rows = data.map(b => {
       const name    = [b.first_name, b.last_name].filter(Boolean).join(' ') || '—';
-      const addr    = [b.address, b.city].filter(Boolean).join(', ') || '—';
       const date    = b.booking_date
         ? new Date(b.booking_date + 'T00:00:00').toLocaleDateString('en-US',
             { month:'short', day:'numeric', year:'numeric' })
@@ -647,39 +752,69 @@
         ? new Date(b.created_at).toLocaleDateString('en-US',
             { month:'short', day:'numeric', year:'numeric' })
         : '—';
-      const status  = b.status || 'pending';
+      const status     = b.status || 'pending';
       const badgeClass = status === 'confirmed' ? 'badge-confirmed'
                        : status === 'cancelled' ? 'badge-cancelled'
                        : 'badge-pending';
+      const isPending  = status === 'pending';
+      const confirmBtn = isPending
+        ? `<button class="confirm-btn" data-confirm-id="${b.id}" onclick="event.stopPropagation();confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>`
+        : '';
+      const confirmBtnLg = isPending
+        ? `<button class="confirm-btn-lg" data-confirm-id="${b.id}" onclick="confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>`
+        : '';
 
-      return `<tr>
-        <td><span class="ref-code">${b.ref_code || '—'}</span></td>
+      return `
+      <tr class="compact-row" data-id="${b.id}" onclick="toggleRow('${b.id}')">
+        <td><span class="ref-code">${escHtml(b.ref_code||'—')}</span></td>
         <td style="white-space:nowrap;">${escHtml(name)}</td>
-        <td><a href="mailto:${escHtml(b.email||'')}" style="color:var(--navy);text-decoration:none;white-space:nowrap;">${escHtml(b.email||'—')}</a></td>
-        <td style="white-space:nowrap;">${escHtml(b.phone||'—')}</td>
-        <td style="max-width:160px;">${escHtml(b.service||'—')}</td>
-        <td style="white-space:nowrap;">${date}<br><span style="color:var(--gray);font-size:0.78rem;">${escHtml(b.booking_time||'—')}</span></td>
-        <td style="max-width:170px;">${escHtml(addr)}</td>
-        <td style="font-weight:700;color:var(--navy);white-space:nowrap;">$${b.price??'—'}</td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(b.service||'—')}</td>
+        <td style="white-space:nowrap;">${date}<br><span style="color:var(--gray);font-size:0.73rem;">${escHtml(b.booking_time||'—')}</span></td>
         <td><span class="badge ${badgeClass}" id="badge-${b.id}">${status}</span></td>
-        <td>
-          <select class="status-select" onchange="updateStatus('${b.id}', this.value)">
-            <option value="pending"   ${status==='pending'   ?'selected':''}>Pending</option>
-            <option value="confirmed" ${status==='confirmed' ?'selected':''}>Confirmed</option>
-            <option value="cancelled" ${status==='cancelled' ?'selected':''}>Cancelled</option>
-          </select>
+        <td onclick="event.stopPropagation()">${confirmBtn}</td>
+        <td style="text-align:center;width:28px;"><span class="expand-arrow">›</span></td>
+      </tr>
+      <tr class="detail-row" id="detail-row-${b.id}">
+        <td colspan="7">
+          <div class="detail-inner" id="detail-inner-${b.id}">
+            <div class="detail-card">
+              <div class="detail-grid">
+                <div>
+                  <div class="detail-field"><span class="detail-label">Name</span><span class="detail-value">${escHtml(name)}</span></div>
+                  <div class="detail-field"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:${escHtml(b.email||'')}" style="color:var(--navy);text-decoration:none;">${escHtml(b.email||'—')}</a></span></div>
+                  <div class="detail-field"><span class="detail-label">Phone</span><span class="detail-value"><a href="tel:${escHtml(b.phone||'')}" style="color:var(--navy);text-decoration:none;">${escHtml(b.phone||'—')}</a></span></div>
+                </div>
+                <div>
+                  <div class="detail-field"><span class="detail-label">Address</span><span class="detail-value">${escHtml(b.address||'—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">City</span><span class="detail-value">${escHtml(b.city||'—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">ZIP</span><span class="detail-value">${escHtml(b.zip||'—')}</span></div>
+                </div>
+              </div>
+              <div class="detail-full">
+                <div class="detail-field"><span class="detail-label">Service</span><span class="detail-value">${escHtml(b.service||'—')}</span></div>
+                <div class="detail-field"><span class="detail-label">Price</span><span class="detail-value" style="font-weight:700;color:var(--navy);">$${b.price??'—'}</span></div>
+                <div class="detail-field"><span class="detail-label">Date &amp; Time</span><span class="detail-value">${date} · ${escHtml(b.booking_time||'—')}</span></div>
+                <div class="detail-field"><span class="detail-label">Created</span><span class="detail-value">${created}</span></div>
+              </div>
+              <div class="detail-actions">
+                ${confirmBtnLg}
+                <select class="status-select" onchange="updateStatus('${b.id}', this.value)">
+                  <option value="pending"   ${status==='pending'   ?'selected':''}>Pending</option>
+                  <option value="confirmed" ${status==='confirmed' ?'selected':''}>Confirmed</option>
+                  <option value="cancelled" ${status==='cancelled' ?'selected':''}>Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </td>
-        <td style="color:var(--gray);font-size:0.78rem;white-space:nowrap;">${created}</td>
-        <td>${status === 'pending' ? `<button class="confirm-btn" data-confirm-id="${b.id}" onclick="confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button>` : ''}</td>
       </tr>`;
     }).join('');
 
     document.getElementById('tableContainer').innerHTML = `
       <table>
         <thead><tr>
-          <th>Ref Code</th><th>Name</th><th>Email</th><th>Phone</th>
-          <th>Service</th><th>Date & Time</th><th>Address</th>
-          <th>Price</th><th>Status</th><th>Change Status</th><th>Created</th><th>Actions</th>
+          <th>Ref Code</th><th>Name</th><th>Service</th>
+          <th>Date &amp; Time</th><th>Status</th><th>Action</th><th></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
@@ -803,12 +938,12 @@
       booking.status = 'confirmed';
       const badge = document.getElementById(`badge-${id}`);
       if (badge) { badge.textContent = 'confirmed'; badge.className = 'badge badge-confirmed'; }
-      if (btn) btn.closest('td').innerHTML = '';
+      document.querySelectorAll(`[data-confirm-id="${id}"]`).forEach(el => el.remove());
       updateCards(getFiltered(), allBookings);
       showToast('✅ Booking confirmed & customer notified');
 
     } catch (e) {
-      if (btn) { btn.disabled = false; btn.textContent = '✅ Confirm & Notify'; }
+      document.querySelectorAll(`[data-confirm-id="${id}"]`).forEach(el => { el.disabled = false; el.textContent = '✅ Confirm & Notify'; });
       alert('Error: ' + e.message);
     }
   }
