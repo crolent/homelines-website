@@ -188,9 +188,9 @@
       sum_price: 'Total Price', sum_duration: 'Duration',
       sum_name: 'Name', sum_email: 'Email', sum_phone: 'Phone', sum_address: 'Address',
       confirm_btn: 'Confirm Booking →',
-      booking_success_title: '🎉 Booking Confirmed!',
-      booking_success_desc: 'Thank you! Your booking has been received. We\'ll send a confirmation to your email and contact you shortly.',
-      bk_success_email: 'A confirmation email has been sent with all the details.',
+      booking_success_title: '⏳ Booking Under Review',
+      booking_success_desc: 'Thank you! We\'ve received your booking and our team is currently reviewing it.',
+      bk_success_email: 'You\'ll receive a confirmation email once approved. Usually within 1 hour.',
       booking_success_btn: 'Back to Home',
 
       /* SERVICE MODALS */
