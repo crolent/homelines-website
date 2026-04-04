@@ -1417,6 +1417,30 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   min-height: 22px;
   letter-spacing: 0.01em;
 }
+.tp-ampm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tp-ampm-btn {
+  width: 58px;
+  padding: 10px 0;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
+  color: var(--gray);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 0.03em;
+}
+.tp-ampm-btn:hover { border-color: var(--blue); color: var(--blue); }
+.tp-ampm-btn.tp-ampm-active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
 .confirmation-summary {
   background: var(--gray-light);
   border-radius: var(--radius-lg);

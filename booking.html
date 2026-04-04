@@ -222,13 +222,19 @@
         <!-- Time Picker (drum-roll) -->
         <div class="tp-section">
           <label class="form-label" style="margin-bottom:12px;display:block;" data-i18n="bk_time_lbl">Select a Time</label>
-          <div class="tp-wrap">
-            <div class="tp-highlight"></div>
-            <div class="tp-fade-top"></div>
-            <div class="tp-fade-bot"></div>
-            <div class="tp-wheel" id="hourWheel"></div>
-            <div class="tp-colon">:</div>
-            <div class="tp-wheel" id="minWheel"></div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="tp-wrap">
+              <div class="tp-highlight"></div>
+              <div class="tp-fade-top"></div>
+              <div class="tp-fade-bot"></div>
+              <div class="tp-wheel" id="hourWheel"></div>
+              <div class="tp-colon">:</div>
+              <div class="tp-wheel" id="minWheel"></div>
+            </div>
+            <div class="tp-ampm">
+              <button type="button" id="amBtn" class="tp-ampm-btn tp-ampm-active">AM</button>
+              <button type="button" id="pmBtn" class="tp-ampm-btn">PM</button>
+            </div>
           </div>
           <p class="tp-display" id="selectedTimeDisplay"></p>
         </div>

@@ -24,10 +24,11 @@
   ];
 
   const ITEM_H    = 44;
-  const hourItems = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const hourItems = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const minItems  = ['00', '15', '30', '45'];
-  let pickerHourIdx = 9;
+  let pickerHourIdx = 8;
   let pickerMinIdx  = 0;
+  let pickerAmPm    = 'AM';
 
   /* ---- DOM refs ---- */
   const stepEl = (n) => document.getElementById(`step${n}`);
@@ -262,14 +263,13 @@
   }
 
   function updateTimePicker() {
-    const h    = hourItems[pickerHourIdx];
-    const m    = minItems[pickerMinIdx];
-    const h24  = parseInt(h, 10);
-    const ampm = h24 >= 12 ? 'PM' : 'AM';
-    const h12  = String(h24 % 12 || 12).padStart(2, '0');
-    state.time = `${h12}:${m} ${ampm}`;
+    const h = hourItems[pickerHourIdx];
+    const m = minItems[pickerMinIdx];
+    state.time = `${h}:${m} ${pickerAmPm}`;
     const disp = document.getElementById('selectedTimeDisplay');
     if (disp) disp.textContent = `Selected: ${state.time}`;
+    document.getElementById('amBtn')?.classList.toggle('tp-ampm-active', pickerAmPm === 'AM');
+    document.getElementById('pmBtn')?.classList.toggle('tp-ampm-active', pickerAmPm === 'PM');
     checkStep3();
   }
 
@@ -289,6 +289,8 @@
     if (minWheelEl) {
       initWheel(minWheelEl, minItems, pickerMinIdx, idx => { pickerMinIdx = idx; updateTimePicker(); });
     }
+    document.getElementById('amBtn')?.addEventListener('click', () => { pickerAmPm = 'AM'; updateTimePicker(); });
+    document.getElementById('pmBtn')?.addEventListener('click', () => { pickerAmPm = 'PM'; updateTimePicker(); });
     updateTimePicker();
 
     document.getElementById('calPrev')?.addEventListener('click', () => {
