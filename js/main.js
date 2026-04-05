@@ -166,22 +166,7 @@
     counters.forEach(el => counterObserver.observe(el));
   }
 
-  const homesEl = document.querySelector('.hero-stat:first-child [data-count]');
-  if (homesEl && window.supabase) {
-    let started = false;
-    const fallback = setTimeout(() => { if (!started) { started = true; startCounters(); } }, 2000);
-    window.supabase
-      .from('bookings')
-      .select('*', { count: 'exact', head: true })
-      .then(({ count }) => {
-        clearTimeout(fallback);
-        if (typeof count === 'number' && count > 0) homesEl.dataset.count = count;
-        if (!started) { started = true; startCounters(); }
-      })
-      .catch(() => { clearTimeout(fallback); if (!started) { started = true; startCounters(); } });
-  } else {
-    startCounters();
-  }
+  startCounters();
 })();
 
 /* ===== CONTACT FORM ===== */
