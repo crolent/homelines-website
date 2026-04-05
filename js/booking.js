@@ -14,6 +14,7 @@
     sqft: '',
     bedrooms: '',
     bathrooms: '',
+    halfBathrooms: '0',
     extras: [],      /* array of { name, price } */
     hasPets: false,
     notes: '',
@@ -116,9 +117,18 @@
   function calcBathSurcharge() {
     if (!state.bedrooms || !state.bathrooms) return 0;
     const bedN  = state.bedrooms === 'Studio' ? 0 : (parseInt(state.bedrooms) || 0);
-    const bathN = parseFloat(state.bathrooms) || 0;
-    const extra = Math.floor(bathN) - Math.max(bedN, 1);
+    const bathN = parseInt(state.bathrooms) || 0;
+    const extra = bathN - Math.max(bedN, 1);
     return extra > 0 ? extra * 25 : 0;
+  }
+  function calcHalfBathSurcharge() {
+    const halfN = parseInt(state.halfBathrooms) || 0;
+    if (!halfN) return 0;
+    const bedN  = !state.bedrooms || state.bedrooms === 'Studio' ? 0 : (parseInt(state.bedrooms) || 0);
+    const bathN = parseInt(state.bathrooms) || 0;
+    const slotsAvailable = Math.max(bedN, 1) - bathN;
+    if (slotsAvailable > 0) return 0;
+    return halfN * 15;
   }
   function calcSqftSurcharge() {
     if (!state.bedrooms || !state.sqft) return 0;
@@ -140,7 +150,7 @@
   }
   function calcTotal() {
     const base = calcBasePrice();
-    const sub  = Math.max(89, base + calcBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
+    const sub  = Math.max(89, base + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
     const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
     state.couponDiscount = disc;
     return sub - disc;
@@ -150,18 +160,20 @@
   function updatePriceSummary() {
     const box = document.getElementById('priceSummary');
     if (!box) return;
-    const base   = calcBasePrice();
-    const bath   = calcBathSurcharge();
-    const sq     = calcSqftSurcharge();
-    const extras = calcExtrasTotal();
-    const total  = calcTotal();
-    const hasData = state.services.length > 0;
+    const base     = calcBasePrice();
+    const bath     = calcBathSurcharge();
+    const halfBath = calcHalfBathSurcharge();
+    const sq       = calcSqftSurcharge();
+    const extras   = calcExtrasTotal();
+    const total    = calcTotal();
+    const hasData  = state.services.length > 0;
 
     const svcName = state.services.map(s => T(s.nameKey) || s.nameKey).join(' + ') || '—';
     let rows = '';
     rows += `<div class="ps-row"><span class="ps-label">Service</span><span class="ps-val">${svcName}</span></div>`;
     if (state.bedrooms) {
-      rows += `<div class="ps-row"><span class="ps-label">Size</span><span class="ps-val">${state.bedrooms} bed · ${state.bathrooms || '?'} bath</span></div>`;
+      const halfPart = parseInt(state.halfBathrooms) > 0 ? ` · ${state.halfBathrooms} half bath` : '';
+      rows += `<div class="ps-row"><span class="ps-label">Size</span><span class="ps-val">${state.bedrooms} bed · ${state.bathrooms || '?'} full bath${halfPart}</span></div>`;
     }
     if (state.sqft) {
       rows += `<div class="ps-row"><span class="ps-label">Sq. Ft.</span><span class="ps-val">${state.sqft}</span></div>`;
@@ -171,6 +183,9 @@
     }
     if (bath) {
       rows += `<div class="ps-row ps-add"><span class="ps-label">Bathroom surcharge</span><span class="ps-val">+$${bath}</span></div>`;
+    }
+    if (halfBath) {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">Half bath surcharge</span><span class="ps-val">+$${halfBath}</span></div>`;
     }
     if (sq) {
       rows += `<div class="ps-row ps-add"><span class="ps-label">Sqft surcharge</span><span class="ps-val">+$${sq}</span></div>`;
@@ -363,9 +378,10 @@
     document.getElementById('petsYes')?.addEventListener('click', () => setPets(true));
     document.getElementById('petsNo')?.addEventListener('click',  () => setPets(false));
 
-    document.getElementById('detailsBeds')?.addEventListener('change',  (e) => { state.bedrooms  = e.target.value; updatePriceSummary(); });
-    document.getElementById('detailsBaths')?.addEventListener('change', (e) => { state.bathrooms = e.target.value; updatePriceSummary(); });
-    document.getElementById('detailsSqft')?.addEventListener('change',  (e) => { state.sqft      = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsBeds')?.addEventListener('change',      (e) => { state.bedrooms      = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsBaths')?.addEventListener('change',     (e) => { state.bathrooms     = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsHalfBaths')?.addEventListener('change', (e) => { state.halfBathrooms = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsSqft')?.addEventListener('change',      (e) => { state.sqft          = e.target.value; updatePriceSummary(); });
 
     document.getElementById('couponApplyBtn')?.addEventListener('click', () => {
       const code = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
@@ -397,11 +413,12 @@
           showError('detailsCitySelectErr', 'Please select your city');
           return;
         }
-        state.serviceCity = city;
-        state.sqft        = document.getElementById('detailsSqft')?.value      || '';
-        state.bedrooms    = document.getElementById('detailsBeds')?.value      || '';
-        state.bathrooms   = document.getElementById('detailsBaths')?.value     || '';
-        state.notes       = document.getElementById('detailsNotes')?.value     || '';
+        state.serviceCity   = city;
+        state.sqft          = document.getElementById('detailsSqft')?.value       || '';
+        state.bedrooms      = document.getElementById('detailsBeds')?.value       || '';
+        state.bathrooms     = document.getElementById('detailsBaths')?.value      || '';
+        state.halfBathrooms = document.getElementById('detailsHalfBaths')?.value  || '0';
+        state.notes         = document.getElementById('detailsNotes')?.value      || '';
         goToStep(4);
       });
     }
@@ -584,11 +601,12 @@
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
       if (valid) {
-        state.serviceCity = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
-        state.sqft        = document.getElementById('detailsSqft')?.value  || state.sqft;
-        state.bedrooms    = document.getElementById('detailsBeds')?.value  || state.bedrooms;
-        state.bathrooms   = document.getElementById('detailsBaths')?.value || state.bathrooms;
-        state.notes       = document.getElementById('detailsNotes')?.value || state.notes;
+        state.serviceCity   = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
+        state.sqft          = document.getElementById('detailsSqft')?.value        || state.sqft;
+        state.bedrooms      = document.getElementById('detailsBeds')?.value        || state.bedrooms;
+        state.bathrooms     = document.getElementById('detailsBaths')?.value       || state.bathrooms;
+        state.halfBathrooms = document.getElementById('detailsHalfBaths')?.value   || state.halfBathrooms;
+        state.notes         = document.getElementById('detailsNotes')?.value       || state.notes;
         state.user = { ...state.user, name, surname, phone, address, apt, city, zip };
         populateSummary();
         goToStep(6);
@@ -618,9 +636,10 @@
 
     /* home size */
     const homeParts = [];
-    if (state.sqft)     homeParts.push(state.sqft + ' sqft');
-    if (state.bedrooms) homeParts.push(state.bedrooms + ' bed');
-    if (state.bathrooms) homeParts.push(state.bathrooms + ' bath');
+    if (state.sqft)      homeParts.push(state.sqft + ' sqft');
+    if (state.bedrooms)  homeParts.push(state.bedrooms + ' bed');
+    if (state.bathrooms) homeParts.push(state.bathrooms + ' full bath');
+    if (parseInt(state.halfBathrooms) > 0) homeParts.push(state.halfBathrooms + ' half bath');
     set('sumHomeSize', homeParts.length ? homeParts.join(' · ') : '—');
 
     /* extras */
@@ -652,17 +671,19 @@
     }
 
     /* total */
-    const base  = calcBasePrice();
-    const bath  = calcBathSurcharge();
-    const sq    = calcSqftSurcharge();
-    const total = calcTotal();
+    const base      = calcBasePrice();
+    const bath      = calcBathSurcharge();
+    const halfBath  = calcHalfBathSurcharge();
+    const sq        = calcSqftSurcharge();
+    const total     = calcTotal();
     const extrasTotal = calcExtrasTotal();
     let priceStr = '—';
     if (base > 0) {
       priceStr = `$${total}`;
       const parts = [`Base $${base}`];
-      if (bath > 0) parts.push(`+$${bath} bath`);
-      if (sq > 0)   parts.push(`+$${sq} sqft`);
+      if (bath > 0)     parts.push(`+$${bath} full bath`);
+      if (halfBath > 0) parts.push(`+$${halfBath} half bath`);
+      if (sq > 0)       parts.push(`+$${sq} sqft`);
       if (extrasTotal > 0) parts.push(`+$${extrasTotal} extras`);
       if (state.couponDiscount > 0) parts.push(`−$${state.couponDiscount} coupon`);
       if (parts.length > 1) priceStr += ` (${parts.join(', ')})`;
@@ -697,9 +718,10 @@
           booking_time: state.time || '',
           status:       'pending',
           /* new fields */
-          sqft:         state.sqft       || null,
-          bedrooms:     state.bedrooms   || null,
-          bathrooms:    state.bathrooms  || null,
+          sqft:         state.sqft            || null,
+          bedrooms:     state.bedrooms        || null,
+          bathrooms:    state.bathrooms       || null,
+          half_baths:   state.halfBathrooms   || null,
           extras:       state.extras.length ? state.extras : null,
           notes:        state.notes      || null,
           coupon_code:  state.couponCode || null,
@@ -737,6 +759,7 @@
                   sqft:         state.sqft,
                   bedrooms:     state.bedrooms,
                   bathrooms:    state.bathrooms,
+                  half_baths:   state.halfBathrooms,
                   extras:       state.extras,
                   has_pets:     state.hasPets,
                   notes:        state.notes
