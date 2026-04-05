@@ -2045,36 +2045,56 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 /* ===== EXTRAS GRID ===== */
 .extras-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 }
 .extra-card {
   position: relative;
   border: 2px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 14px 10px 12px;
   cursor: pointer;
-  transition: all .2s;
+  transition: border-color .2s, background .2s, box-shadow .2s;
   background: #fff;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
   user-select: none;
 }
-.extra-card:hover { border-color: var(--blue); background: var(--blue-pale); }
-.extra-card.selected { border-color: var(--navy); background: var(--blue-pale); }
+.extra-card:hover {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+  box-shadow: 0 2px 8px rgba(77,182,232,.15);
+}
+.extra-card.selected {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+  box-shadow: 0 2px 10px rgba(77,182,232,.2);
+}
 .extra-check {
   position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 0.75rem;
+  top: 7px;
+  right: 9px;
+  font-size: 0.7rem;
   font-weight: 800;
-  color: var(--navy);
+  color: var(--blue);
   opacity: 0;
   transition: opacity .15s;
 }
 .extra-card.selected .extra-check { opacity: 1; }
-.extra-name { font-size: 0.85rem; font-weight: 600; color: var(--navy-dark); line-height: 1.3; }
+.extra-icon {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.extra-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy-dark);
+  line-height: 1.3;
+}
 .extra-price { font-size: 0.8rem; color: var(--blue); font-weight: 700; }
 
 /* ===== PETS TOGGLE ===== */
