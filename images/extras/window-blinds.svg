@@ -1,18 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Window frame -->
-  <rect x="5" y="5" width="38" height="40" rx="3" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2"/>
-  <!-- Top rail -->
-  <rect x="5" y="5" width="38" height="7" rx="3" fill="#1a2b4a"/>
-  <!-- Blind slats -->
-  <line x1="7" y1="18" x2="41" y2="18" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
-  <line x1="7" y1="24" x2="41" y2="24" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
-  <line x1="7" y1="30" x2="41" y2="30" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
-  <line x1="7" y1="36" x2="41" y2="36" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
-  <!-- Pull cord -->
-  <line x1="38" y1="12" x2="38" y2="28" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2,3"/>
-  <!-- Hand wiping a slat -->
-  <path d="M10 41 L10 37 Q10 35 12 35 L12 37 Q12 35 14 35 L14 37 Q14 35 16 35 L16 41 Q16 44 13 44 Q10 44 10 41 Z" fill="#4db8e8" stroke="#1a2b4a" stroke-width="1"/>
-  <!-- Cleaning motion lines -->
-  <line x1="18" y1="37" x2="22" y2="37" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-  <line x1="18" y1="40" x2="21" y2="40" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+  <!-- Window frame (light gray) -->
+  <rect x="5" y="5" width="38" height="40" rx="3" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+  <!-- Top rail (dark teal) -->
+  <rect x="5" y="5" width="38" height="7" rx="3" fill="#00838F"/>
+  <!-- Blind slats (warm amber/tan) -->
+  <rect x="7" y="14" width="34" height="4" rx="1" fill="#FFD54F"/>
+  <rect x="7" y="20" width="34" height="4" rx="1" fill="#FFCA28"/>
+  <rect x="7" y="26" width="34" height="4" rx="1" fill="#FFD54F"/>
+  <rect x="7" y="32" width="34" height="4" rx="1" fill="#FFCA28"/>
+  <!-- Slat shadow lines -->
+  <line x1="7" y1="18" x2="41" y2="18" stroke="#F9A825" stroke-width="1" opacity="0.5"/>
+  <line x1="7" y1="24" x2="41" y2="24" stroke="#F9A825" stroke-width="1" opacity="0.5"/>
+  <line x1="7" y1="30" x2="41" y2="30" stroke="#F9A825" stroke-width="1" opacity="0.5"/>
+  <line x1="7" y1="36" x2="41" y2="36" stroke="#F9A825" stroke-width="1" opacity="0.5"/>
+  <!-- Pull cord (teal) -->
+  <line x1="38" y1="12" x2="38" y2="30" stroke="#26C6DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="2,3"/>
+  <!-- Hand (peach/skin) wiping a slat -->
+  <path d="M10 41 L10 37 Q10 35 12 35 L12 37 Q12 35 14 35 L14 37 Q14 35 16 35 L16 41 Q16 44 13 44 Q10 44 10 41 Z" fill="#FFCCBC" stroke="#FF7043" stroke-width="1.2"/>
+  <!-- Cleaning motion lines (teal) -->
+  <line x1="18" y1="37" x2="23" y2="37" stroke="#26C6DA" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+  <line x1="18" y1="40" x2="22" y2="40" stroke="#26C6DA" stroke-width="1.8" stroke-linecap="round" opacity="0.4"/>
 </svg>

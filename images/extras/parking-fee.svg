@@ -1,22 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Parking sign background -->
-  <rect x="8" y="2" width="32" height="26" rx="5" fill="#1a2b4a"/>
-  <!-- Letter P (path-based, no text element) -->
+  <!-- Parking sign (blue) -->
+  <rect x="8" y="2" width="32" height="26" rx="5" fill="#1565C0"/>
+  <rect x="8" y="2" width="32" height="26" rx="5" fill="none" stroke="#0D47A1" stroke-width="1.5"/>
+  <!-- Letter P (white, path-based) -->
   <path d="M18 8 L18 24 M18 8 L24 8 Q30 8 30 14 Q30 20 24 20 L18 20"
-        fill="none" stroke="white" stroke-width="2.8"
+        fill="none" stroke="white" stroke-width="3"
         stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Sign pole -->
-  <line x1="24" y1="28" x2="24" y2="36" stroke="#1a2b4a" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Car body -->
-  <rect x="6" y="39" width="36" height="9" rx="3" fill="#4db8e8"/>
-  <!-- Car cabin -->
-  <path d="M12 39 L15 33 L33 33 L36 39 Z" fill="#4db8e8" stroke="#1a2b4a" stroke-width="1.2" stroke-linejoin="round"/>
-  <!-- Car windows -->
-  <path d="M16 39 L18 35 L30 35 L32 39 Z" fill="#e8f4fd" opacity="0.7"/>
-  <!-- Car wheels -->
-  <circle cx="14" cy="45" r="3" fill="#1a2b4a"/>
-  <circle cx="34" cy="45" r="3" fill="#1a2b4a"/>
-  <!-- Wheel shine -->
-  <circle cx="13" cy="44" r="1" fill="white" opacity="0.3"/>
-  <circle cx="33" cy="44" r="1" fill="white" opacity="0.3"/>
+  <!-- Sign pole (dark) -->
+  <line x1="24" y1="28" x2="24" y2="35" stroke="#546E7A" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Car body (bright red) -->
+  <rect x="5" y="38" width="38" height="10" rx="3" fill="#EF5350"/>
+  <!-- Car cabin (red) -->
+  <path d="M12 38 L15 32 L33 32 L36 38 Z" fill="#EF5350" stroke="#C62828" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- Car windows (light blue) -->
+  <path d="M16 38 L18 34 L30 34 L32 38 Z" fill="#B3E5FC" opacity="0.9"/>
+  <!-- Window divider -->
+  <line x1="24" y1="34" x2="24" y2="38" stroke="#90A4AE" stroke-width="1"/>
+  <!-- Car wheels (dark) -->
+  <circle cx="14" cy="45" r="4" fill="#37474F"/>
+  <circle cx="34" cy="45" r="4" fill="#37474F"/>
+  <!-- Wheel rims (silver) -->
+  <circle cx="14" cy="45" r="2" fill="#90A4AE"/>
+  <circle cx="34" cy="45" r="2" fill="#90A4AE"/>
+  <!-- Headlights (yellow) -->
+  <rect x="5"  y="40" width="4" height="2" rx="1" fill="#FFD54F"/>
+  <rect x="39" y="40" width="4" height="2" rx="1" fill="#FFD54F"/>
 </svg>

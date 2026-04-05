@@ -1,15 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
   <!-- Left window frame -->
-  <rect x="3" y="10" width="19" height="28" rx="2" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="1.8"/>
-  <line x1="12.5" y1="10" x2="12.5" y2="38" stroke="#1a2b4a" stroke-width="1.5"/>
-  <line x1="3"    y1="24" x2="22"   y2="24" stroke="#1a2b4a" stroke-width="1.5"/>
+  <rect x="3" y="10" width="19" height="28" rx="2" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.8"/>
+  <!-- Left panes (sky blue) -->
+  <rect x="4"  y="11" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="13" y="11" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="4"  y="25" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="13" y="25" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <line x1="12.5" y1="10" x2="12.5" y2="38" stroke="#546E7A" stroke-width="1.5"/>
+  <line x1="3"    y1="24" x2="22"   y2="24" stroke="#546E7A" stroke-width="1.5"/>
   <!-- Right window frame -->
-  <rect x="26" y="10" width="19" height="28" rx="2" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="1.8"/>
-  <line x1="35.5" y1="10" x2="35.5" y2="38" stroke="#1a2b4a" stroke-width="1.5"/>
-  <line x1="26"   y1="24" x2="45"   y2="24" stroke="#1a2b4a" stroke-width="1.5"/>
-  <!-- Squeegee blade spanning both -->
-  <rect x="5" y="13" width="38" height="3.5" rx="1.8" fill="#4db8e8"/>
-  <!-- Squeegee handle grip -->
-  <rect x="40" y="11" width="6" height="8" rx="2" fill="#1a2b4a"/>
-  <line x1="43" y1="19" x2="43" y2="26" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
+  <rect x="26" y="10" width="19" height="28" rx="2" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.8"/>
+  <!-- Right panes (sky blue) -->
+  <rect x="27" y="11" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="36" y="11" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="27" y="25" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <rect x="36" y="25" width="8" height="12" rx="1" fill="#B3E5FC"/>
+  <line x1="35.5" y1="10" x2="35.5" y2="38" stroke="#546E7A" stroke-width="1.5"/>
+  <line x1="26"   y1="24" x2="45"   y2="24" stroke="#546E7A" stroke-width="1.5"/>
+  <!-- Squeegee blade (orange) -->
+  <rect x="5" y="13" width="38" height="3.5" rx="1.8" fill="#FF7043"/>
+  <!-- Squeegee handle grip (gray) -->
+  <rect x="40" y="11" width="6" height="8" rx="2" fill="#546E7A"/>
+  <line x1="43" y1="19" x2="43" y2="26" stroke="#8D6E63" stroke-width="2" stroke-linecap="round"/>
 </svg>

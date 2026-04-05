@@ -1,20 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Spray bottle body -->
+  <!-- Spray bottle body (white) -->
   <path d="M20 20 L20 44 Q20 46 22 46 L34 46 Q36 46 36 44 L36 24 Q36 22 34 22 L24 22 L24 20 Z"
-        fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2" stroke-linejoin="round"/>
-  <!-- Bottle neck -->
-  <rect x="22" y="12" width="8" height="10" rx="2" fill="#1a2b4a"/>
-  <!-- Trigger grip -->
-  <path d="M22 22 Q15 24 13 30 Q13 34 18 34" fill="none" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
-  <!-- Nozzle -->
-  <rect x="13" y="12" width="9" height="4" rx="2" fill="#4db8e8"/>
-  <!-- Spray droplets -->
-  <circle cx="8"  cy="10" r="2"   fill="#4db8e8" opacity="0.7"/>
-  <circle cx="5"  cy="14" r="1.5" fill="#4db8e8" opacity="0.5"/>
-  <circle cx="10" cy="7"  r="1.5" fill="#4db8e8" opacity="0.5"/>
-  <circle cx="5"  cy="7"  r="2"   fill="#4db8e8" opacity="0.4"/>
-  <!-- Leaf on bottle -->
-  <path d="M26 28 Q36 22 35 32 Q30 38 25 32 Q23 28 26 28 Z" fill="#4db8e8" opacity="0.8"/>
-  <!-- Leaf vein -->
-  <line x1="26" y1="28" x2="33" y2="32" stroke="#1a2b4a" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+        fill="#ECEFF1" stroke="#546E7A" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Bottle neck (green) -->
+  <rect x="22" y="12" width="8" height="10" rx="2" fill="#388E3C"/>
+  <!-- Trigger grip (green) -->
+  <path d="M22 22 Q15 24 13 30 Q13 34 18 34" fill="none" stroke="#388E3C" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Nozzle (dark green) -->
+  <rect x="13" y="12" width="9" height="4" rx="2" fill="#1B5E20"/>
+  <!-- Spray droplets (cyan) -->
+  <circle cx="8"  cy="10" r="2.2" fill="#26C6DA" opacity="0.85"/>
+  <circle cx="5"  cy="14" r="1.5" fill="#26C6DA" opacity="0.65"/>
+  <circle cx="10" cy="7"  r="1.5" fill="#29B6F6" opacity="0.7"/>
+  <circle cx="5"  cy="7"  r="2"   fill="#26C6DA" opacity="0.5"/>
+  <circle cx="3"  cy="11" r="1"   fill="#29B6F6" opacity="0.4"/>
+  <!-- Large bright leaf on bottle -->
+  <path d="M26 28 Q37 21 36 33 Q31 39 25 33 Q23 28 26 28 Z" fill="#66BB6A"/>
+  <!-- Leaf vein (dark green) -->
+  <line x1="26" y1="28" x2="34" y2="33" stroke="#1B5E20" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Leaf side veins -->
+  <line x1="29" y1="28" x2="27" y2="32" stroke="#1B5E20" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+  <line x1="32" y1="29" x2="30" y2="33" stroke="#1B5E20" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+  <!-- Cap label line -->
+  <line x1="22" y1="38" x2="34" y2="38" stroke="#90A4AE" stroke-width="1" opacity="0.4"/>
 </svg>

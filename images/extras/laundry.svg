@@ -1,19 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Machine body -->
-  <rect x="5" y="5" width="38" height="40" rx="4" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2"/>
-  <!-- Control panel top strip -->
-  <rect x="5" y="5" width="38" height="11" rx="4" fill="#1a2b4a"/>
-  <!-- Control knob -->
-  <circle cx="14" cy="10.5" r="3" fill="#4db8e8"/>
-  <circle cx="22" cy="10.5" r="3" fill="#e8f4fd" opacity="0.4"/>
-  <!-- On/off button -->
-  <rect x="29" y="8" width="10" height="5" rx="2.5" fill="#4db8e8" opacity="0.7"/>
-  <!-- Porthole outer ring -->
-  <circle cx="24" cy="31" r="11" fill="none" stroke="#1a2b4a" stroke-width="2.2"/>
-  <!-- Porthole glass -->
-  <circle cx="24" cy="31" r="8" fill="#4db8e8" opacity="0.25"/>
-  <!-- Clothes tumble shape -->
-  <path d="M18 29 Q22 24 28 29 Q25 35 18 32 Z" fill="#4db8e8" opacity="0.55"/>
-  <!-- Porthole inner shine -->
-  <circle cx="20" cy="27" r="2" fill="white" opacity="0.35"/>
+  <!-- Machine body (white) -->
+  <rect x="5" y="5" width="38" height="40" rx="4" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+  <!-- Control panel (teal) -->
+  <rect x="5" y="5" width="38" height="11" rx="4" fill="#26C6DA"/>
+  <!-- Control knob (red) -->
+  <circle cx="14" cy="10.5" r="3" fill="#EF5350"/>
+  <!-- Control knob (yellow) -->
+  <circle cx="22" cy="10.5" r="3" fill="#FFD54F"/>
+  <!-- On/off button (green) -->
+  <rect x="29" y="8" width="10" height="5" rx="2.5" fill="#66BB6A"/>
+  <circle cx="31" cy="10.5" r="1" fill="white" opacity="0.7"/>
+  <!-- Porthole outer ring (dark gray) -->
+  <circle cx="24" cy="31" r="11" fill="#546E7A" stroke="#37474F" stroke-width="1.5"/>
+  <!-- Porthole glass (blue water) -->
+  <circle cx="24" cy="31" r="8.5" fill="#29B6F6"/>
+  <!-- Clothes tumbling (white) -->
+  <path d="M18 29 Q22 24 28 29 Q25 35 18 32 Z" fill="white" opacity="0.6"/>
+  <path d="M22 34 Q26 30 30 33" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <!-- Porthole shine -->
+  <circle cx="20" cy="26" r="2.5" fill="white" opacity="0.3"/>
 </svg>

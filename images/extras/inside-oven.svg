@@ -1,23 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Steam wisps above oven -->
-  <path d="M15 7 Q13 4 15 1" fill="none" stroke="#4db8e8" stroke-width="2"   stroke-linecap="round"/>
-  <path d="M24 6 Q22 3 24 0" fill="none" stroke="#4db8e8" stroke-width="2"   stroke-linecap="round"/>
-  <path d="M33 7 Q31 4 33 1" fill="none" stroke="#4db8e8" stroke-width="2"   stroke-linecap="round"/>
-  <!-- Oven body -->
-  <rect x="4" y="9" width="40" height="36" rx="4" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2"/>
-  <!-- Control panel strip -->
-  <rect x="4" y="9" width="40" height="10" rx="4" fill="#1a2b4a"/>
-  <!-- Knobs -->
-  <circle cx="12" cy="14" r="3"   fill="#4db8e8"/>
-  <circle cx="20" cy="14" r="3"   fill="#e8f4fd" opacity="0.45"/>
-  <circle cx="28" cy="14" r="3"   fill="#4db8e8" opacity="0.7"/>
-  <circle cx="36" cy="14" r="3"   fill="#e8f4fd" opacity="0.45"/>
-  <!-- Oven door window -->
-  <rect x="10" y="22" width="28" height="16" rx="2" fill="#1a2b4a" opacity="0.12" stroke="#1a2b4a" stroke-width="1.5"/>
-  <!-- Hot glow inside window -->
-  <rect x="12" y="24" width="24" height="12" rx="1.5" fill="#4db8e8" opacity="0.18"/>
+  <!-- Steam wisps (orange/yellow) -->
+  <path d="M15 7 Q13 4 15 1" fill="none" stroke="#FF7043" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M24 6 Q22 3 24 0" fill="none" stroke="#FFD54F" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M33 7 Q31 4 33 1" fill="none" stroke="#FF7043" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Oven body (dark steel gray) -->
+  <rect x="4" y="9" width="40" height="36" rx="4" fill="#78909C" stroke="#37474F" stroke-width="2"/>
+  <!-- Control panel strip (very dark) -->
+  <rect x="4" y="9" width="40" height="10" rx="4" fill="#37474F"/>
+  <!-- Knobs (colorful) -->
+  <circle cx="12" cy="14" r="3" fill="#EF5350"/>
+  <circle cx="20" cy="14" r="3" fill="#FFD54F"/>
+  <circle cx="28" cy="14" r="3" fill="#66BB6A"/>
+  <circle cx="36" cy="14" r="3" fill="#29B6F6"/>
+  <!-- Oven door window (dark with warm glow) -->
+  <rect x="10" y="22" width="28" height="16" rx="2" fill="#1a2b4a" stroke="#546E7A" stroke-width="1.5"/>
+  <!-- Orange/red heat glow inside -->
+  <rect x="11" y="23" width="26" height="14" rx="1.5" fill="#FF5722" opacity="0.4"/>
+  <rect x="13" y="25" width="22" height="10" rx="1"   fill="#FFD54F" opacity="0.2"/>
   <!-- Oven rack line -->
-  <line x1="11" y1="32" x2="37" y2="32" stroke="#1a2b4a" stroke-width="1" stroke-linecap="round" opacity="0.35"/>
-  <!-- Door handle -->
-  <line x1="14" y1="44" x2="34" y2="44" stroke="#1a2b4a" stroke-width="3" stroke-linecap="round"/>
+  <line x1="12" y1="32" x2="36" y2="32" stroke="#90A4AE" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Door handle (silver) -->
+  <rect x="14" y="42" width="20" height="3" rx="1.5" fill="#B0BEC5"/>
 </svg>
