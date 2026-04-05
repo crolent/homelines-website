@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Machine body -->
+  <rect x="5" y="5" width="38" height="40" rx="4" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2"/>
+  <!-- Control panel top strip -->
+  <rect x="5" y="5" width="38" height="11" rx="4" fill="#1a2b4a"/>
+  <!-- Control knob -->
+  <circle cx="14" cy="10.5" r="3" fill="#4db8e8"/>
+  <circle cx="22" cy="10.5" r="3" fill="#e8f4fd" opacity="0.4"/>
+  <!-- On/off button -->
+  <rect x="29" y="8" width="10" height="5" rx="2.5" fill="#4db8e8" opacity="0.7"/>
+  <!-- Porthole outer ring -->
+  <circle cx="24" cy="31" r="11" fill="none" stroke="#1a2b4a" stroke-width="2.2"/>
+  <!-- Porthole glass -->
+  <circle cx="24" cy="31" r="8" fill="#4db8e8" opacity="0.25"/>
+  <!-- Clothes tumble shape -->
+  <path d="M18 29 Q22 24 28 29 Q25 35 18 32 Z" fill="#4db8e8" opacity="0.55"/>
+  <!-- Porthole inner shine -->
+  <circle cx="20" cy="27" r="2" fill="white" opacity="0.35"/>
+</svg>

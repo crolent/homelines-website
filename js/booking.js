@@ -22,27 +22,27 @@
   };
 
   const EXTRAS_LIST = [
-    { name: 'Wash dishes',                           price: 15,  icon: '🍽️' },
-    { name: 'Inside kitchen cabinets (empty)',        price: 35,  icon: '🗄️' },
-    { name: 'Inside kitchen cabinets (full)',         price: 55,  icon: '📦' },
-    { name: 'Interior windows up to 1250 sqft',      price: 45,  icon: '🪟' },
-    { name: 'Interior windows up to 2500 sqft',      price: 75,  icon: '🪟' },
-    { name: 'Exterior windows up to 1250 sqft',      price: 55,  icon: '🏠' },
-    { name: 'Exterior windows up to 2500 sqft',      price: 85,  icon: '🏢' },
-    { name: 'BBQ grill',                             price: 35,  icon: '🔥' },
-    { name: 'Laundry',                               price: 25,  icon: '👕' },
-    { name: 'One hour of organizing',                price: 45,  icon: '🗂️' },
-    { name: 'Heavy Duty cleaning',                   price: 65,  icon: '💪' },
-    { name: 'Sweep inside garage',                   price: 35,  icon: '🧹' },
-    { name: 'Patio furniture dust/wipe',             price: 25,  icon: '🪑' },
-    { name: 'Detail baseboards',                     price: 35,  icon: '📐' },
-    { name: 'Pets at home',                          price: 20,  icon: '🐾' },
-    { name: 'Detail window blinds',                  price: 35,  icon: '🧣' },
-    { name: 'Inside fridge',                         price: 35,  icon: '❄️' },
-    { name: 'Inside oven',                           price: 35,  icon: '🥘' },
-    { name: 'Eco friendly green products',           price: 25,  icon: '🌿' },
-    { name: 'Extra garage',                          price: 45,  icon: '🚗' },
-    { name: 'Parking fee',                           price: 15,  icon: '🅿️' }
+    { name: 'Wash dishes',                           price: 15,  icon: 'images/extras/wash-dishes.svg' },
+    { name: 'Inside kitchen cabinets (empty)',        price: 35,  icon: 'images/extras/cabinets-empty.svg' },
+    { name: 'Inside kitchen cabinets (full)',         price: 55,  icon: 'images/extras/cabinets-full.svg' },
+    { name: 'Interior windows up to 1250 sqft',      price: 45,  icon: 'images/extras/windows-int-sm.svg' },
+    { name: 'Interior windows up to 2500 sqft',      price: 75,  icon: 'images/extras/windows-int-lg.svg' },
+    { name: 'Exterior windows up to 1250 sqft',      price: 55,  icon: 'images/extras/windows-ext-sm.svg' },
+    { name: 'Exterior windows up to 2500 sqft',      price: 85,  icon: 'images/extras/windows-ext-lg.svg' },
+    { name: 'BBQ grill',                             price: 35,  icon: 'images/extras/bbq-grill.svg' },
+    { name: 'Laundry',                               price: 25,  icon: 'images/extras/laundry.svg' },
+    { name: 'One hour of organizing',                price: 45,  icon: 'images/extras/organizing.svg' },
+    { name: 'Heavy Duty cleaning',                   price: 65,  icon: 'images/extras/heavy-duty.svg' },
+    { name: 'Sweep inside garage',                   price: 35,  icon: 'images/extras/garage-sweep.svg' },
+    { name: 'Patio furniture dust/wipe',             price: 25,  icon: 'images/extras/patio-furniture.svg' },
+    { name: 'Detail baseboards',                     price: 35,  icon: 'images/extras/baseboards.svg' },
+    { name: 'Pets at home',                          price: 20,  icon: 'images/extras/pets.svg' },
+    { name: 'Detail window blinds',                  price: 35,  icon: 'images/extras/window-blinds.svg' },
+    { name: 'Inside fridge',                         price: 35,  icon: 'images/extras/inside-fridge.svg' },
+    { name: 'Inside oven',                           price: 35,  icon: 'images/extras/inside-oven.svg' },
+    { name: 'Eco friendly green products',           price: 25,  icon: 'images/extras/eco-products.svg' },
+    { name: 'Extra garage',                          price: 45,  icon: 'images/extras/extra-garage.svg' },
+    { name: 'Parking fee',                           price: 15,  icon: 'images/extras/parking-fee.svg' }
   ];
 
   const PETS_EXTRA = EXTRAS_LIST.find(e => e.name === 'Pets at home');
@@ -206,7 +206,7 @@
       if (isSelected) card.classList.add('selected');
       card.innerHTML = `
         <div class="extra-check">✓</div>
-        <div class="extra-icon">${extra.icon}</div>
+        <div class="extra-icon"><img src="${extra.icon}" alt="" width="36" height="36" loading="lazy"/></div>
         <div class="extra-name">${extra.name}</div>
         <div class="extra-price">+$${extra.price}</div>
       `;

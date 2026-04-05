@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Steam wisps -->
+  <path d="M15 11 Q13 8 15 5" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24 10 Q22 7 24 4" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round"/>
+  <path d="M33 11 Q31 8 33 5" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round"/>
+  <!-- Grill lid (top dome) -->
+  <path d="M8 26 A16 12 0 0 1 40 26 Z" fill="#1a2b4a"/>
+  <!-- Grill bowl -->
+  <path d="M8 26 Q9 36 24 36 Q39 36 40 26 Z" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2"/>
+  <!-- Grill grate lines -->
+  <line x1="13" y1="30" x2="35" y2="30" stroke="#1a2b4a" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="33" x2="36" y2="33" stroke="#1a2b4a" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Legs -->
+  <line x1="16" y1="36" x2="11" y2="46" stroke="#1a2b4a" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="32" y1="36" x2="37" y2="46" stroke="#1a2b4a" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Cross bar -->
+  <line x1="13" y1="43" x2="35" y2="43" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
+  <!-- Lid handle -->
+  <line x1="22" y1="15" x2="26" y2="15" stroke="#1a2b4a" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

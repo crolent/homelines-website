@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Mop handle (diagonal) -->
+  <line x1="36" y1="4" x2="20" y2="38" stroke="#1a2b4a" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Mop head (strands) -->
+  <path d="M14 36 Q17 32 20 38" fill="none" stroke="#4db8e8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M16 39 Q19 35 22 41" fill="none" stroke="#4db8e8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M12 39 Q15 36 17 42" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round"/>
+  <!-- Bucket body (trapezoid) -->
+  <path d="M26 24 L30 44 Q34 46 38 44 L36 24 Z" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Bucket water line -->
+  <line x1="27" y1="35" x2="37" y2="35" stroke="#4db8e8" stroke-width="1.8"/>
+  <!-- Bucket water fill -->
+  <path d="M27.5 35 L30 44 Q34 46 38 44 L36.5 35 Z" fill="#4db8e8" opacity="0.25"/>
+  <!-- Bucket handle arc -->
+  <path d="M28 24 Q32 18 36 24" fill="none" stroke="#1a2b4a" stroke-width="2" stroke-linecap="round"/>
+  <!-- Effort sparks -->
+  <line x1="40" y1="8"  x2="43" y2="6"  stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="42" y1="13" x2="46" y2="12" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="41" y1="18" x2="45" y2="19" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

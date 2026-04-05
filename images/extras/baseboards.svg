@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Floor (horizontal base) -->
+  <line x1="2" y1="42" x2="46" y2="42" stroke="#1a2b4a" stroke-width="3" stroke-linecap="round"/>
+  <!-- Wall (vertical left side) -->
+  <line x1="8" y1="4" x2="8" y2="42" stroke="#1a2b4a" stroke-width="3" stroke-linecap="round"/>
+  <!-- Baseboard strip -->
+  <rect x="8" y="36" width="38" height="6" rx="1" fill="#e8f4fd" stroke="#1a2b4a" stroke-width="1.5"/>
+  <!-- Brush body -->
+  <rect x="26" y="16" width="14" height="9" rx="2" fill="#1a2b4a"/>
+  <!-- Brush handle -->
+  <line x1="33" y1="16" x2="26" y2="6" stroke="#1a2b4a" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Brush bristles -->
+  <line x1="27" y1="25" x2="26" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="29" y1="25" x2="29" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="31" y1="25" x2="31" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="33" y1="25" x2="33" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="35" y1="25" x2="36" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="37" y1="25" x2="38" y2="34" stroke="#4db8e8" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
