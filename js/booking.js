@@ -14,7 +14,6 @@
     sqft: '',
     bedrooms: '',
     bathrooms: '',
-    halfBaths: '',
     extras: [],      /* array of { name, price } */
     hasPets: false,
     notes: '',
@@ -284,7 +283,6 @@
         state.sqft        = document.getElementById('detailsSqft')?.value      || '';
         state.bedrooms    = document.getElementById('detailsBeds')?.value      || '';
         state.bathrooms   = document.getElementById('detailsBaths')?.value     || '';
-        state.halfBaths   = document.getElementById('detailsHalfBaths')?.value || '';
         state.notes       = document.getElementById('detailsNotes')?.value     || '';
         goToStep(4);
       });
@@ -500,7 +498,6 @@
     if (state.sqft)     homeParts.push(state.sqft + ' sqft');
     if (state.bedrooms) homeParts.push(state.bedrooms + ' bed');
     if (state.bathrooms) homeParts.push(state.bathrooms + ' bath');
-    if (state.halfBaths && state.halfBaths !== '0') homeParts.push(state.halfBaths + ' half bath');
     set('sumHomeSize', homeParts.length ? homeParts.join(' · ') : '—');
 
     /* extras */
@@ -570,7 +567,6 @@
           sqft:         state.sqft       || null,
           bedrooms:     state.bedrooms   || null,
           bathrooms:    state.bathrooms  || null,
-          half_baths:   state.halfBaths  || null,
           extras:       state.extras.length ? state.extras : null,
           notes:        state.notes      || null,
           coupon_code:  state.couponCode || null,
