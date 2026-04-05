@@ -1,20 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Chair back (green) -->
-  <rect x="8" y="8" width="18" height="22" rx="3" fill="#66BB6A" stroke="#388E3C" stroke-width="2"/>
-  <!-- Chair seat (green) -->
-  <rect x="6" y="28" width="24" height="8" rx="3" fill="#66BB6A" stroke="#388E3C" stroke-width="2"/>
-  <!-- Chair back slats (dark green) -->
-  <line x1="13" y1="12" x2="13" y2="26" stroke="#1B5E20" stroke-width="1.8" stroke-linecap="round"/>
-  <line x1="18" y1="12" x2="18" y2="26" stroke="#1B5E20" stroke-width="1.8" stroke-linecap="round"/>
-  <line x1="23" y1="12" x2="23" y2="26" stroke="#1B5E20" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- Chair legs (brown) -->
-  <line x1="10" y1="36" x2="8"  y2="46" stroke="#8D6E63" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="26" y1="36" x2="28" y2="46" stroke="#8D6E63" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Cleaning cloth (teal/cyan, draped over back) -->
-  <path d="M26 10 Q33 7 37 14 Q39 21 34 25 Q30 27 27 22 Q30 16 26 14 Z" fill="#26C6DA" stroke="#00838F" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Cloth texture lines -->
-  <line x1="29" y1="12" x2="35" y2="18" stroke="white" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
-  <line x1="27" y1="16" x2="33" y2="22" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/>
-  <!-- Cloth shine -->
-  <circle cx="32" cy="13" r="1.5" fill="white" opacity="0.5"/>
+  <!-- ===== UMBRELLA (4 colored segments) ===== -->
+  <!-- Segment 1: orange (far left) -->
+  <path d="M24 16 L12 16 A12 12 0 0 1 15.5 7.5 Z" fill="#FF7043"/>
+  <!-- Segment 2: teal (left-top) -->
+  <path d="M24 16 L15.5 7.5 A12 12 0 0 1 24 4 Z"  fill="#26C6DA"/>
+  <!-- Segment 3: yellow (right-top) -->
+  <path d="M24 16 L24 4 A12 12 0 0 1 32.5 7.5 Z"  fill="#FFD54F"/>
+  <!-- Segment 4: green (far right) -->
+  <path d="M24 16 L32.5 7.5 A12 12 0 0 1 36 16 Z" fill="#66BB6A"/>
+  <!-- White rib lines -->
+  <line x1="24" y1="16" x2="12"   y2="16"  stroke="white" stroke-width="0.8" opacity="0.65"/>
+  <line x1="24" y1="16" x2="15.5" y2="7.5" stroke="white" stroke-width="0.8" opacity="0.65"/>
+  <line x1="24" y1="16" x2="24"   y2="4"   stroke="white" stroke-width="0.8" opacity="0.65"/>
+  <line x1="24" y1="16" x2="32.5" y2="7.5" stroke="white" stroke-width="0.8" opacity="0.65"/>
+  <line x1="24" y1="16" x2="36"   y2="16"  stroke="white" stroke-width="0.8" opacity="0.65"/>
+  <!-- Scalloped fringe edge (orange) -->
+  <path d="M12 16 Q13.5 19.5 15 16 Q16.5 19.5 18 16 Q19.5 19.5 21 16 Q22.5 19.5 24 16 Q25.5 19.5 27 16 Q28.5 19.5 30 16 Q31.5 19.5 33 16 Q34.5 19.5 36 16"
+        fill="none" stroke="#E64A19" stroke-width="1.8"/>
+  <!-- Finial at top -->
+  <circle cx="24" cy="4" r="2" fill="#8D6E63"/>
+
+  <!-- ===== POLE ===== -->
+  <line x1="24" y1="16" x2="24" y2="30" stroke="#8D6E63" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- ===== TABLE ===== -->
+  <!-- Table surface (wood oval, slightly top-down view) -->
+  <ellipse cx="24" cy="30" rx="10" ry="4" fill="#BCAAA4" stroke="#8D6E63" stroke-width="1.8"/>
+  <!-- Pole hole -->
+  <circle cx="24" cy="30" r="1.5" fill="#8D6E63"/>
+
+  <!-- ===== LEFT CHAIR ===== -->
+  <!-- Seat -->
+  <rect x="5" y="29" width="11" height="3.5" rx="1" fill="#66BB6A" stroke="#2E7D32" stroke-width="1.2"/>
+  <!-- X-frame legs -->
+  <line x1="7"    y1="32.5" x2="13.5" y2="42" stroke="#2E7D32" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="13.5" y1="32.5" x2="7"    y2="42" stroke="#2E7D32" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Foot bar -->
+  <line x1="7" y1="42" x2="13.5" y2="42" stroke="#2E7D32" stroke-width="1.4" stroke-linecap="round"/>
+
+  <!-- ===== RIGHT CHAIR ===== -->
+  <!-- Seat -->
+  <rect x="32" y="29" width="11" height="3.5" rx="1" fill="#66BB6A" stroke="#2E7D32" stroke-width="1.2"/>
+  <!-- X-frame legs -->
+  <line x1="34"   y1="32.5" x2="40.5" y2="42" stroke="#2E7D32" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="40.5" y1="32.5" x2="34"   y2="42" stroke="#2E7D32" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Foot bar -->
+  <line x1="34" y1="42" x2="40.5" y2="42" stroke="#2E7D32" stroke-width="1.4" stroke-linecap="round"/>
 </svg>
