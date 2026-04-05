@@ -438,33 +438,35 @@
             } else {
               console.log('Booking saved OK:', insertData);
               try {
-                const emailRes = await fetch(
-                  'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email',
-                  {
+                const EMAIL_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email';
+                const basePayload = {
+                  email:        bookingData.email,
+                  first_name:   bookingData.first_name,
+                  last_name:    bookingData.last_name,
+                  ref_code:     bookingData.ref_code,
+                  service:      bookingData.service,
+                  booking_date: bookingData.booking_date,
+                  booking_time: bookingData.booking_time,
+                  price:        bookingData.price,
+                  address:      bookingData.address,
+                  city:         bookingData.city,
+                };
+                const [reviewRes, adminRes] = await Promise.all([
+                  fetch(EMAIL_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      type:         'admin_notification',
-                      email:        bookingData.email,
-                      first_name:   bookingData.first_name,
-                      last_name:    bookingData.last_name,
-                      phone:        bookingData.phone,
-                      ref_code:     bookingData.ref_code,
-                      service:      bookingData.service,
-                      booking_date: bookingData.booking_date,
-                      booking_time: bookingData.booking_time,
-                      price:        bookingData.price,
-                      address:      bookingData.address,
-                      city:         bookingData.city,
-                    })
-                  }
-                );
-                const emailResult = await emailRes.json();
-                if (emailRes.ok) {
-                  console.log('Admin notification sent:', emailResult.id);
-                } else {
-                  console.error('Admin notification failed:', emailResult);
-                }
+                    body: JSON.stringify({ type: 'under_review', ...basePayload }),
+                  }),
+                  fetch(EMAIL_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'admin_notification', phone: bookingData.phone, ...basePayload }),
+                  }),
+                ]);
+                if (reviewRes.ok) console.log('under_review email sent');
+                else console.error('under_review email failed:', await reviewRes.json());
+                if (adminRes.ok) console.log('admin_notification email sent');
+                else console.error('admin_notification email failed:', await adminRes.json());
               } catch (emailErr) {
                 console.error('Email function error:', emailErr);
               }

@@ -516,6 +516,122 @@ serve(async (req: Request) => {
 </body>
 </html>`;
 
+    const underReviewHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking Under Review</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7fb;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(30,58,92,0.10);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1a2b4a;padding:32px 40px;text-align:center;">
+              <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+                <span style="font-size:28px;line-height:1;">🏠</span>
+                <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Homelines<span style="color:#4db8e8;font-weight:800;"> Cleaning</span></span>
+              </div>
+              <div style="font-size:13px;color:#94a3b8;margin-top:8px;letter-spacing:0.3px;">Professional Cleaning Services</div>
+            </td>
+          </tr>
+
+          <!-- Review Banner -->
+          <tr>
+            <td style="background:#fffbeb;padding:28px 40px;text-align:center;border-bottom:1px solid #fde68a;">
+              <div style="font-size:40px;">⏳</div>
+              <h1 style="margin:12px 0 6px;font-size:24px;font-weight:700;color:#92400e;">Your booking is under review!</h1>
+              <p style="margin:0;font-size:15px;color:#b45309;">Hi ${first_name}, thank you for your booking request. Our team is currently reviewing your details and will confirm your booking shortly.</p>
+            </td>
+          </tr>
+
+          <!-- Subtext -->
+          <tr>
+            <td style="padding:20px 40px 0;text-align:center;">
+              <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.6;">You'll receive a confirmation email once approved. This usually takes less than 1 hour.</p>
+            </td>
+          </tr>
+
+          <!-- Ref Code -->
+          <tr>
+            <td style="padding:20px 40px 0;text-align:center;">
+              <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Booking Reference</p>
+              <div style="display:inline-block;background:#1e3a5c;color:#ffffff;font-size:22px;font-weight:800;letter-spacing:3px;padding:12px 32px;border-radius:10px;">${ref_code}</div>
+              <p style="margin:8px 0 0;font-size:12px;color:#9ca3af;">Save this number for your records</p>
+            </td>
+          </tr>
+
+          <!-- Booking Details -->
+          <tr>
+            <td style="padding:28px 40px;">
+              <h2 style="margin:0 0 18px;font-size:17px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">📋 Booking Details</h2>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🧹 Service</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📅 Date</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${formattedDate}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🕐 Time</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${booking_time}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📍 Address</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${address}${city ? ', ' + city : ''}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Estimated Price</span></td>
+                  <td style="padding:12px 0 0;text-align:right;"><span style="font-size:18px;color:#1e3a5c;font-weight:800;">$${price}</span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;padding:24px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+              <p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Questions? Contact us at</p>
+              <a href="mailto:info@homelinescleaning.com" style="color:#1e3a5c;font-weight:600;font-size:14px;text-decoration:none;">info@homelinescleaning.com</a>
+              <p style="margin:16px 0 0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+    if (type === 'under_review') {
+      const res = await sendEmail({
+        from: FROM_EMAIL,
+        to: [email],
+        reply_to: ADMIN_TO_EMAIL,
+        subject: `⏳ Booking Under Review – ${ref_code} | Homelines Cleaning`,
+        html: underReviewHtml,
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        console.error('Resend under_review error:', result);
+        return new Response(JSON.stringify({ error: result }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, id: result.id }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
     if (type === 'admin_notification') {
       const adminRes = await sendEmail({
         from: FROM_EMAIL,
