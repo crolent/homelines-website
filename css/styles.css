@@ -1988,19 +1988,19 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   .svc-modal-meta { gap: 8px; }
   .svc-modal-price, .svc-modal-duration { font-size: 0.8rem; padding: 3px 10px; }
 
-  /* Body: 20px padding, 14px gap between sections */
+  /* Body: 16px padding, 10px gap between sections */
   .svc-modal-body {
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    gap: 14px;
+    padding: 16px 18px;
+    gap: 10px;
   }
 
-  /* Description: 15px as requested */
+  /* Description: compact for mobile */
   .svc-modal-desc {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.45;
   }
   /* Hide sentences 3-4 on mobile — show only first 2 */
   .svc-modal-desc .desc-extra { display: none; }
@@ -2011,31 +2011,31 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   /* All 8 items, 2-column grid */
   .svc-modal-list {
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 5px 10px;
     margin: 0;
   }
-  .svc-modal-list li { font-size: 0.875rem; }
+  .svc-modal-list li { font-size: 0.82rem; }
   .svc-modal-list li:nth-child(n+5) { display: flex; }
 
-  /* Expect box: same blue box as desktop */
+  /* Expect box: compact */
   .svc-modal-expect {
     display: block;
     background: #f0f7ff;
     border-left: 4px solid #4db6e8;
     border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 0.875rem;
+    padding: 9px 12px;
+    font-size: 0.82rem;
     color: #374151;
-    line-height: 1.5;
+    line-height: 1.45;
     margin: 0;
   }
   .svc-modal-expect strong {
     display: block;
     color: #1a2b4a;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
 
   /* CTA: full width, 44px */
