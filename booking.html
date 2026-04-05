@@ -505,11 +505,29 @@
   </div>
 </main>
 
+<!-- Mobile overlay -->
+<div id="psOverlay" class="ps-overlay"></div>
+
 <!-- ===== LIVE PRICE SUMMARY ===== -->
 <div id="priceSummary" class="price-summary" style="display:none;">
-  <div class="ps-header">💳 Price Summary</div>
-  <div class="ps-rows"><div class="ps-empty">Select a service to see pricing.</div></div>
-  <div class="ps-total"><span>Total</span><span class="ps-total-num">—</span></div>
+  <!-- Mobile: collapsed bar (tap to expand) -->
+  <div class="ps-bar" id="psBar">
+    <div class="ps-bar-info">
+      <span>💳</span>
+      <span class="ps-bar-label">Total</span>
+      <strong class="ps-bar-amt" id="psBarAmt">—</strong>
+    </div>
+    <span class="ps-bar-chevron">⌃</span>
+  </div>
+  <!-- Desktop sticky box + mobile slide-up panel -->
+  <div class="ps-panel" id="psPanel">
+    <div class="ps-header">
+      <span>💳 Price Summary</span>
+      <button class="ps-panel-close" id="psPanelClose" aria-label="Close">✕</button>
+    </div>
+    <div class="ps-rows" id="psRowsInner"><div class="ps-empty">Select a service to see pricing.</div></div>
+    <div class="ps-total"><span>Total</span><span class="ps-total-num" id="psTotalNumEl">—</span></div>
+  </div>
 </div>
 
 <!-- ===== FOOTER ===== -->

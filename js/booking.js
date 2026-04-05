@@ -199,13 +199,55 @@
     if (!rows) {
       rows = '<div class="ps-empty">Select a service to see pricing.</div>';
     }
+    const totalDisplay = hasData ? '$' + total : '—';
 
-    box.innerHTML = `
-      <div class="ps-header">💳 Price Summary</div>
-      <div class="ps-rows">${rows}</div>
-      <div class="ps-total"><span>Total</span><span class="ps-total-num">${hasData ? '$' + total : '—'}</span></div>
-    `;
+    // Update panel content (shared desktop + mobile drawer)
+    const rowsEl = document.getElementById('psRowsInner');
+    if (rowsEl) rowsEl.innerHTML = rows;
+    const barAmt = document.getElementById('psBarAmt');
+    if (barAmt) barAmt.textContent = totalDisplay;
+    const totEl = document.getElementById('psTotalNumEl');
+    if (totEl) totEl.textContent = totalDisplay;
+
     box.style.display = hasData ? '' : 'none';
+
+    // Mobile: auto-expand 2s on price change (unless user manually opened)
+    if (hasData && window.innerWidth <= 1100 && !box.classList.contains('ps-manual')) {
+      const overlay = document.getElementById('psOverlay');
+      box.classList.add('ps-expanded');
+      overlay?.classList.add('ps-active');
+      clearTimeout(box._collapseTimer);
+      box._collapseTimer = setTimeout(() => {
+        if (!box.classList.contains('ps-manual')) {
+          box.classList.remove('ps-expanded');
+          overlay?.classList.remove('ps-active');
+        }
+      }, 2000);
+    }
+  }
+
+  /* ---- Price summary drawer (mobile) ---- */
+  function initPriceSummaryDrawer() {
+    const box     = document.getElementById('priceSummary');
+    const bar     = document.getElementById('psBar');
+    const overlay = document.getElementById('psOverlay');
+    const closeBtn = document.getElementById('psPanelClose');
+
+    function openDrawer() {
+      box?.classList.add('ps-expanded', 'ps-manual');
+      overlay?.classList.add('ps-active');
+    }
+    function closeDrawer() {
+      clearTimeout(box?._collapseTimer);
+      box?.classList.remove('ps-expanded', 'ps-manual');
+      overlay?.classList.remove('ps-active');
+    }
+
+    bar?.addEventListener('click', () => {
+      box?.classList.contains('ps-expanded') ? closeDrawer() : openDrawer();
+    });
+    closeBtn?.addEventListener('click', (e) => { e.stopPropagation(); closeDrawer(); });
+    overlay?.addEventListener('click', closeDrawer);
   }
 
   /* ---- Progress bar ---- */
@@ -824,6 +866,7 @@
 
   /* ---- Init all ---- */
   function init() {
+    initPriceSummaryDrawer();
     initStep1();
     initStep2();
     initStep3();
