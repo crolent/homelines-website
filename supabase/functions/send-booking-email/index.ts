@@ -30,6 +30,13 @@ serve(async (req: Request) => {
       price,
       address,
       city,
+      service_city,
+      sqft,
+      bedrooms,
+      bathrooms,
+      extras,
+      has_pets,
+      notes,
     } = await req.json();
 
     const formattedDate = booking_date
@@ -271,6 +278,11 @@ serve(async (req: Request) => {
                     <span style="font-size:14px;color:#111827;font-weight:600;">${fullAddress || '—'}</span>
                   </td>
                 </tr>
+                ${service_city ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📍 Service City</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service_city}</span></td></tr>` : ''}
+                ${(sqft || bedrooms || bathrooms) ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🏠 Home Size</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${[sqft ? sqft+' sqft' : '', bedrooms ? bedrooms+' bed' : '', bathrooms ? bathrooms+' bath' : ''].filter(Boolean).join(' · ')}</span></td></tr>` : ''}
+                ${has_pets ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🐾 Pets</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#e97316;font-weight:600;">Yes</span></td></tr>` : ''}
+                ${(extras && extras.length) ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">✨ Extras</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extras.map((e: any) => `${e.name} (+$${e.price})`).join('<br/>')}</span></td></tr>` : ''}
+                ${notes ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📝 Notes</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td></tr>` : ''}
                 <tr>
                   <td style="padding:11px 0 0;">
                     <span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Price</span>
