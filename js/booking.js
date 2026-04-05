@@ -363,9 +363,9 @@
     document.getElementById('petsYes')?.addEventListener('click', () => setPets(true));
     document.getElementById('petsNo')?.addEventListener('click',  () => setPets(false));
 
-    document.getElementById('detailsBeds')?.addEventListener('change',  updatePriceSummary);
-    document.getElementById('detailsBaths')?.addEventListener('change', updatePriceSummary);
-    document.getElementById('detailsSqft')?.addEventListener('change',  updatePriceSummary);
+    document.getElementById('detailsBeds')?.addEventListener('change',  (e) => { state.bedrooms  = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsBaths')?.addEventListener('change', (e) => { state.bathrooms = e.target.value; updatePriceSummary(); });
+    document.getElementById('detailsSqft')?.addEventListener('change',  (e) => { state.sqft      = e.target.value; updatePriceSummary(); });
 
     document.getElementById('couponApplyBtn')?.addEventListener('click', () => {
       const code = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
