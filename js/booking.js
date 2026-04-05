@@ -211,43 +211,96 @@
 
     box.style.display = hasData ? '' : 'none';
 
-    // Mobile: auto-expand 2s on price change (unless user manually opened)
-    if (hasData && window.innerWidth <= 1100 && !box.classList.contains('ps-manual')) {
-      const overlay = document.getElementById('psOverlay');
-      box.classList.add('ps-expanded');
-      overlay?.classList.add('ps-active');
-      clearTimeout(box._collapseTimer);
-      box._collapseTimer = setTimeout(() => {
-        if (!box.classList.contains('ps-manual')) {
-          box.classList.remove('ps-expanded');
-          overlay?.classList.remove('ps-active');
-        }
-      }, 2000);
-    }
+    // First-time swipe hint on mobile
+    if (hasData) box._firstHint?.();
   }
 
   /* ---- Price summary drawer (mobile) ---- */
   function initPriceSummaryDrawer() {
-    const box     = document.getElementById('priceSummary');
-    const bar     = document.getElementById('psBar');
-    const overlay = document.getElementById('psOverlay');
+    const box      = document.getElementById('priceSummary');
+    const bar      = document.getElementById('psBar');
+    const overlay  = document.getElementById('psOverlay');
+    const panel    = document.getElementById('psPanel');
     const closeBtn = document.getElementById('psPanelClose');
+    if (!box || !bar || !panel) return;
 
-    function openDrawer() {
-      box?.classList.add('ps-expanded', 'ps-manual');
+    let isOpen      = false;
+    let hintDone    = false;
+    let touchStartY = 0;
+    let dragStartPx = 0;
+
+    function isMobile() { return window.innerWidth <= 1100; }
+    function closedPx() { return (panel.offsetHeight || Math.round(window.innerHeight * 0.65)) + 10; }
+
+    function slide(toPx, withAnim) {
+      panel.style.transition = withAnim ? 'transform 0.3s ease' : 'none';
+      panel.style.transform  = `translateY(${toPx}px)`;
+    }
+
+    function openDrawer(animate) {
+      isOpen = true;
+      slide(0, animate !== false);
       overlay?.classList.add('ps-active');
-    }
-    function closeDrawer() {
-      clearTimeout(box?._collapseTimer);
-      box?.classList.remove('ps-expanded', 'ps-manual');
-      overlay?.classList.remove('ps-active');
+      box.classList.add('ps-expanded');
     }
 
-    bar?.addEventListener('click', () => {
-      box?.classList.contains('ps-expanded') ? closeDrawer() : openDrawer();
+    function closeDrawer(animate) {
+      isOpen = false;
+      slide(closedPx(), animate !== false);
+      overlay?.classList.remove('ps-active');
+      box.classList.remove('ps-expanded');
+    }
+
+    function onTouchStart(e) {
+      if (!isMobile()) return;
+      touchStartY = e.touches[0].clientY;
+      dragStartPx = isOpen ? 0 : closedPx();
+      panel.style.transition = 'none';
+    }
+
+    function onTouchMove(e) {
+      if (!isMobile()) return;
+      const deltaY = e.touches[0].clientY - touchStartY;
+      const newPx  = Math.max(0, Math.min(closedPx(), dragStartPx + deltaY));
+      panel.style.transform = `translateY(${newPx}px)`;
+      if (Math.abs(deltaY) > 5) e.preventDefault();
+    }
+
+    function onTouchEnd(e) {
+      if (!isMobile()) return;
+      const deltaY = e.changedTouches[0].clientY - touchStartY;
+      panel.style.transition = 'transform 0.3s ease';
+      if      (deltaY < -40) openDrawer();
+      else if (deltaY >  40) closeDrawer();
+      else                   isOpen ? openDrawer(false) : closeDrawer(false);
+    }
+
+    const dragHandle = document.getElementById('psDragHandle');
+    [bar, dragHandle].forEach(el => {
+      if (!el) return;
+      el.addEventListener('touchstart', onTouchStart, { passive: true });
+      el.addEventListener('touchmove',  onTouchMove,  { passive: false });
+      el.addEventListener('touchend',   onTouchEnd,   { passive: true });
     });
-    closeBtn?.addEventListener('click', (e) => { e.stopPropagation(); closeDrawer(); });
-    overlay?.addEventListener('click', closeDrawer);
+
+    closeBtn?.addEventListener('click',  () => closeDrawer());
+    overlay?.addEventListener('click',   () => closeDrawer());
+
+    // First-time hint: slide halfway up, show label 2s, slide back down
+    box._firstHint = function() {
+      if (hintDone || !isMobile()) return;
+      hintDone = true;
+      const hint = document.getElementById('psHintMsg');
+      setTimeout(() => {
+        const halfPx = Math.round(closedPx() * 0.45);
+        slide(halfPx, true);
+        if (hint) { hint.style.transition = 'opacity 0.3s ease'; hint.style.opacity = '1'; }
+        setTimeout(() => {
+          closeDrawer(true);
+          if (hint) hint.style.opacity = '0';
+        }, 2000);
+      }, 150);
+    };
   }
 
   /* ---- Progress bar ---- */

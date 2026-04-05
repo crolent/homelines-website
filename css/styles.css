@@ -2217,6 +2217,8 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 .ps-bar { display: none; }
 .ps-overlay { display: none; }
 .ps-panel-close { display: none; }
+.ps-drag-handle { display: none; }
+.ps-hint-msg { display: none; }
 .ps-header {
   background: var(--navy);
   color: #fff;
@@ -2270,7 +2272,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   }
   .price-summary.ps-expanded .ps-bar-chevron { transform: rotate(180deg); }
 
-  /* Slide-up panel */
+  /* Slide-up panel — transform driven entirely by JS touch gestures */
   .ps-panel {
     position: fixed;
     bottom: 60px;
@@ -2281,11 +2283,34 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     border-radius: 20px 20px 0 0;
     border-top: 1.5px solid rgba(77,182,232,0.3);
     box-shadow: 0 -6px 30px rgba(30,58,92,0.2);
-    transform: translateY(105%);
-    transition: transform 0.3s ease;
+    transform: translateY(110%);
     z-index: 1000;
+    will-change: transform;
   }
-  .price-summary.ps-expanded .ps-panel { transform: translateY(0); }
+  /* Drag handle */
+  .ps-drag-handle {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 4px;
+    touch-action: none;
+    cursor: grab;
+  }
+  .ps-drag-pill {
+    width: 40px;
+    height: 4px;
+    background: #d1d5db;
+    border-radius: 9999px;
+  }
+  /* First-time swipe hint */
+  .ps-hint-msg {
+    display: block;
+    text-align: center;
+    font-size: 0.78rem;
+    color: #6b7280;
+    padding: 0 0 8px;
+    opacity: 0;
+    pointer-events: none;
+  }
 
   /* Close button inside panel header */
   .ps-panel-close {
