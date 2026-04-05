@@ -1085,6 +1085,9 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 
 /* ===== BOOKING PAGE ===== */
 .booking-wrapper { padding: 120px 0 80px; }
+@media (max-width: 1100px) {
+  .booking-wrapper { padding-bottom: 70px; }
+}
 .booking-progress {
   display: flex;
   align-items: center;
@@ -2151,3 +2154,91 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 }
 .error-msg.show { display: block; }
 .form-input.error { border-color: #dc2626; }
+
+/* ===== LIVE PRICE SUMMARY ===== */
+.price-summary {
+  position: fixed;
+  right: 24px;
+  top: 110px;
+  width: 260px;
+  background: #fff;
+  border: 1.5px solid rgba(77,182,232,0.3);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(30,58,92,0.12);
+  z-index: 900;
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--navy);
+}
+.ps-header {
+  background: var(--navy);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 12px 16px;
+  letter-spacing: 0.3px;
+}
+.ps-rows {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.ps-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+.ps-label { color: #6b7280; flex-shrink: 0; max-width: 55%; }
+.ps-val   { font-weight: 600; text-align: right; word-break: break-word; }
+.ps-base .ps-val  { color: var(--navy); }
+.ps-add .ps-label,
+.ps-add .ps-val   { color: #0369a1; }
+.ps-disc .ps-label,
+.ps-disc .ps-val  { color: #16a34a; }
+.ps-empty {
+  color: var(--gray-mid);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 4px 0 8px;
+}
+.ps-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1.5px solid rgba(77,182,232,0.2);
+  background: var(--blue-pale);
+  font-weight: 700;
+}
+.ps-total-num {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+/* Mobile: fixed bar at bottom */
+@media (max-width: 1100px) {
+  .price-summary {
+    position: fixed;
+    right: 0; left: 0; bottom: 0; top: auto;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    border-left: none; border-right: none; border-bottom: none;
+    box-shadow: 0 -4px 20px rgba(30,58,92,0.15);
+    z-index: 900;
+  }
+  .ps-rows { display: none; }
+  .ps-header { display: none; }
+  .ps-total {
+    padding: 10px 20px;
+    background: var(--navy);
+    color: #fff;
+  }
+  .ps-total span:first-child { color: rgba(255,255,255,0.8); font-size: 0.85rem; font-weight: 500; }
+  .ps-total-num { color: #fff; font-size: 1.2rem; }
+}

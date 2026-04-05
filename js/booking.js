@@ -18,7 +18,8 @@
     hasPets: false,
     notes: '',
     couponCode: '',
-    couponDiscount: 0
+    couponDiscount: 0,
+    couponPct: 0
   };
 
   const EXTRAS_LIST = [
@@ -46,6 +47,19 @@
   ];
 
   const PETS_EXTRA = EXTRAS_LIST.find(e => e.name === 'Pets at home');
+
+  /* ---- Pricing tables ---- */
+  // Index: 0=Studio, 1=1bed, 2=2bed, 3=3bed, 4=4bed, 5=5+
+  const BASE_PRICES = {
+    standard:        [110, 110, 145, 190, 240, 295],
+    deep:            [150, 150, 200, 260, 325, 400],
+    move:            [200, 200, 280, 360, 450, 550],
+    hotel:           [110, 110, 150, 200, 265, 335],
+    postconstruction:[250, 250, 350, 450, 560, 680],
+    sofa:            [120, 120, 120, 120, 120, 120]
+  };
+  const SQFT_AVG   = { studio:750, 1:1000, 2:1350, 3:1750, 4:2250, 5:2850 };
+  const COUPON_CODES = { WELCOME10:0.10, FIRST20:0.20, CLEAN15:0.15 };
 
   const T = (k) => (window.i18nT && window.i18nT(k)) || k;
   const langLocale = () => ({ en:'en-US', ru:'ru-RU', tr:'tr-TR', es:'es-ES' })[localStorage.getItem('hl_lang') || 'en'] || 'en-US';
@@ -84,15 +98,99 @@
   }
 
   /* ---- Price helpers ---- */
+  function getBedIdx() {
+    const b = state.bedrooms;
+    if (!b || b === 'Studio') return 0;
+    const n = parseInt(b);
+    if (isNaN(n) || n <= 1) return 1;
+    if (n >= 5) return 5;
+    return n;
+  }
   function calcBasePrice() {
-    return state.services.reduce((sum, s) => sum + parseInt(s.price.replace('$', '')), 0);
+    if (!state.services.length) return 0;
+    return state.services.reduce((sum, s) => {
+      const row = BASE_PRICES[s.id];
+      return sum + (row ? row[getBedIdx()] : 0);
+    }, 0);
+  }
+  function calcBathSurcharge() {
+    if (!state.bedrooms || !state.bathrooms) return 0;
+    const bedN  = state.bedrooms === 'Studio' ? 0 : (parseInt(state.bedrooms) || 0);
+    const bathN = parseFloat(state.bathrooms) || 0;
+    const extra = Math.floor(bathN) - Math.max(bedN, 1);
+    return extra > 0 ? extra * 25 : 0;
+  }
+  function calcSqftSurcharge() {
+    if (!state.bedrooms || !state.sqft) return 0;
+    const key = state.bedrooms === 'Studio' ? 'studio' : Math.min(parseInt(state.bedrooms) || 0, 5);
+    const avg = SQFT_AVG[key] || 0;
+    const midMap = { 'Under 500':400,'500-999':750,'1000-1499':1250,'1500-1999':1750,
+                     '2000-2499':2250,'2500-2999':2750,'3000-3499':3250,'3500-3999':3750,'4000+':4200 };
+    const actual = midMap[state.sqft] || 0;
+    if (!actual || actual <= avg) return 0;
+    const over = actual - avg;
+    if (over <= 300)  return 20;
+    if (over <= 600)  return 45;
+    if (over <= 900)  return 75;
+    if (over <= 1200) return 110;
+    return 150;
   }
   function calcExtrasTotal() {
     return state.extras.reduce((sum, e) => sum + e.price, 0);
   }
   function calcTotal() {
-    const base = calcBasePrice() + calcExtrasTotal();
-    return Math.max(0, base - state.couponDiscount);
+    const base = calcBasePrice();
+    const sub  = Math.max(89, base + calcBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
+    const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
+    state.couponDiscount = disc;
+    return sub - disc;
+  }
+
+  /* ---- Live price summary ---- */
+  function updatePriceSummary() {
+    const box = document.getElementById('priceSummary');
+    if (!box) return;
+    const base   = calcBasePrice();
+    const bath   = calcBathSurcharge();
+    const sq     = calcSqftSurcharge();
+    const extras = calcExtrasTotal();
+    const total  = calcTotal();
+    const hasData = state.services.length > 0;
+
+    const svcName = state.services.map(s => T(s.nameKey) || s.nameKey).join(' + ') || '—';
+    let rows = '';
+    rows += `<div class="ps-row"><span class="ps-label">Service</span><span class="ps-val">${svcName}</span></div>`;
+    if (state.bedrooms) {
+      rows += `<div class="ps-row"><span class="ps-label">Size</span><span class="ps-val">${state.bedrooms} bed · ${state.bathrooms || '?'} bath</span></div>`;
+    }
+    if (state.sqft) {
+      rows += `<div class="ps-row"><span class="ps-label">Sq. Ft.</span><span class="ps-val">${state.sqft}</span></div>`;
+    }
+    if (base) {
+      rows += `<div class="ps-row ps-base"><span class="ps-label">Base price</span><span class="ps-val">$${base}</span></div>`;
+    }
+    if (bath) {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">Bathroom surcharge</span><span class="ps-val">+$${bath}</span></div>`;
+    }
+    if (sq) {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">Sqft surcharge</span><span class="ps-val">+$${sq}</span></div>`;
+    }
+    state.extras.forEach(e => {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">${e.name}</span><span class="ps-val">+$${e.price}</span></div>`;
+    });
+    if (state.couponDiscount > 0) {
+      rows += `<div class="ps-row ps-disc"><span class="ps-label">Coupon (${state.couponCode})</span><span class="ps-val">−$${state.couponDiscount}</span></div>`;
+    }
+    if (!rows) {
+      rows = '<div class="ps-empty">Select a service to see pricing.</div>';
+    }
+
+    box.innerHTML = `
+      <div class="ps-header">💳 Price Summary</div>
+      <div class="ps-rows">${rows}</div>
+      <div class="ps-total"><span>Total</span><span class="ps-total-num">${hasData ? '$' + total : '—'}</span></div>
+    `;
+    box.style.display = hasData ? '' : 'none';
   }
 
   /* ---- Progress bar ---- */
@@ -175,6 +273,7 @@
         else           { state.services.push(svc);       card.classList.add('selected'); }
         const nextBtn = document.getElementById('step2Next');
         if (nextBtn) nextBtn.disabled = state.services.length === 0;
+        updatePriceSummary();
       });
       grid.appendChild(card);
     });
@@ -236,6 +335,7 @@
       state.hasPets = (idx === -1);
       syncPetsUI();
     }
+    updatePriceSummary();
   }
 
   function setPets(val) {
@@ -248,6 +348,7 @@
     /* sync extras grid card */
     const card = document.querySelector(`.extra-card[data-name="Pets at home"]`);
     if (card) card.classList.toggle('selected', val);
+    updatePriceSummary();
   }
 
   function syncPetsUI() {
@@ -262,14 +363,30 @@
     document.getElementById('petsYes')?.addEventListener('click', () => setPets(true));
     document.getElementById('petsNo')?.addEventListener('click',  () => setPets(false));
 
+    document.getElementById('detailsBeds')?.addEventListener('change',  updatePriceSummary);
+    document.getElementById('detailsBaths')?.addEventListener('change', updatePriceSummary);
+    document.getElementById('detailsSqft')?.addEventListener('change',  updatePriceSummary);
+
     document.getElementById('couponApplyBtn')?.addEventListener('click', () => {
-      const code = (document.getElementById('couponInput')?.value || '').trim();
+      const code = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
       const msg  = document.getElementById('couponMsg');
-      if (!code) { if (msg) { msg.textContent = ''; msg.style.color = ''; } return; }
-      /* stub — all codes invalid for now */
-      state.couponCode     = '';
-      state.couponDiscount = 0;
-      if (msg) { msg.textContent = 'Invalid coupon code.'; msg.style.color = '#dc2626'; }
+      if (!code) { if (msg) msg.textContent = ''; return; }
+      const pct = COUPON_CODES[code];
+      if (pct) {
+        state.couponCode = code;
+        state.couponPct  = pct;
+        const total = calcTotal();
+        if (msg) {
+          msg.textContent = `✅ "${code}" applied — ${pct * 100}% off (−$${state.couponDiscount})!`;
+          msg.style.color = '#16a34a';
+        }
+      } else {
+        state.couponCode     = '';
+        state.couponPct      = 0;
+        state.couponDiscount = 0;
+        if (msg) { msg.textContent = 'Invalid coupon code.'; msg.style.color = '#dc2626'; }
+      }
+      updatePriceSummary();
     });
 
     const nextBtn = document.getElementById('step3Next');
@@ -467,6 +584,11 @@
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
       if (valid) {
+        state.serviceCity = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
+        state.sqft        = document.getElementById('detailsSqft')?.value  || state.sqft;
+        state.bedrooms    = document.getElementById('detailsBeds')?.value  || state.bedrooms;
+        state.bathrooms   = document.getElementById('detailsBaths')?.value || state.bathrooms;
+        state.notes       = document.getElementById('detailsNotes')?.value || state.notes;
         state.user = { ...state.user, name, surname, phone, address, apt, city, zip };
         populateSummary();
         goToStep(6);
@@ -530,11 +652,21 @@
     }
 
     /* total */
-    const base = calcBasePrice();
+    const base  = calcBasePrice();
+    const bath  = calcBathSurcharge();
+    const sq    = calcSqftSurcharge();
     const total = calcTotal();
     const extrasTotal = calcExtrasTotal();
-    let priceStr = base > 0 ? `$${total}` : '—';
-    if (extrasTotal > 0 || state.couponDiscount > 0) priceStr += ` (base $${base} + extras $${extrasTotal}${state.couponDiscount > 0 ? ' - $' + state.couponDiscount + ' coupon' : ''})`;
+    let priceStr = '—';
+    if (base > 0) {
+      priceStr = `$${total}`;
+      const parts = [`Base $${base}`];
+      if (bath > 0) parts.push(`+$${bath} bath`);
+      if (sq > 0)   parts.push(`+$${sq} sqft`);
+      if (extrasTotal > 0) parts.push(`+$${extrasTotal} extras`);
+      if (state.couponDiscount > 0) parts.push(`−$${state.couponDiscount} coupon`);
+      if (parts.length > 1) priceStr += ` (${parts.join(', ')})`;
+    }
     set('sumPrice', priceStr);
   }
 
