@@ -34,10 +34,19 @@ serve(async (req: Request) => {
       sqft,
       bedrooms,
       bathrooms,
+      sofa_quantity,
+      mattress_quantity,
       extras,
       has_pets,
       notes,
     } = await req.json();
+
+    const sofaQty = Math.max(0, parseInt(String(sofa_quantity ?? '0')) || 0);
+    const matQty  = Math.max(0, parseInt(String(mattress_quantity ?? '0')) || 0);
+    const hasSofaMattress = sofaQty > 0 || matQty > 0;
+    const sofaMattressLabel = hasSofaMattress
+      ? `Sofas: ${sofaQty} · Mattresses: ${matQty}`
+      : '';
 
     const formattedDate = booking_date
       ? new Date(booking_date).toLocaleDateString('en-US', {
@@ -103,6 +112,14 @@ serve(async (req: Request) => {
                     <span style="font-size:14px;color:#111827;font-weight:600;">${service}</span>
                   </td>
                 </tr>
+                ${hasSofaMattress ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
+                    <span style="font-size:14px;color:#6b7280;font-weight:500;">🛋️ Sofa/Mattress</span>
+                  </td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;">
+                    <span style="font-size:14px;color:#111827;font-weight:600;">${sofaMattressLabel}</span>
+                  </td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
                     <span style="font-size:14px;color:#6b7280;font-weight:500;">📅 Date</span>
@@ -270,6 +287,14 @@ serve(async (req: Request) => {
                     <span style="font-size:14px;color:#111827;font-weight:600;">${service}</span>
                   </td>
                 </tr>
+                ${hasSofaMattress ? `<tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;">
+                    <span style="font-size:13px;color:#6b7280;font-weight:500;">🛋️ Sofa/Mattress</span>
+                  </td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;">
+                    <span style="font-size:14px;color:#111827;font-weight:600;">${sofaMattressLabel}</span>
+                  </td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;">
                     <span style="font-size:13px;color:#6b7280;font-weight:500;">📍 Address</span>
@@ -380,6 +405,10 @@ serve(async (req: Request) => {
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🧹 Service</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service}</span></td>
                 </tr>
+                ${hasSofaMattress ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🛋️ Sofa/Mattress</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${sofaMattressLabel}</span></td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📅 Date</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${formattedDate}</span></td>
@@ -500,6 +529,10 @@ serve(async (req: Request) => {
                   <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🧹 Service</span></td>
                   <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service}</span></td>
                 </tr>
+                ${hasSofaMattress ? `<tr>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🛋️ Sofa/Mattress</span></td>
+                  <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${sofaMattressLabel}</span></td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📍 Address</span></td>
                   <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${fullAddress || '—'}</span></td>

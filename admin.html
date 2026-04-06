@@ -984,6 +984,7 @@
               <div class="detail-full">
                 <div class="detail-field"><span class="detail-label">Service</span><span class="detail-value">${escHtml(b.service||'—')}</span></div>
                 <div class="detail-field"><span class="detail-label">Price</span><span class="detail-value" style="font-weight:700;color:var(--navy);">$${b.price??'—'}</span></div>
+                <div class="detail-field"><span class="detail-label">Sofa/Mattress</span><span class="detail-value">${((b.sofa_quantity||0)>0 || (b.mattress_quantity||0)>0) ? escHtml(`Sofas: ${b.sofa_quantity||0} · Mattresses: ${b.mattress_quantity||0}`) : '—'}</span></div>
                 <div class="detail-field"><span class="detail-label">Date &amp; Time</span><span class="detail-value">${date} · ${escHtml(b.booking_time||'—')}</span></div>
                 <div class="detail-field"><span class="detail-label">Created</span><span class="detail-value">${created}</span></div>
               </div>

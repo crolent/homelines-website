@@ -15,6 +15,8 @@
     bedrooms: '',
     bathrooms: '',
     halfBathrooms: '0',
+    sofaQuantity: 0,
+    mattressQuantity: 0,
     extras: [],      /* array of { name, price } */
     hasPets: false,
     notes: '',
@@ -71,7 +73,7 @@
     { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: '5–7 hrs' },
     { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$109', duration: '2–4 hrs' },
     { id: 'postconstruction', icon: '🔨', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$249', duration: '5–8 hrs' },
-    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$119', duration: '2–4 hrs', isAddon: true }
+    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: 'From $89', duration: '2–4 hrs', isAddon: true }
   ];
 
   const ITEM_H    = 44;
@@ -107,13 +109,24 @@
     if (n >= 5) return 5;
     return n;
   }
+  function hasSofaSelected() {
+    return state.services.some(s => s.id === 'sofa');
+  }
+  function hasMainServiceSelected() {
+    return state.services.some(s => s.id !== 'sofa');
+  }
   function calcBasePrice() {
     if (!state.services.length) return 0;
     return state.services.reduce((sum, s) => {
-      if (s.id === 'sofa') return sum + 119; // Sofa is fixed add-on price
+      if (s.id === 'sofa') return sum;
       const row = BASE_PRICES[s.id];
       return sum + (row ? row[getBedIdx()] : 0);
     }, 0);
+  }
+  function calcSofaMattressTotal() {
+    const sofaQty = Math.max(0, parseInt(state.sofaQuantity) || 0);
+    const matQty  = Math.max(0, parseInt(state.mattressQuantity) || 0);
+    return (sofaQty * 119) + (matQty * 89);
   }
   function calcBathSurcharge() {
     if (!state.bedrooms || !state.bathrooms) return 0;
@@ -151,10 +164,36 @@
   }
   function calcTotal() {
     const base = calcBasePrice();
-    const sub  = Math.max(89, base + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
+    const sofaMattress = calcSofaMattressTotal();
+    const sub  = Math.max(0, base + sofaMattress + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
     const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
     state.couponDiscount = disc;
     return sub - disc;
+  }
+
+  function syncSofaQtyUI() {
+    const section  = document.getElementById('sofaQtySection');
+    const sofaVal  = document.getElementById('sofaQtyVal');
+    const matVal   = document.getElementById('mattressQtyVal');
+    const subEl    = document.getElementById('sofaQtySubtotal');
+
+    const show = hasSofaSelected();
+    if (section) section.style.display = show ? '' : 'none';
+
+    if (!show) {
+      if (sofaVal) sofaVal.textContent = '0';
+      if (matVal)  matVal.textContent  = '0';
+      if (subEl)   subEl.textContent   = 'Sofa/Mattress: $0';
+      return;
+    }
+
+    const sofaQty = Math.max(0, Math.min(10, parseInt(state.sofaQuantity) || 0));
+    const matQty  = Math.max(0, Math.min(10, parseInt(state.mattressQuantity) || 0));
+    state.sofaQuantity = sofaQty;
+    state.mattressQuantity = matQty;
+    if (sofaVal) sofaVal.textContent = String(sofaQty);
+    if (matVal)  matVal.textContent  = String(matQty);
+    if (subEl)   subEl.textContent   = `Sofa/Mattress: $${calcSofaMattressTotal()}`;
   }
 
   /* ---- Live price summary ---- */
@@ -162,6 +201,10 @@
     const box = document.getElementById('priceSummary');
     if (!box) return;
     const base     = calcBasePrice();
+    const sofaQty  = Math.max(0, parseInt(state.sofaQuantity) || 0);
+    const matQty   = Math.max(0, parseInt(state.mattressQuantity) || 0);
+    const sofaLine = sofaQty > 0 ? (sofaQty * 119) : 0;
+    const matLine  = matQty > 0 ? (matQty * 89) : 0;
     const bath     = calcBathSurcharge();
     const halfBath = calcHalfBathSurcharge();
     const sq       = calcSqftSurcharge();
@@ -178,6 +221,12 @@
     }
     if (state.sqft) {
       rows += `<div class="ps-row"><span class="ps-label">Sq. Ft.</span><span class="ps-val">${state.sqft}</span></div>`;
+    }
+    if (matLine) {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">🛏️ Mattresses (×${matQty})</span><span class="ps-val">$${matLine}</span></div>`;
+    }
+    if (sofaLine) {
+      rows += `<div class="ps-row ps-add"><span class="ps-label">🛋️ Sofas (×${sofaQty})</span><span class="ps-val">$${sofaLine}</span></div>`;
     }
     if (base) {
       rows += `<div class="ps-row ps-base"><span class="ps-label">Base price</span><span class="ps-val">$${base}</span></div>`;
@@ -214,6 +263,8 @@
 
     // First-time swipe hint on mobile
     if (hasData) box._firstHint?.();
+
+    syncSofaQtyUI();
   }
 
   /* ---- Price summary drawer (mobile) ---- */
@@ -385,8 +436,20 @@
         if (isSofa) {
           // Sofa/Mattress = add-on checkbox (independent)
           const idx = state.services.findIndex(s => s.id === 'sofa');
-          if (idx > -1) state.services.splice(idx, 1);
-          else state.services.push(svc);
+          if (idx > -1) {
+            state.services.splice(idx, 1);
+            state.sofaQuantity = 0;
+            state.mattressQuantity = 0;
+          } else {
+            state.services.push(svc);
+            if (hasMainServiceSelected()) {
+              state.sofaQuantity = 0;
+              state.mattressQuantity = 0;
+            } else {
+              state.sofaQuantity = 0;
+              state.mattressQuantity = 1;
+            }
+          }
         } else {
           // Main services = radio (only one at a time)
           const sofaSvc = state.services.find(s => s.id === 'sofa') || null;
@@ -397,6 +460,12 @@
           if (sofaSvc) nextServices.push(sofaSvc);
           if (!isAlreadySelected) nextServices.push(svc);
           state.services = nextServices;
+
+          // If sofa is selected as add-on (main service also selected), default both quantities to 0
+          if (hasSofaSelected() && hasMainServiceSelected()) {
+            state.sofaQuantity = 0;
+            state.mattressQuantity = 0;
+          }
         }
 
         // Always re-render so visuals match state (radio + checkbox behavior)
@@ -489,6 +558,27 @@
   function initStep3() {
     renderExtrasGrid();
     syncPetsUI();
+
+    function clampQty(v) {
+      const n = parseInt(v);
+      if (isNaN(n)) return 0;
+      return Math.max(0, Math.min(10, n));
+    }
+
+    function setQty(kind, nextVal) {
+      const v = clampQty(nextVal);
+      if (kind === 'sofa') state.sofaQuantity = v;
+      if (kind === 'mattress') state.mattressQuantity = v;
+      syncSofaQtyUI();
+      updatePriceSummary();
+    }
+
+    document.getElementById('sofaQtyMinus')?.addEventListener('click', () => setQty('sofa', (parseInt(state.sofaQuantity) || 0) - 1));
+    document.getElementById('sofaQtyPlus')?.addEventListener('click',  () => setQty('sofa', (parseInt(state.sofaQuantity) || 0) + 1));
+    document.getElementById('mattressQtyMinus')?.addEventListener('click', () => setQty('mattress', (parseInt(state.mattressQuantity) || 0) - 1));
+    document.getElementById('mattressQtyPlus')?.addEventListener('click',  () => setQty('mattress', (parseInt(state.mattressQuantity) || 0) + 1));
+
+    syncSofaQtyUI();
 
     document.getElementById('petsYes')?.addEventListener('click', () => setPets(true));
     document.getElementById('petsNo')?.addEventListener('click',  () => setPets(false));
@@ -746,6 +836,19 @@
     set('sumTime',     state.time || '—');
     set('sumDuration', state.services.map(s => s.duration).join(' + ') || '—');
 
+    /* sofa / mattress quantities */
+    const sofaQty = Math.max(0, parseInt(state.sofaQuantity) || 0);
+    const matQty  = Math.max(0, parseInt(state.mattressQuantity) || 0);
+    if (sofaQty > 0 || matQty > 0) {
+      const lines = [];
+      if (sofaQty > 0) lines.push(`🛋️ Sofas (×${sofaQty}): $${sofaQty * 119}`);
+      if (matQty > 0)  lines.push(`🛏️ Mattresses (×${matQty}): $${matQty * 89}`);
+      set('sumSofaMattress', lines.join('\n'));
+      showRow('sumSofaMattressRow', true);
+    } else {
+      showRow('sumSofaMattressRow', false);
+    }
+
     /* city */
     set('sumCity', state.serviceCity || '—');
 
@@ -787,15 +890,18 @@
 
     /* total */
     const base      = calcBasePrice();
+    const sofaMatt  = calcSofaMattressTotal();
     const bath      = calcBathSurcharge();
     const halfBath  = calcHalfBathSurcharge();
     const sq        = calcSqftSurcharge();
     const total     = calcTotal();
     const extrasTotal = calcExtrasTotal();
     let priceStr = '—';
-    if (base > 0) {
+    if (base > 0 || sofaMatt > 0) {
       priceStr = `$${total}`;
-      const parts = [`Base $${base}`];
+      const parts = [];
+      if (base > 0) parts.push(`Base $${base}`);
+      if (sofaMatt > 0) parts.push(`Sofa/Mattress $${sofaMatt}`);
       if (bath > 0)     parts.push(`+$${bath} full bath`);
       if (halfBath > 0) parts.push(`+$${halfBath} half bath`);
       if (sq > 0)       parts.push(`+$${sq} sqft`);
@@ -837,6 +943,8 @@
           bedrooms:     state.bedrooms        || null,
           bathrooms:    state.bathrooms       || null,
           half_baths:   state.halfBathrooms   || null,
+          sofa_quantity:     Math.max(0, parseInt(state.sofaQuantity) || 0),
+          mattress_quantity: Math.max(0, parseInt(state.mattressQuantity) || 0),
           extras:       state.extras.length ? state.extras : null,
           notes:        state.notes      || null,
           coupon_code:  state.couponCode || null,
@@ -875,6 +983,8 @@
                   bedrooms:     state.bedrooms,
                   bathrooms:    state.bathrooms,
                   half_baths:   state.halfBathrooms,
+                  sofa_quantity: bookingData.sofa_quantity,
+                  mattress_quantity: bookingData.mattress_quantity,
                   extras:       state.extras,
                   has_pets:     state.hasPets,
                   notes:        state.notes

@@ -272,6 +272,38 @@
         </div>
       </div>
 
+      <!-- Sofa/Mattress Quantities (only shows if selected) -->
+      <div id="sofaQtySection" class="sofa-qty-section" style="margin-bottom:20px; display:none;">
+        <label class="form-label" style="margin-bottom:12px;display:block;">🛋️ Sofa/Mattress Quantities</label>
+        <div class="sofa-qty-card">
+          <div class="sofa-qty-row">
+            <div class="sofa-qty-left">
+              <div class="sofa-qty-title">�️ Mattress Cleaning</div>
+              <div class="sofa-qty-price">$89 each</div>
+            </div>
+            <div class="qty-control" data-kind="mattress">
+              <button type="button" class="qty-btn" id="mattressQtyMinus" aria-label="Decrease mattress quantity">－</button>
+              <div class="qty-val" id="mattressQtyVal">1</div>
+              <button type="button" class="qty-btn" id="mattressQtyPlus" aria-label="Increase mattress quantity">＋</button>
+            </div>
+          </div>
+
+          <div class="sofa-qty-row">
+            <div class="sofa-qty-left">
+              <div class="sofa-qty-title">�️ Sofa Cleaning</div>
+              <div class="sofa-qty-price">$119 each</div>
+            </div>
+            <div class="qty-control" data-kind="sofa">
+              <button type="button" class="qty-btn" id="sofaQtyMinus" aria-label="Decrease sofa quantity">－</button>
+              <div class="qty-val" id="sofaQtyVal">0</div>
+              <button type="button" class="qty-btn" id="sofaQtyPlus" aria-label="Increase sofa quantity">＋</button>
+            </div>
+          </div>
+
+          <div class="sofa-qty-subtotal" id="sofaQtySubtotal">Sofa/Mattress: $0</div>
+        </div>
+      </div>
+
       <!-- Extras -->
       <div style="margin-bottom:20px;">
         <label class="form-label" style="margin-bottom:12px;display:block;">✨ Extras <span style="font-weight:400;color:var(--gray-mid);">(optional)</span></label>
@@ -433,6 +465,10 @@
         <div class="summary-row">
           <span class="label">🧹 <span data-i18n="sum_service">Service</span></span>
           <span class="value" id="sumService">—</span>
+        </div>
+        <div class="summary-row" id="sumSofaMattressRow" style="display:none;">
+          <span class="label">🛋️ Sofa/Mattress</span>
+          <span class="value" id="sumSofaMattress" style="text-align:right;font-size:0.88rem;">—</span>
         </div>
         <div class="summary-row">
           <span class="label">📅 <span data-i18n="sum_date">Date</span></span>
