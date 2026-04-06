@@ -89,12 +89,12 @@
   const langLocale = () => ({ en:'en-US', ru:'ru-RU', tr:'tr-TR', es:'es-ES' })[localStorage.getItem('hl_lang') || 'en'] || 'en-US';
 
   const services = [
-    { id: 'standard', icon: '🏠', nameKey: 'svc1_name', descKey: 'bsvc1_desc', price: '$109', duration: '2–3 hrs' },
-    { id: 'deep',     icon: '✨', nameKey: 'svc2_name', descKey: 'bsvc2_desc', price: '$149', duration: '4–6 hrs' },
-    { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: '5–7 hrs' },
-    { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$109', duration: '2–4 hrs' },
-    { id: 'postconstruction', icon: '🔨', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$249', duration: '5–8 hrs' },
-    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: 'From $89', duration: '2–4 hrs', isAddon: true }
+    { id: 'standard', icon: '🏠', nameKey: 'svc1_name', descKey: 'bsvc1_desc', price: '$109', duration: 'from 1.5 hours' },
+    { id: 'deep',     icon: '✨', nameKey: 'svc2_name', descKey: 'bsvc2_desc', price: '$149', duration: 'from 2.5 hours' },
+    { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: 'from 3 hours' },
+    { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$109', duration: 'from 2 hours' },
+    { id: 'postconstruction', icon: '🔨', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$249', duration: 'from 4 hours' },
+    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: 'From $89', duration: 'from 1 hour', isAddon: true }
   ];
 
   const ITEM_H    = 44;
