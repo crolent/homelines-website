@@ -52,12 +52,12 @@
   /* ---- Pricing tables ---- */
   // Index: 0=Studio, 1=1bed, 2=2bed, 3=3bed, 4=4bed, 5=5+
   const BASE_PRICES = {
-    standard:        [110, 110, 145, 190, 240, 295],
-    deep:            [150, 150, 200, 260, 325, 400],
-    move:            [200, 200, 280, 360, 450, 550],
-    hotel:           [110, 110, 150, 200, 265, 335],
-    postconstruction:[250, 250, 350, 450, 560, 680],
-    sofa:            [120, 120, 120, 120, 120, 120]
+    standard:        [109, 109, 149, 189, 239, 289],
+    deep:            [149, 149, 199, 259, 319, 399],
+    move:            [199, 199, 279, 359, 449, 549],
+    hotel:           [109, 109, 149, 199, 259, 329],
+    postconstruction:[249, 249, 349, 449, 559, 679],
+    sofa:            [119, 119, 119, 119, 119, 119]
   };
   const SQFT_AVG   = { studio:750, 1:1000, 2:1350, 3:1750, 4:2250, 5:2850 };
   const COUPON_CODES = { WELCOME10:0.10, FIRST20:0.20, CLEAN15:0.15 };
@@ -66,12 +66,12 @@
   const langLocale = () => ({ en:'en-US', ru:'ru-RU', tr:'tr-TR', es:'es-ES' })[localStorage.getItem('hl_lang') || 'en'] || 'en-US';
 
   const services = [
-    { id: 'standard', icon: '🏠', nameKey: 'svc1_name', descKey: 'bsvc1_desc', price: '$89',  duration: '2–3 hrs' },
+    { id: 'standard', icon: '🏠', nameKey: 'svc1_name', descKey: 'bsvc1_desc', price: '$109', duration: '2–3 hrs' },
     { id: 'deep',     icon: '✨', nameKey: 'svc2_name', descKey: 'bsvc2_desc', price: '$149', duration: '4–6 hrs' },
     { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: '5–7 hrs' },
-    { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$129', duration: '2–4 hrs' },
+    { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$109', duration: '2–4 hrs' },
     { id: 'postconstruction', icon: '🔨', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$249', duration: '5–8 hrs' },
-    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$120', duration: '2–4 hrs', isAddon: true }
+    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$119', duration: '2–4 hrs', isAddon: true }
   ];
 
   const ITEM_H    = 44;
@@ -110,7 +110,7 @@
   function calcBasePrice() {
     if (!state.services.length) return 0;
     return state.services.reduce((sum, s) => {
-      if (s.id === 'sofa') return sum + 120; // Sofa is fixed add-on price
+      if (s.id === 'sofa') return sum + 119; // Sofa is fixed add-on price
       const row = BASE_PRICES[s.id];
       return sum + (row ? row[getBedIdx()] : 0);
     }, 0);
