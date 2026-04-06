@@ -49,6 +49,33 @@
     { name: 'Parking fee',                           price: 15,  icon: 'images/extras/parking-fee.svg' }
   ];
 
+  const INCLUDED_EXTRAS_BY_SERVICE = {
+    deep: new Set([
+      'Inside fridge',
+      'Inside oven',
+      'Inside kitchen cabinets (empty)',
+      'Detail baseboards'
+    ]),
+    move: new Set([
+      'Inside fridge',
+      'Inside oven',
+      'Inside kitchen cabinets (empty)',
+      'Inside kitchen cabinets (full)',
+      'Detail baseboards',
+      'Interior windows up to 1250 sqft'
+    ]),
+    postconstruction: new Set([
+      'Inside fridge',
+      'Inside oven',
+      'Inside kitchen cabinets (empty)',
+      'Inside kitchen cabinets (full)',
+      'Detail baseboards',
+      'Interior windows up to 1250 sqft'
+    ]),
+    standard: new Set([]),
+    hotel: new Set([])
+  };
+
   const PETS_EXTRA = EXTRAS_LIST.find(e => e.name === 'Pets at home');
 
   /* ---- Pricing tables ---- */
@@ -114,6 +141,10 @@
   }
   function hasMainServiceSelected() {
     return state.services.some(s => s.id !== 'sofa');
+  }
+  function getMainServiceId() {
+    const main = state.services.find(s => s.id !== 'sofa');
+    return main ? main.id : null;
   }
   function calcBasePrice() {
     if (!state.services.length) return 0;
@@ -470,6 +501,7 @@
 
         // Always re-render so visuals match state (radio + checkbox behavior)
         renderServiceGrid();
+        renderExtrasGrid();
         const nextBtn = document.getElementById('step2Next');
         if (nextBtn) nextBtn.disabled = state.services.length === 0;
         updatePriceSummary();
@@ -496,29 +528,83 @@
     const grid = document.getElementById('extrasGrid');
     if (!grid) return;
     grid.innerHTML = '';
-    EXTRAS_LIST.forEach(extra => {
+
+    const svcId = getMainServiceId();
+    const includedSet = INCLUDED_EXTRAS_BY_SERVICE[svcId] || new Set([]);
+    let didMutateState = false;
+
+    /* Included items at top, preserving the requested order */
+    const includedOrder = {
+      deep: [
+        'Inside fridge',
+        'Inside oven',
+        'Inside kitchen cabinets (empty)',
+        'Detail baseboards'
+      ],
+      move: [
+        'Inside fridge',
+        'Inside oven',
+        'Inside kitchen cabinets (empty)',
+        'Inside kitchen cabinets (full)',
+        'Detail baseboards',
+        'Interior windows up to 1250 sqft'
+      ],
+      postconstruction: [
+        'Inside fridge',
+        'Inside oven',
+        'Inside kitchen cabinets (empty)',
+        'Inside kitchen cabinets (full)',
+        'Detail baseboards',
+        'Interior windows up to 1250 sqft'
+      ]
+    };
+    const topNames = includedOrder[svcId] || [];
+    const topExtras = topNames
+      .map(name => EXTRAS_LIST.find(e => e.name === name))
+      .filter(Boolean);
+    const restExtras = EXTRAS_LIST.filter(e => !includedSet.has(e.name));
+    const finalList = [...topExtras, ...restExtras];
+
+    finalList.forEach(extra => {
       const card = document.createElement('div');
       card.className = 'extra-card';
       card.dataset.name = extra.name;
+
+      const isIncluded = includedSet.has(extra.name);
+
+      if (isIncluded) {
+        const idx = state.extras.findIndex(e => e.name === extra.name);
+        if (idx > -1) {
+          state.extras.splice(idx, 1);
+          didMutateState = true;
+        }
+      }
+
       const isSelected = state.extras.some(e => e.name === extra.name);
       if (isSelected) card.classList.add('selected');
+      if (isIncluded) card.classList.add('included');
       card.innerHTML = `
         <div class="extra-check">✓</div>
         <div class="extra-icon"><img src="${extra.icon}" alt="" width="36" height="36" loading="lazy"/></div>
         <div class="extra-name">${extra.name}</div>
-        <div class="extra-price">+$${extra.price}</div>
+        <div class="extra-price">${isIncluded ? '✅ Included' : `+$${extra.price}`}</div>
       `;
-      card.addEventListener('click', () => {
-        if (extra.name === 'Pets at home') {
-          /* sync with pets toggle */
-          const newPets = !state.hasPets;
-          setPets(newPets);
-          return;
-        }
-        toggleExtra(extra, card);
-      });
+
+      if (!isIncluded) {
+        card.addEventListener('click', () => {
+          if (extra.name === 'Pets at home') {
+            /* sync with pets toggle */
+            const newPets = !state.hasPets;
+            setPets(newPets);
+            return;
+          }
+          toggleExtra(extra, card);
+        });
+      }
       grid.appendChild(card);
     });
+
+    if (didMutateState) updatePriceSummary();
   }
 
   function toggleExtra(extra, card) {
