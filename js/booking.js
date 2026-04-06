@@ -57,10 +57,7 @@
       'Interior windows up to 1250 sqft'
     ]),
     move: new Set([
-      'Inside fridge',
-      'Inside oven',
       'Inside kitchen cabinets (empty)',
-      'Inside kitchen cabinets (full)',
       'Detail baseboards',
       'Interior windows up to 1250 sqft'
     ]),
@@ -538,10 +535,7 @@
         'Interior windows up to 1250 sqft'
       ],
       move: [
-        'Inside fridge',
-        'Inside oven',
         'Inside kitchen cabinets (empty)',
-        'Inside kitchen cabinets (full)',
         'Detail baseboards',
         'Interior windows up to 1250 sqft'
       ],
