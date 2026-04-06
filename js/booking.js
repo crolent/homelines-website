@@ -44,6 +44,7 @@
     { name: 'Detail window blinds',                  price: 35,  icon: 'images/extras/window-blinds.svg' },
     { name: 'Inside fridge',                         price: 35,  icon: 'images/extras/inside-fridge.svg' },
     { name: 'Inside oven',                           price: 35,  icon: 'images/extras/inside-oven.svg' },
+    { name: 'Inside microwave',                      price: 25,  icon: 'images/extras/inside-microwave.svg' },
     { name: 'Eco friendly green products',           price: 25,  icon: 'images/extras/eco-products.svg' },
     { name: 'Extra garage',                          price: 45,  icon: 'images/extras/extra-garage.svg' },
     { name: 'Parking fee',                           price: 15,  icon: 'images/extras/parking-fee.svg' }
@@ -51,10 +52,9 @@
 
   const INCLUDED_EXTRAS_BY_SERVICE = {
     deep: new Set([
-      'Inside fridge',
-      'Inside oven',
       'Inside kitchen cabinets (empty)',
-      'Detail baseboards'
+      'Detail baseboards',
+      'Interior windows up to 1250 sqft'
     ]),
     move: new Set([
       'Inside fridge',
@@ -536,10 +536,9 @@
     /* Included items at top, preserving the requested order */
     const includedOrder = {
       deep: [
-        'Inside fridge',
-        'Inside oven',
         'Inside kitchen cabinets (empty)',
-        'Detail baseboards'
+        'Detail baseboards',
+        'Interior windows up to 1250 sqft'
       ],
       move: [
         'Inside fridge',
