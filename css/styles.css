@@ -1107,6 +1107,16 @@ textarea.form-input { resize: vertical; min-height: 140px; }
  .sofa-qty-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
  .sofa-qty-title { font-weight: 700; color: var(--navy); font-size: 0.95rem; }
  .sofa-qty-price { font-size: 0.85rem; color: var(--gray-mid); }
+ .qty-icon {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   width: 24px;
+   height: 24px;
+   margin-right: 10px;
+   transform: translateY(2px);
+ }
+ .qty-icon svg { display: block; }
  .qty-sticker {
    display: inline-flex;
    align-items: center;
