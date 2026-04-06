@@ -1348,7 +1348,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
  .service-badge {
    position: absolute;
    top: 10px;
-   right: 10px;
+   left: 10px;
    background: rgba(77,182,232,0.18);
    color: var(--navy);
    border: 1px solid rgba(77,182,232,0.35);
