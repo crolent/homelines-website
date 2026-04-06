@@ -20,6 +20,11 @@
   --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@media (max-width: 420px) {
+  .service-options,
+  .service-grid { grid-template-columns: 1fr; }
+}
+
 /* ===== RESET & BASE ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }
@@ -1237,9 +1242,10 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   border-top: 1px solid var(--gray);
 }
 .booking-nav-left { display: flex; gap: 12px; }
-.service-options {
+.service-options,
+.service-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -1287,7 +1293,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
  .service-badge {
    position: absolute;
    top: 10px;
-   left: 10px;
+   right: 10px;
    background: rgba(77,182,232,0.18);
    color: var(--navy);
    border: 1px solid rgba(77,182,232,0.35);
@@ -1599,7 +1605,8 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   .booking-progress { gap: 0; }
   .progress-line { width: 40px; }
   .time-slots-grid { grid-template-columns: repeat(2, 1fr); }
-  .service-options { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .service-options,
+  .service-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .service-option { padding: 18px 12px; }
   .service-option h4 { font-size: 0.85rem; }
   .service-option p { font-size: 0.75rem; }
@@ -1649,7 +1656,8 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 
   /* Services 2-col maintained */
   .services-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .service-options { grid-template-columns: repeat(2, 1fr); }
+  .service-options,
+  .service-grid { grid-template-columns: repeat(2, 1fr); }
 
   /* Confirmation summary wrap */
   .summary-row { flex-direction: column; align-items: flex-start; gap: 2px; }
