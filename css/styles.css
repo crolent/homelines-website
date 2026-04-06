@@ -2298,7 +2298,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   border: 1.5px solid rgba(77,182,232,0.3);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(30,58,92,0.12);
-  z-index: 900;
+  z-index: 9999;
   overflow: hidden;
   font-size: 0.85rem;
   color: var(--navy);
@@ -2333,7 +2333,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     border-radius: 0;
     box-shadow: none;
     overflow: visible;
-    z-index: 1000;
+    z-index: 9999;
   }
 
   /* Always-visible collapsed bar */
@@ -2348,7 +2348,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     cursor: pointer;
     user-select: none;
     position: relative;
-    z-index: 1001;
+    z-index: 10000;
   }
   .ps-bar-info { display: flex; align-items: center; gap: 8px; }
   .ps-bar-label { font-size: 0.82rem; opacity: 0.75; font-weight: 500; }
@@ -2356,8 +2356,14 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   .ps-bar-chevron {
     font-size: 1.2rem;
     line-height: 1;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease-out;
     display: inline-block;
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
   }
   .price-summary.ps-expanded .ps-bar-chevron { transform: rotate(180deg); }
 
@@ -2373,8 +2379,11 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     border-top: 1.5px solid rgba(77,182,232,0.3);
     box-shadow: 0 -6px 30px rgba(30,58,92,0.2);
     transform: translateY(110%);
-    z-index: 1000;
+    z-index: 9999;
     will-change: transform;
+    transition: transform 0.3s ease-out;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
   /* Drag handle */
   .ps-drag-handle {
@@ -2424,7 +2433,7 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.45);
-    z-index: 999;
+    z-index: 9998;
     cursor: pointer;
   }
   .ps-overlay.ps-active { display: block; }

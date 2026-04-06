@@ -284,7 +284,8 @@
     const totEl = document.getElementById('psTotalNumEl');
     if (totEl) totEl.textContent = totalDisplay;
 
-    box.style.display = hasData ? '' : 'none';
+    const kbHidden = box.dataset.kbHidden === '1';
+    box.style.display = hasData && !kbHidden ? '' : 'none';
 
     // First-time swipe hint on mobile
     if (hasData) box._firstHint?.();
@@ -296,6 +297,7 @@
   function initPriceSummaryDrawer() {
     const box      = document.getElementById('priceSummary');
     const bar      = document.getElementById('psBar');
+    const chevron  = document.getElementById('psChevronBtn');
     const overlay  = document.getElementById('psOverlay');
     const panel    = document.getElementById('psPanel');
     const closeBtn = document.getElementById('psPanelClose');
@@ -305,12 +307,13 @@
     let hintDone    = false;
     let touchStartY = 0;
     let dragStartPx = 0;
+    let hiddenByKeyboard = false;
 
     function isMobile() { return window.innerWidth <= 1100; }
     function closedPx() { return (panel.offsetHeight || Math.round(window.innerHeight * 0.65)) + 10; }
 
     function slide(toPx, withAnim) {
-      panel.style.transition = withAnim ? 'transform 0.3s ease' : 'none';
+      panel.style.transition = withAnim ? 'transform 0.3s ease-out' : 'none';
       panel.style.transform  = `translateY(${toPx}px)`;
     }
 
@@ -319,6 +322,7 @@
       slide(0, animate !== false);
       overlay?.classList.add('ps-active');
       box.classList.add('ps-expanded');
+      if (isMobile()) document.body.style.overflow = 'hidden';
     }
 
     function closeDrawer(animate) {
@@ -326,6 +330,36 @@
       slide(closedPx(), animate !== false);
       overlay?.classList.remove('ps-active');
       box.classList.remove('ps-expanded');
+      document.body.style.overflow = '';
+    }
+
+    function hideForKeyboard() {
+      if (!isMobile()) return;
+      if (hiddenByKeyboard) return;
+      hiddenByKeyboard = true;
+      box.dataset.kbHidden = '1';
+      box.style.display = 'none';
+      overlay?.classList.remove('ps-active');
+      document.body.style.overflow = '';
+    }
+
+    function showAfterKeyboard() {
+      if (!isMobile()) return;
+      if (!hiddenByKeyboard) return;
+      hiddenByKeyboard = false;
+      box.dataset.kbHidden = '';
+      box.style.display = '';
+      if (isOpen) {
+        openDrawer(false);
+      } else {
+        closeDrawer(false);
+      }
+    }
+
+    function toggleDrawer() {
+      if (!isMobile()) return;
+      if (hiddenByKeyboard) return;
+      isOpen ? closeDrawer() : openDrawer();
     }
 
     function onTouchStart(e) {
@@ -346,7 +380,7 @@
     function onTouchEnd(e) {
       if (!isMobile()) return;
       const deltaY = e.changedTouches[0].clientY - touchStartY;
-      panel.style.transition = 'transform 0.3s ease';
+      panel.style.transition = 'transform 0.3s ease-out';
       if      (deltaY < -40) openDrawer();
       else if (deltaY >  40) closeDrawer();
       else                   isOpen ? openDrawer(false) : closeDrawer(false);
@@ -360,8 +394,46 @@
       el.addEventListener('touchend',   onTouchEnd,   { passive: true });
     });
 
+    function preventBackgroundTouchMove(e) {
+      if (!isMobile() || !isOpen) return;
+      if (panel.contains(e.target)) return;
+      e.preventDefault();
+    }
+
+    // Prevent background scrolling when drawer is expanded
+    panel.addEventListener('touchmove', (e) => {
+      if (!isMobile() || !isOpen) return;
+      e.stopPropagation();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', preventBackgroundTouchMove, { passive: false });
+
     closeBtn?.addEventListener('click',  () => closeDrawer());
     overlay?.addEventListener('click',   () => closeDrawer());
+
+    chevron?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDrawer();
+    });
+
+    bar.addEventListener('click', (e) => {
+      if (!isMobile()) return;
+      if (e.target === chevron) return;
+      toggleDrawer();
+    });
+
+    // Hide drawer while any input is focused (mobile keyboard overlap fix)
+    document.querySelectorAll('input, textarea, select').forEach((el) => {
+      el.addEventListener('focus', () => hideForKeyboard());
+      el.addEventListener('blur', () => setTimeout(showAfterKeyboard, 80));
+    });
+
+    // If viewport changes (keyboard opens/closes), keep drawer hidden if an input is focused
+    window.addEventListener('resize', () => {
+      const active = document.activeElement;
+      const isField = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+      if (isField) hideForKeyboard();
+    });
 
     // First-time hint: slide halfway up, show label 2s, slide back down
     box._firstHint = function() {
