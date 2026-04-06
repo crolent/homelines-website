@@ -1283,6 +1283,19 @@ textarea.form-input { resize: vertical; min-height: 140px; }
 .service-option h4 { font-size: 0.95rem; color: var(--navy); margin-bottom: 6px; }
 .service-option p { font-size: 0.82rem; color: var(--gray-mid); }
 .service-option .option-price { font-weight: 700; color: var(--blue); font-size: 0.9rem; margin-top: 8px; }
+
+ .service-badge {
+   position: absolute;
+   top: 10px;
+   left: 10px;
+   background: rgba(77,182,232,0.18);
+   color: var(--navy);
+   border: 1px solid rgba(77,182,232,0.35);
+   font-weight: 700;
+   font-size: 0.72rem;
+   padding: 4px 8px;
+   border-radius: 9999px;
+ }
 .date-time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .calendar-wrap { grid-column: 1 / -1; }
 .mini-calendar {

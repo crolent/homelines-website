@@ -71,7 +71,7 @@
     { id: 'move',     icon: '📦', nameKey: 'svc3_name', descKey: 'bsvc3_desc', price: '$199', duration: '5–7 hrs' },
     { id: 'hotel',    icon: '🏡', nameKey: 'svc4_name', descKey: 'bsvc4_desc', price: '$129', duration: '2–4 hrs' },
     { id: 'postconstruction', icon: '🔨', nameKey: 'svc5_name', descKey: 'bsvc5_desc', price: '$249', duration: '5–8 hrs' },
-    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$99',  duration: '2–4 hrs' }
+    { id: 'sofa',     icon: '🛋️', nameKey: 'svc6_name', descKey: 'bsvc6_desc', price: '$120', duration: '2–4 hrs', isAddon: true }
   ];
 
   const ITEM_H    = 44;
@@ -110,6 +110,7 @@
   function calcBasePrice() {
     if (!state.services.length) return 0;
     return state.services.reduce((sum, s) => {
+      if (s.id === 'sofa') return sum + 120; // Sofa is fixed add-on price
       const row = BASE_PRICES[s.id];
       return sum + (row ? row[getBedIdx()] : 0);
     }, 0);
@@ -369,18 +370,37 @@
       card.dataset.id = svc.id;
       const svcName = T(svc.nameKey) || svc.nameKey;
       const svcDesc = T(svc.descKey) || svc.descKey;
+      const isSofa = svc.id === 'sofa';
       card.innerHTML = `
         <div class="service-option-check">✓</div>
         <span class="service-option-icon">${svc.icon}</span>
         <h4>${svcName}</h4>
         <p>${svcDesc}</p>
         <div class="option-price">${svc.price} · ${svc.duration}</div>
+        ${isSofa ? '<div class="service-badge">➕ Add-on</div>' : ''}
       `;
-      if (state.services.find(s => s.id === svc.id)) card.classList.add('selected');
+      const isSelected = state.services.find(s => s.id === svc.id);
+      if (isSelected) card.classList.add('selected');
       card.addEventListener('click', () => {
-        const idx = state.services.findIndex(s => s.id === svc.id);
-        if (idx > -1) { state.services.splice(idx, 1); card.classList.remove('selected'); }
-        else           { state.services.push(svc);       card.classList.add('selected'); }
+        if (isSofa) {
+          // Sofa/Mattress = add-on checkbox (independent)
+          const idx = state.services.findIndex(s => s.id === 'sofa');
+          if (idx > -1) state.services.splice(idx, 1);
+          else state.services.push(svc);
+        } else {
+          // Main services = radio (only one at a time)
+          const sofaSvc = state.services.find(s => s.id === 'sofa') || null;
+          const isAlreadySelected = !!state.services.find(s => s.id === svc.id);
+
+          // Toggle off if user taps the already-selected main service
+          const nextServices = [];
+          if (sofaSvc) nextServices.push(sofaSvc);
+          if (!isAlreadySelected) nextServices.push(svc);
+          state.services = nextServices;
+        }
+
+        // Always re-render so visuals match state (radio + checkbox behavior)
+        renderServiceGrid();
         const nextBtn = document.getElementById('step2Next');
         if (nextBtn) nextBtn.disabled = state.services.length === 0;
         updatePriceSummary();
