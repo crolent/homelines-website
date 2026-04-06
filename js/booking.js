@@ -65,10 +65,7 @@
       'Interior windows up to 1250 sqft'
     ]),
     postconstruction: new Set([
-      'Inside fridge',
-      'Inside oven',
       'Inside kitchen cabinets (empty)',
-      'Inside kitchen cabinets (full)',
       'Detail baseboards',
       'Interior windows up to 1250 sqft'
     ]),
@@ -549,10 +546,7 @@
         'Interior windows up to 1250 sqft'
       ],
       postconstruction: [
-        'Inside fridge',
-        'Inside oven',
         'Inside kitchen cabinets (empty)',
-        'Inside kitchen cabinets (full)',
         'Detail baseboards',
         'Interior windows up to 1250 sqft'
       ]
