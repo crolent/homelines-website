@@ -666,6 +666,20 @@
     if (didMutateState) updatePriceSummary();
   }
 
+  function preserveScrollOnMobile(fn) {
+    if (window.innerWidth > 1100) {
+      fn();
+      return;
+    }
+    const saved = window.scrollY;
+    fn();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, saved);
+      });
+    });
+  }
+
   function toggleExtra(extra, card) {
     const idx = state.extras.findIndex(e => e.name === extra.name);
     if (idx > -1) {
@@ -679,7 +693,7 @@
       state.hasPets = (idx === -1);
       syncPetsUI();
     }
-    updatePriceSummary();
+    preserveScrollOnMobile(() => updatePriceSummary());
   }
 
   function setPets(val) {
@@ -692,7 +706,7 @@
     /* sync extras grid card */
     const card = document.querySelector(`.extra-card[data-name="Pets at home"]`);
     if (card) card.classList.toggle('selected', val);
-    updatePriceSummary();
+    preserveScrollOnMobile(() => updatePriceSummary());
   }
 
   function syncPetsUI() {

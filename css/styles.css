@@ -20,6 +20,11 @@
   --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Reduce mobile scroll jumps when selecting/deselecting extras */
+.extras-section {
+  overflow-anchor: auto;
+}
+
 @media (max-width: 420px) {
   .service-options,
   .service-grid { grid-template-columns: 1fr; }
@@ -2343,12 +2348,15 @@ textarea.form-input { resize: vertical; min-height: 140px; }
     align-items: center;
     padding: 0 20px;
     height: 60px;
+    min-height: 60px;
+    max-height: 60px;
     background: var(--navy);
     color: #fff;
     cursor: pointer;
     user-select: none;
     position: relative;
     z-index: 10000;
+    flex: 0 0 60px;
   }
   .ps-bar-info { display: flex; align-items: center; gap: 8px; }
   .ps-bar-label { font-size: 0.82rem; opacity: 0.75; font-weight: 500; }
