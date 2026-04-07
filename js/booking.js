@@ -72,6 +72,12 @@
 
   const PETS_EXTRA = EXTRAS_LIST.find(e => e.name === 'Pets at home');
 
+  function getIncludedExtrasList() {
+    const svcId = getMainServiceId();
+    const set = INCLUDED_EXTRAS_BY_SERVICE[svcId] || new Set([]);
+    return Array.from(set);
+  }
+
   /* ---- Pricing tables ---- */
   // Index: 0=Studio, 1=1bed, 2=2bed, 3=3bed, 4=4bed, 5=5+
   const BASE_PRICES = {
@@ -1145,8 +1151,11 @@
                   sofa_quantity: bookingData.sofa_quantity,
                   mattress_quantity: bookingData.mattress_quantity,
                   extras:       state.extras,
+                  included_extras: getIncludedExtrasList(),
                   has_pets:     state.hasPets,
-                  notes:        state.notes
+                  notes:        state.notes,
+                  coupon_code:  state.couponCode || null,
+                  coupon_discount: state.couponDiscount || 0
                 };
                 const [reviewRes, adminRes] = await Promise.all([
                   fetch(EMAIL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },

@@ -34,11 +34,15 @@ serve(async (req: Request) => {
       sqft,
       bedrooms,
       bathrooms,
+      half_baths,
       sofa_quantity,
       mattress_quantity,
       extras,
+      included_extras,
       has_pets,
       notes,
+      coupon_code,
+      coupon_discount,
     } = await req.json();
 
     const sofaQty = Math.max(0, parseInt(String(sofa_quantity ?? '0')) || 0);
@@ -48,6 +52,21 @@ serve(async (req: Request) => {
       ? `Sofas: ${sofaQty} · Mattresses: ${matQty}`
       : '';
 
+    const safeNum = (v: unknown) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    let extrasArr: any[] = Array.isArray(extras) ? extras : [];
+    if (typeof extras === 'string') {
+      try { extrasArr = JSON.parse(extras); } catch (e) { extrasArr = []; }
+    }
+
+    let includedArr: any[] = Array.isArray(included_extras) ? included_extras : [];
+    if (typeof included_extras === 'string') {
+      try { includedArr = JSON.parse(included_extras); } catch (e) { includedArr = []; }
+    }
+
     const formattedDate = booking_date
       ? new Date(booking_date).toLocaleDateString('en-US', {
           weekday: 'long',
@@ -56,6 +75,25 @@ serve(async (req: Request) => {
           day: 'numeric',
         })
       : booking_date;
+
+    const homeSizeLabel = [
+      sqft ? `${sqft} sqft` : '',
+      bedrooms ? `${bedrooms} bed` : '',
+      bathrooms ? `${bathrooms} bath` : '',
+      half_baths && String(half_baths) !== '0' ? `${half_baths} half bath` : '',
+    ].filter(Boolean).join(' · ');
+
+    const extrasHtml = extrasArr && extrasArr.length
+      ? extrasArr.map((e: any) => `${e?.name} (+$${safeNum(e?.price)})`).join('<br/>')
+      : '';
+
+    const includedHtml = includedArr && includedArr.length
+      ? includedArr.map((n: any) => `✅ Included ${n}`).join('<br/>')
+      : '';
+
+    const couponLabel = coupon_code
+      ? `${coupon_code}${safeNum(coupon_discount) > 0 ? ` (−$${safeNum(coupon_discount)})` : ''}`
+      : '';
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -144,9 +182,37 @@ serve(async (req: Request) => {
                     <span style="font-size:14px;color:#111827;font-weight:600;">${address}${city ? ', ' + city : ''}</span>
                   </td>
                 </tr>
+                ${service_city ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏙️ City</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service_city}</span></td>
+                </tr>` : ''}
+                ${homeSizeLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏠 Size</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${homeSizeLabel}</span></td>
+                </tr>` : ''}
+                ${includedHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✅ Included</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${includedHtml}</span></td>
+                </tr>` : ''}
+                ${extrasHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✨ Extras</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extrasHtml}</span></td>
+                </tr>` : ''}
+                ${has_pets ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🐾 Pets</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#e97316;font-weight:700;">Pets at home</span></td>
+                </tr>` : ''}
+                ${couponLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏷️ Coupon</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td>
+                </tr>` : ''}
+                ${notes ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">� Notes</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding:12px 0 0;">
-                    <span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Estimated Price</span>
+                    <span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Total Price</span>
                   </td>
                   <td style="padding:12px 0 0;text-align:right;">
                     <span style="font-size:18px;color:#1e3a5c;font-weight:800;">$${price}</span>
@@ -304,9 +370,11 @@ serve(async (req: Request) => {
                   </td>
                 </tr>
                 ${service_city ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📍 Service City</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service_city}</span></td></tr>` : ''}
-                ${(sqft || bedrooms || bathrooms) ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🏠 Home Size</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${[sqft ? sqft+' sqft' : '', bedrooms ? bedrooms+' bed' : '', bathrooms ? bathrooms+' bath' : ''].filter(Boolean).join(' · ')}</span></td></tr>` : ''}
+                ${homeSizeLabel ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🏠 Home Size</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${homeSizeLabel}</span></td></tr>` : ''}
                 ${has_pets ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🐾 Pets</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#e97316;font-weight:600;">Yes</span></td></tr>` : ''}
-                ${(extras && extras.length) ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">✨ Extras</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extras.map((e: any) => `${e.name} (+$${e.price})`).join('<br/>')}</span></td></tr>` : ''}
+                ${includedHtml ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">✅ Included</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${includedHtml}</span></td></tr>` : ''}
+                ${extrasHtml ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">✨ Extras</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extrasHtml}</span></td></tr>` : ''}
+                ${couponLabel ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">🏷️ Coupon</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td></tr>` : ''}
                 ${notes ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:13px;color:#6b7280;font-weight:500;">📝 Notes</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td></tr>` : ''}
                 <tr>
                   <td style="padding:11px 0 0;">
@@ -421,8 +489,36 @@ serve(async (req: Request) => {
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📍 Address</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${address}${city ? ', ' + city : ''}</span></td>
                 </tr>
+                ${service_city ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏙️ City</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service_city}</span></td>
+                </tr>` : ''}
+                ${homeSizeLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏠 Size</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${homeSizeLabel}</span></td>
+                </tr>` : ''}
+                ${includedHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✅ Included</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${includedHtml}</span></td>
+                </tr>` : ''}
+                ${extrasHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✨ Extras</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extrasHtml}</span></td>
+                </tr>` : ''}
+                ${has_pets ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🐾 Pets</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#e97316;font-weight:700;">Pets at home</span></td>
+                </tr>` : ''}
+                ${couponLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏷️ Coupon</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td>
+                </tr>` : ''}
+                ${notes ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">� Notes</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td>
+                </tr>` : ''}
                 <tr>
-                  <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Estimated Price</span></td>
+                  <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Total Price</span></td>
                   <td style="padding:12px 0 0;text-align:right;"><span style="font-size:18px;color:#1e3a5c;font-weight:800;">$${price}</span></td>
                 </tr>
               </table>
@@ -631,8 +727,36 @@ serve(async (req: Request) => {
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📍 Address</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${address}${city ? ', ' + city : ''}</span></td>
                 </tr>
+                ${service_city ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏙️ City</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${service_city}</span></td>
+                </tr>` : ''}
+                ${homeSizeLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏠 Size</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:600;">${homeSizeLabel}</span></td>
+                </tr>` : ''}
+                ${includedHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✅ Included</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${includedHtml}</span></td>
+                </tr>` : ''}
+                ${extrasHtml ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">✨ Extras</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:500;">${extrasHtml}</span></td>
+                </tr>` : ''}
+                ${has_pets ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🐾 Pets</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#e97316;font-weight:700;">Pets at home</span></td>
+                </tr>` : ''}
+                ${couponLabel ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:14px;color:#6b7280;font-weight:500;">🏷️ Coupon</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td>
+                </tr>` : ''}
+                ${notes ? `<tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">� Notes</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td>
+                </tr>` : ''}
                 <tr>
-                  <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Estimated Price</span></td>
+                  <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Total Price</span></td>
                   <td style="padding:12px 0 0;text-align:right;"><span style="font-size:18px;color:#1e3a5c;font-weight:800;">$${price}</span></td>
                 </tr>
               </table>

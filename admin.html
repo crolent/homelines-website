@@ -954,6 +954,65 @@
 
       const rowCls = `compact-row${isArchived?' row-archived':isTrash?' row-trashed':''}`;
 
+      const safeNum = (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const sofaQty = Math.max(0, parseInt(b.sofa_quantity || 0) || 0);
+      const matQty  = Math.max(0, parseInt(b.mattress_quantity || 0) || 0);
+      const sofaLine = sofaQty > 0 ? `🛋️ Sofas: ×${sofaQty} = $${sofaQty * 119}` : '';
+      const matLine  = matQty > 0 ? `🛏️ Mattresses: ×${matQty} = $${matQty * 89}` : '';
+
+      let extras = b.extras;
+      if (typeof extras === 'string') {
+        try { extras = JSON.parse(extras); } catch (e) { extras = null; }
+      }
+      if (!Array.isArray(extras)) extras = [];
+
+      const svcText = String(b.service || '').toLowerCase();
+      const includedBySvc = {
+        deep: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft'],
+        move: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft'],
+        postconstruction: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft']
+      };
+      const svcKey = svcText.includes('deep') ? 'deep'
+        : svcText.includes('move') ? 'move'
+        : (svcText.includes('post') || svcText.includes('construction')) ? 'postconstruction'
+        : null;
+      let includedExtras = b.included_extras;
+      if (typeof includedExtras === 'string') {
+        try { includedExtras = JSON.parse(includedExtras); } catch (e) { includedExtras = null; }
+      }
+      if (!Array.isArray(includedExtras)) includedExtras = svcKey ? (includedBySvc[svcKey] || []) : [];
+
+      const extrasBadges = extras.length
+        ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${extras.map(e => `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e3a5c;font-size:0.78rem;font-weight:700;">${escHtml(e?.name || '')}<span style="color:#1d4ed8;font-weight:800;">+$${safeNum(e?.price)}</span></span>`).join('')}
+          </div>`
+        : '<span style="color:var(--gray);">—</span>';
+
+      const includedBadges = includedExtras.length
+        ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${includedExtras.map(n => `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(34,197,94,0.35);background:rgba(34,197,94,0.10);color:#14532d;font-size:0.78rem;font-weight:800;">✅ Included<span style="font-weight:700;">${escHtml(n)}</span></span>`).join('')}
+          </div>`
+        : '<span style="color:var(--gray);">—</span>';
+
+      const petsBadge = b.has_pets
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(249,115,22,0.35);background:rgba(249,115,22,0.10);color:#9a3412;font-size:0.78rem;font-weight:800;">🐾 Pets at home</span>`
+        : '';
+
+      const couponRow = b.coupon_code
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(22,163,74,0.35);background:rgba(22,163,74,0.10);color:#14532d;font-size:0.78rem;font-weight:800;">🏷️ Coupon ${escHtml(b.coupon_code)}${(b.coupon_discount ? ` · −$${safeNum(b.coupon_discount)}` : '')}</span>`
+        : '';
+
+      const notesBox = b.notes
+        ? `<div style="margin-top:10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.78rem;font-weight:800;color:#374151;margin-bottom:6px;">📝 Special Notes</div>
+            <div style="font-size:0.85rem;color:#111827;line-height:1.45;white-space:pre-wrap;">${escHtml(b.notes)}</div>
+          </div>`
+        : '';
+
       return `
       <tr class="${rowCls}" data-id="${b.id}" onclick="toggleRow('${b.id}')">
         <td onclick="event.stopPropagation()" style="width:36px;"><input type="checkbox" class="row-check" data-id="${b.id}" ${isSelected?'checked':''} onchange="toggleSelect('${b.id}')"></td>
@@ -961,12 +1020,13 @@
         <td style="white-space:nowrap;">${escHtml(name)}</td>
         <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(b.service||'—')}</td>
         <td style="white-space:nowrap;">${date}<br><span style="color:var(--gray);font-size:0.73rem;">${escHtml(b.booking_time||'—')}</span></td>
+        <td style="white-space:nowrap;font-weight:800;color:var(--navy);">$${b.price??'—'}</td>
         <td><span class="badge ${badgeClass}" id="badge-${b.id}">${status}</span></td>
         <td onclick="event.stopPropagation()" style="white-space:nowrap;">${confirmBtn}${archiveBtn}${trashBtnC}${restoreBtn}${deleteBtnC}</td>
         <td style="text-align:center;width:28px;"><span class="expand-arrow">›</span></td>
       </tr>
       <tr class="detail-row" id="detail-row-${b.id}">
-        <td colspan="8">
+        <td colspan="9">
           <div class="detail-inner" id="detail-inner-${b.id}">
             <div class="detail-card">
               <div class="detail-grid">
@@ -974,19 +1034,36 @@
                   <div class="detail-field"><span class="detail-label">Name</span><span class="detail-value">${escHtml(name)}</span></div>
                   <div class="detail-field"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:${escHtml(b.email||'')}" style="color:var(--navy);text-decoration:none;">${escHtml(b.email||'—')}</a></span></div>
                   <div class="detail-field"><span class="detail-label">Phone</span><span class="detail-value"><a href="tel:${escHtml(b.phone||'')}" style="color:var(--navy);text-decoration:none;">${escHtml(b.phone||'—')}</a></span></div>
+                  <div class="detail-field"><span class="detail-label">City</span><span class="detail-value">${escHtml(b.service_city || b.city || '—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Address</span><span class="detail-value">${escHtml(b.address||'—')}</span></div>
                 </div>
                 <div>
-                  <div class="detail-field"><span class="detail-label">Address</span><span class="detail-value">${escHtml(b.address||'—')}</span></div>
-                  <div class="detail-field"><span class="detail-label">City</span><span class="detail-value">${escHtml(b.city||'—')}</span></div>
-                  <div class="detail-field"><span class="detail-label">ZIP</span><span class="detail-value">${escHtml(b.zip||'—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Service</span><span class="detail-value">${escHtml(b.service||'—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Size</span><span class="detail-value">${escHtml([b.bedrooms ? `${b.bedrooms} bed` : '', b.bathrooms ? `${b.bathrooms} bath` : '', (b.half_baths && String(b.half_baths) !== '0') ? `${b.half_baths} half bath` : '', b.sqft ? `${b.sqft} sqft` : ''].filter(Boolean).join(' · ') || '—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Sofa/Mattress</span><span class="detail-value">${escHtml([sofaLine, matLine].filter(Boolean).join(' · ') || '—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Date &amp; Time</span><span class="detail-value">${date} · ${escHtml(b.booking_time||'—')}</span></div>
+                  <div class="detail-field"><span class="detail-label">Created</span><span class="detail-value">${created}</span></div>
                 </div>
               </div>
-              <div class="detail-full">
-                <div class="detail-field"><span class="detail-label">Service</span><span class="detail-value">${escHtml(b.service||'—')}</span></div>
-                <div class="detail-field"><span class="detail-label">Price</span><span class="detail-value" style="font-weight:700;color:var(--navy);">$${b.price??'—'}</span></div>
-                <div class="detail-field"><span class="detail-label">Sofa/Mattress</span><span class="detail-value">${((b.sofa_quantity||0)>0 || (b.mattress_quantity||0)>0) ? escHtml(`Sofas: ${b.sofa_quantity||0} · Mattresses: ${b.mattress_quantity||0}`) : '—'}</span></div>
-                <div class="detail-field"><span class="detail-label">Date &amp; Time</span><span class="detail-value">${date} · ${escHtml(b.booking_time||'—')}</span></div>
-                <div class="detail-field"><span class="detail-label">Created</span><span class="detail-value">${created}</span></div>
+
+              <div class="detail-full" style="grid-template-columns:1fr;">
+                <div class="detail-field" style="display:block;">
+                  <span class="detail-label" style="width:auto;">Extras Selected</span>
+                  <span class="detail-value" style="margin-top:8px;display:block;">${extrasBadges}</span>
+                </div>
+                <div class="detail-field" style="display:block;">
+                  <span class="detail-label" style="width:auto;">Included Extras</span>
+                  <span class="detail-value" style="margin-top:8px;display:block;">${includedBadges}</span>
+                </div>
+                ${(petsBadge || couponRow) ? `<div class="detail-field" style="display:block;">
+                  <span class="detail-label" style="width:auto;">Badges</span>
+                  <span class="detail-value" style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">${petsBadge}${couponRow}</span>
+                </div>` : ''}
+                ${notesBox ? `<div class="detail-field" style="display:block;border-bottom:none;">${notesBox}</div>` : ''}
+                <div class="detail-field" style="border-bottom:none;">
+                  <span class="detail-label">Total Price</span>
+                  <span class="detail-value" style="font-weight:900;color:var(--navy);font-size:1.15rem;">$${b.price??'—'}</span>
+                </div>
               </div>
               <div class="detail-actions">
                 ${confirmBtnLg}${archiveBtnLg}${trashBtnLg}${restoreBtnLg}${deleteBtnLg}${statusSelect}
@@ -1002,7 +1079,7 @@
         <thead><tr>
           <th style="width:36px;"><input type="checkbox" id="selectAllCb" onchange="toggleSelectAll(this.checked)"></th>
           <th>Ref Code</th><th>Name</th><th>Service</th>
-          <th>Date &amp; Time</th><th>Status</th><th>Action</th><th></th>
+          <th>Date &amp; Time</th><th>Total</th><th>Status</th><th>Action</th><th></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
