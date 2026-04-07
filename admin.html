@@ -780,6 +780,7 @@
 <script>
   const EDGE_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/admin-bookings';
   const CORRECT_PWD = 'homelines2026';
+  const SUPABASE_ANON_KEY = 'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g';
 
   let allBookings = [];
   let dateFrom    = null;
@@ -1384,7 +1385,11 @@
       /* 2. Send confirmation email */
       const emailRes = await fetch(EMAIL_EDGE, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
         body: JSON.stringify({
           type:         'confirmation',
           email:        booking.email,

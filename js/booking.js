@@ -1100,10 +1100,12 @@
           zip:          u.zip     || '',
           service:      serviceNames,
           price:        totalPrice,
+          total_price:  totalPrice,
           booking_date: state.date ? state.date.toISOString().split('T')[0] : null,
           booking_time: state.time || '',
           status:       'pending',
           /* new fields */
+          service_city: state.serviceCity   || null,
           sqft:         state.sqft            || null,
           bedrooms:     state.bedrooms        || null,
           bathrooms:    state.bathrooms       || null,
@@ -1111,8 +1113,10 @@
           sofa_quantity:     Math.max(0, parseInt(state.sofaQuantity) || 0),
           mattress_quantity: Math.max(0, parseInt(state.mattressQuantity) || 0),
           extras:       state.extras.length ? state.extras : null,
+          included_extras: getIncludedExtrasList(),
           notes:        state.notes      || null,
           coupon_code:  state.couponCode || null,
+          coupon_discount: state.couponDiscount || 0,
           has_pets:     state.hasPets
         };
 
@@ -1131,7 +1135,6 @@
             } else {
               console.log('Booking saved OK:', insertData);
               try {
-                const EMAIL_URL   = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email';
                 const basePayload = {
                   email:        bookingData.email,
                   first_name:   bookingData.first_name,
@@ -1157,16 +1160,25 @@
                   coupon_code:  state.couponCode || null,
                   coupon_discount: state.couponDiscount || 0
                 };
+
+                if (!window.supabase?.functions?.invoke) {
+                  throw new Error('Supabase Functions client not available');
+                }
+
                 const [reviewRes, adminRes] = await Promise.all([
-                  fetch(EMAIL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'under_review', ...basePayload }) }),
-                  fetch(EMAIL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'admin_notification', phone: bookingData.phone, ...basePayload }) }),
+                  window.supabase.functions.invoke('send-booking-email', {
+                    body: { type: 'under_review', ...basePayload },
+                  }),
+                  window.supabase.functions.invoke('send-booking-email', {
+                    body: { type: 'admin_notification', phone: bookingData.phone, ...basePayload },
+                  }),
                 ]);
-                if (reviewRes.ok) console.log('under_review email sent');
-                else console.error('under_review failed:', await reviewRes.json());
-                if (adminRes.ok) console.log('admin_notification sent');
-                else console.error('admin_notification failed:', await adminRes.json());
+
+                if (reviewRes?.error) console.error('under_review failed:', reviewRes.error);
+                else console.log('under_review email sent');
+
+                if (adminRes?.error) console.error('admin_notification failed:', adminRes.error);
+                else console.log('admin_notification sent');
               } catch (emailErr) { console.error('Email function error:', emailErr); }
             }
           } catch (e) { console.error('Booking insert exception:', e); }
