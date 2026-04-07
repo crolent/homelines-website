@@ -2160,10 +2160,18 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   gap: 5px;
   user-select: none;
 }
-.extra-card:hover {
-  border-color: var(--blue);
-  background: var(--blue-pale);
-  box-shadow: 0 2px 8px rgba(77,182,232,.15);
+@media (hover: hover) and (pointer: fine) {
+  .extra-card:hover {
+    border-color: var(--blue);
+    background: var(--blue-pale);
+    box-shadow: 0 2px 8px rgba(77,182,232,.15);
+  }
+}
+@media (hover: none) {
+  .extra-card:hover {
+    background-color: inherit;
+    border-color: inherit;
+  }
 }
 .extra-card.selected {
   border-color: var(--blue);
