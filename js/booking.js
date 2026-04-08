@@ -22,7 +22,9 @@
     notes: '',
     couponCode: '',
     couponDiscount: 0,
-    couponPct: 0
+    couponPct: 0,
+    savingsDiscount: 0,
+    savingsDiscountField: ''
   };
 
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TJhzfDTexy6QjOdztK8iY1LmAgSefKM74moqmthJ0YpBGM3TeX6l44rEJrgF4zYStIHakLcOKG3KUjSVE2czkdO00Da6MUxrx';
@@ -210,7 +212,7 @@
     const sub  = Math.max(0, base + sofaMattress + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
     const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
     state.couponDiscount = disc;
-    return sub - disc;
+    return Math.max(0, sub - disc - (state.savingsDiscount || 0));
   }
 
   function syncSofaQtyUI() {
@@ -287,6 +289,9 @@
     });
     if (state.couponDiscount > 0) {
       rows += `<div class="ps-row ps-disc"><span class="ps-label">Coupon (${state.couponCode})</span><span class="ps-val">−$${state.couponDiscount}</span></div>`;
+    }
+    if (state.savingsDiscount > 0) {
+      rows += `<div class="ps-row ps-disc" style="color:#16a34a"><span class="ps-label">🎉 Savings Program</span><span class="ps-val" style="color:#16a34a">−$${state.savingsDiscount}</span></div>`;
     }
     if (!rows) {
       rows = '<div class="ps-empty">Select a service to see pricing.</div>';
@@ -584,6 +589,50 @@
     stripeCard.mount(mount);
   }
 
+  /* ---- Savings discount check ---- */
+  async function checkSavingsDiscount(email) {
+    if (!window.supabase || !email) return;
+    try {
+      const { data: claim } = await window.supabase
+        .from('savings_claims')
+        .select('first_discount_used, third_discount_used, fifth_discount_used')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (!claim) return;
+
+      const { count } = await window.supabase
+        .from('bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('email', email);
+
+      const existing = count || 0;
+      let discountField = '';
+
+      if (existing === 0 && !claim.first_discount_used) {
+        discountField = 'first_discount_used';
+      } else if (existing === 2 && !claim.third_discount_used) {
+        discountField = 'third_discount_used';
+      } else if (existing === 4 && !claim.fifth_discount_used) {
+        discountField = 'fifth_discount_used';
+      }
+
+      if (discountField) {
+        state.savingsDiscount = 25;
+        state.savingsDiscountField = discountField;
+        console.log('[Savings] $25 discount applied:', discountField);
+        updatePriceSummary();
+
+        const banner = document.getElementById('savingsBanner');
+        if (banner) {
+          banner.style.display = 'flex';
+        }
+      }
+    } catch (e) {
+      console.warn('[Savings] check failed (non-fatal):', e);
+    }
+  }
+
   /* ---- Step 1: Email ---- */
   function initStep1() {
     const emailForm = document.getElementById('emailForm');
@@ -606,6 +655,7 @@
           }
         })();
 
+        checkSavingsDiscount(email);
         goToStep(2);
       });
     }
@@ -1371,6 +1421,17 @@
           }
 
           console.log('[Booking] saved OK:', insertData);
+
+          if (state.savingsDiscount > 0 && state.savingsDiscountField && window.supabase) {
+            window.supabase
+              .from('savings_claims')
+              .update({ [state.savingsDiscountField]: true })
+              .eq('email', bookingData.email)
+              .then(({ error: sErr }) => {
+                if (sErr) console.warn('[Savings] mark-used failed (non-fatal):', sErr);
+                else console.log('[Savings] marked used:', state.savingsDiscountField);
+              });
+          }
 
           try {
             console.log('[Email] start');

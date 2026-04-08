@@ -709,5 +709,165 @@
 })();
 </script>
 
+
+<!-- ===== $75 SAVINGS POPUP ===== -->
+<div id="savingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,0.72);z-index:9999;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px);">
+  <div id="savingsCard" style="background:#fff;border-radius:20px;max-width:480px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.28);position:relative;overflow:hidden;animation:savingsIn 0.38s cubic-bezier(.22,1,.36,1) both;">
+
+    <button id="savingsClose" aria-label="Close" style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:1.4rem;color:#94a3b8;line-height:1;padding:4px 6px;border-radius:8px;transition:color 0.2s,background 0.2s;" onmouseover="this.style.color='#1e3a5c';this.style.background='#f1f5f9'" onmouseout="this.style.color='#94a3b8';this.style.background='none'">✕</button>
+
+    <!-- CLAIM FORM STATE -->
+    <div id="savingsForm">
+      <div style="background:linear-gradient(135deg,#1e3a5c 0%,#1a5276 100%);padding:28px 28px 24px;text-align:center;">
+        <div style="font-size:2.6rem;margin-bottom:8px;">🎁</div>
+        <div style="font-size:1.55rem;font-weight:900;color:#fff;letter-spacing:-0.4px;line-height:1.2;">Save $75 on Your Cleanings!</div>
+        <div style="margin-top:8px;color:#93c5fd;font-weight:600;font-size:0.97rem;">Get $25 off your 1st, 3rd, and 5th booking</div>
+      </div>
+
+      <div style="padding:22px 24px 8px;">
+        <div style="display:grid;gap:8px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-radius:12px;padding:11px 14px;">
+            <span style="font-size:0.93rem;font-weight:700;color:#1e3a5c;">🏠 1st Cleaning</span>
+            <span style="font-size:0.93rem;font-weight:800;color:#16a34a;">Save $25</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-radius:12px;padding:11px 14px;">
+            <span style="font-size:0.93rem;font-weight:700;color:#1e3a5c;">🏠 3rd Cleaning</span>
+            <span style="font-size:0.93rem;font-weight:800;color:#16a34a;">Save $25</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-radius:12px;padding:11px 14px;">
+            <span style="font-size:0.93rem;font-weight:700;color:#1e3a5c;">🏠 5th Cleaning</span>
+            <span style="font-size:0.93rem;font-weight:800;color:#16a34a;">Save $25</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;border-top:2px solid #e2e8f0;padding:10px 4px 0;">
+            <span style="font-size:1rem;font-weight:800;color:#1e3a5c;">💰 Total Savings</span>
+            <span style="font-size:1.1rem;font-weight:900;color:#1e3a5c;">$75</span>
+          </div>
+        </div>
+
+        <div id="savingsFormInner">
+          <input id="savingsEmailInput" type="email" placeholder="Enter your email to claim" autocomplete="email"
+            style="width:100%;box-sizing:border-box;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:1rem;font-family:inherit;color:#1e3a5c;outline:none;transition:border-color 0.2s;margin-bottom:10px;"
+            onfocus="this.style.borderColor='#4db6e8'" onblur="this.style.borderColor='#e2e8f0'" />
+          <div id="savingsEmailErr" style="display:none;color:#dc2626;font-size:0.83rem;font-weight:700;margin:-4px 0 8px 4px;"></div>
+          <button id="savingsClaimBtn"
+            style="width:100%;padding:14px 20px;background:#4db6e8;color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:inherit;transition:background 0.2s,transform 0.1s;letter-spacing:-0.2px;"
+            onmouseover="this.style.background='#2ea8e0'" onmouseout="this.style.background='#4db6e8'"
+            onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+            Claim My $75 Savings →
+          </button>
+          <div style="text-align:center;margin-top:9px;color:#94a3b8;font-size:0.8rem;">No spam. Your discount applies automatically.</div>
+        </div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+
+    <!-- SUCCESS STATE (hidden) -->
+    <div id="savingsSuccess" style="display:none;padding:36px 28px 32px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
+      <div style="font-size:1.25rem;font-weight:900;color:#1e3a5c;margin-bottom:8px;">You're in!</div>
+      <div style="color:#475569;font-weight:600;font-size:0.97rem;margin-bottom:22px;">$25 off your first cleaning is ready. We'll apply it automatically when you book.</div>
+      <a href="booking.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:#4db6e8;color:#fff;border-radius:12px;font-weight:800;font-size:1rem;text-decoration:none;transition:background 0.2s;"
+        onmouseover="this.style.background='#2ea8e0'" onmouseout="this.style.background='#4db6e8'">
+        Book Now →
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes savingsIn {
+  from { opacity:0; transform: scale(0.92) translateY(16px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+#savingsOverlay.open { display:flex !important; }
+@media (max-width: 520px) {
+  #savingsCard { border-radius:16px; }
+  #savingsCard > div:first-of-type div:nth-child(2) { font-size:1.3rem; }
+}
+</style>
+
+<script>
+(function() {
+  const SUPABASE_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co';
+  const overlay = document.getElementById('savingsOverlay');
+  const closeBtn = document.getElementById('savingsClose');
+  const claimBtn = document.getElementById('savingsClaimBtn');
+  const emailInput = document.getElementById('savingsEmailInput');
+  const emailErr = document.getElementById('savingsEmailErr');
+  const formEl = document.getElementById('savingsForm');
+  const successEl = document.getElementById('savingsSuccess');
+  const formInner = document.getElementById('savingsFormInner');
+
+  function openPopup() {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => emailInput && emailInput.focus(), 400);
+  }
+
+  function closePopup() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('popupSeen', '1');
+  }
+
+  if (!sessionStorage.getItem('popupSeen')) {
+    setTimeout(openPopup, 5000);
+  }
+
+  closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closePopup();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closePopup();
+  });
+
+  claimBtn.addEventListener('click', async function() {
+    const email = (emailInput.value || '').trim().toLowerCase();
+    emailErr.style.display = 'none';
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailErr.textContent = 'Please enter a valid email address.';
+      emailErr.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+
+    claimBtn.disabled = true;
+    claimBtn.textContent = 'Claiming…';
+
+    try {
+      if (!window.supabase) throw new Error('Supabase not loaded');
+
+      const { error } = await window.supabase
+        .from('savings_claims')
+        .upsert({ email }, { onConflict: 'email', ignoreDuplicates: true });
+
+      if (error && error.code !== '23505') {
+        throw error;
+      }
+
+      sessionStorage.setItem('popupSeen', '1');
+      sessionStorage.setItem('savingsClaimed', email);
+
+      formEl.style.display = 'none';
+      successEl.style.display = 'block';
+      successEl.style.animation = 'savingsIn 0.38s cubic-bezier(.22,1,.36,1) both';
+    } catch (e) {
+      console.error('Savings claim error:', e);
+      claimBtn.disabled = false;
+      claimBtn.textContent = 'Claim My $75 Savings →';
+      emailErr.textContent = 'Something went wrong. Please try again.';
+      emailErr.style.display = 'block';
+    }
+  });
+
+  emailInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') claimBtn.click();
+  });
+})();
+</script>
+
 </body>
 </html>
