@@ -29,6 +29,8 @@
 
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TJhzfDTexy6QjOdztK8iY1LmAgSefKM74moqmthJ0YpBGM3TeX6l44rEJrgF4zYStIHakLcOKG3KUjSVE2czkdO00Da6MUxrx';
   const SETUP_INTENT_FN = 'create-setup-intent';
+  const SUPABASE_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g';
 
   let stripeClient = null;
   let stripeElements = null;
@@ -591,24 +593,28 @@
 
   /* ---- Savings discount check ---- */
   async function checkSavingsDiscount(email) {
-    if (!window.supabase || !email) return;
+    if (!email) return;
     try {
-      const { data: claim } = await window.supabase
-        .from('savings_claims')
-        .select('first_discount_used, third_discount_used, fifth_discount_used')
-        .eq('email', email)
-        .maybeSingle();
+      const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
 
+      const claimRes = await fetch(
+        SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(email) +
+        '&select=first_discount_used,third_discount_used,fifth_discount_used',
+        { headers }
+      );
+      const claims = await claimRes.json();
+      const claim = Array.isArray(claims) ? claims[0] : null;
       if (!claim) return;
 
-      const { count } = await window.supabase
-        .from('bookings')
-        .select('id', { count: 'exact', head: true })
-        .eq('email', email);
+      const bookRes = await fetch(
+        SUPABASE_URL + '/rest/v1/bookings?email=eq.' + encodeURIComponent(email) +
+        '&status=neq.trashed&select=id',
+        { headers }
+      );
+      const books = await bookRes.json();
+      const existing = Array.isArray(books) ? books.length : 0;
 
-      const existing = count || 0;
       let discountField = '';
-
       if (existing === 0 && !claim.first_discount_used) {
         discountField = 'first_discount_used';
       } else if (existing === 2 && !claim.third_discount_used) {
@@ -621,12 +627,20 @@
         state.savingsDiscount = 25;
         state.savingsDiscountField = discountField;
         console.log('[Savings] $25 discount applied:', discountField);
-        updatePriceSummary();
 
-        const banner = document.getElementById('savingsBanner');
-        if (banner) {
+        let banner = document.getElementById('savingsBanner');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'savingsBanner';
+          banner.style.cssText = 'display:flex;align-items:center;gap:8px;background:#dcfce7;color:#166534;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:0.92rem;margin:0 0 12px;';
+          banner.innerHTML = '🎉 $25 savings program discount applied!';
+          const ps = document.getElementById('priceSummary');
+          if (ps) ps.parentNode.insertBefore(banner, ps);
+        } else {
           banner.style.display = 'flex';
         }
+
+        updatePriceSummary();
       }
     } catch (e) {
       console.warn('[Savings] check failed (non-fatal):', e);
@@ -1384,53 +1398,73 @@
         };
 
         try {
-          if (!window.supabase) throw new Error('Supabase not loaded');
-
-          let userId = null
-          try {
-            const controller = new AbortController()
-            const timeout = setTimeout(() => controller.abort(), 3000)
-            const { data } = await window.supabase.auth.getUser()
-            clearTimeout(timeout)
-            userId = data?.user?.id || null
-          } catch (e) {
-            console.log('getUser skipped, continuing without user_id')
-            userId = null
+          let userId = null;
+          if (window.supabase) {
+            try {
+              const timeout = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
+              const { data } = await Promise.race([window.supabase.auth.getUser(), timeout]);
+              userId = data?.user?.id || null;
+            } catch (e) {
+              console.log('getUser skipped');
+              userId = null;
+            }
           }
           bookingData.user_id = userId;
 
           console.log('[Booking] inserting booking:', JSON.stringify(bookingData, null, 2));
-          const insertController = new AbortController();
-          const insertTimeout = setTimeout(() => {
-            try { insertController.abort('timeout'); } catch (e) {}
-          }, 10000);
 
-          let insertQuery = window.supabase.from('bookings').insert([bookingData]).select();
-          if (typeof insertQuery?.abortSignal === 'function') {
-            insertQuery = insertQuery.abortSignal(insertController.signal);
-          }
+          let insertData;
+          const supabaseResult = window.supabase
+            ? await Promise.race([
+                window.supabase.from('bookings').insert([bookingData]).select(),
+                new Promise(resolve => setTimeout(() => resolve({ timedOut: true }), 10000))
+              ])
+            : { timedOut: true };
 
-          const { data: insertData, error } = await insertQuery;
-          clearTimeout(insertTimeout);
-
-          if (error) {
-            console.error('[Booking] insert error:', error.message, error.details, error.hint);
+          if (supabaseResult.timedOut) {
+            console.warn('[Booking] supabase client timed out, using direct fetch');
+            const resp = await fetch(SUPABASE_URL + '/rest/v1/bookings', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'Prefer': 'return=representation'
+              },
+              body: JSON.stringify(bookingData)
+            });
+            if (!resp.ok) {
+              const body = await resp.json().catch(() => ({}));
+              throw new Error('Booking insert failed: ' + resp.status + ' ' + (body.message || ''));
+            }
+            insertData = await resp.json();
+          } else if (supabaseResult.error) {
+            console.error('[Booking] insert error:', supabaseResult.error.message, supabaseResult.error.details, supabaseResult.error.hint);
             showNonBlockingWarning('Booking could not be saved. Please try again.');
             resetConfirmBtn();
             return;
+          } else {
+            insertData = supabaseResult.data;
           }
 
           console.log('[Booking] saved OK:', insertData);
 
-          if (state.savingsDiscount > 0 && state.savingsDiscountField && window.supabase) {
-            window.supabase
-              .from('savings_claims')
-              .update({ [state.savingsDiscountField]: true })
-              .eq('email', bookingData.email)
-              .then(({ error: sErr }) => {
-                if (sErr) console.warn('[Savings] mark-used failed (non-fatal):', sErr);
-                else console.log('[Savings] marked used:', state.savingsDiscountField);
-              });
+          if (state.savingsDiscount > 0 && state.savingsDiscountField) {
+            fetch(
+              SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(bookingData.email),
+              {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': 'Bearer ' + SUPABASE_KEY
+                },
+                body: JSON.stringify({ [state.savingsDiscountField]: true })
+              }
+            ).then(r => {
+              if (r.ok) console.log('[Savings] marked used:', state.savingsDiscountField);
+              else console.warn('[Savings] mark-used failed:', r.status);
+            }).catch(e => console.warn('[Savings] mark-used error (non-fatal):', e));
           }
 
           try {
