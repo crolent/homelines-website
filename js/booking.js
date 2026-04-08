@@ -507,20 +507,33 @@
     if (stripeClientSecret && stripeCustomerId) return;
     if (!window.supabase?.functions?.invoke) throw new Error('Supabase Functions client not available');
 
-    const res = await window.supabase.functions.invoke(SETUP_INTENT_FN, {
-      body: {
-        email,
-        name: name || '',
-      },
+    console.log('ensureStripeSetupIntent: invoking create-setup-intent', {
+      hasEmail: !!String(email || '').trim(),
+      hasName: !!String(name || '').trim(),
     });
 
-    if (res?.error) throw res.error;
+    const res = await withTimeout(15000, window.supabase.functions.invoke(SETUP_INTENT_FN, {
+      body: { email, name },
+    }), 'create-setup-intent');
+
+    if (res?.error) {
+      console.error('Error creating setup intent:', res.error);
+      throw res.error;
+    }
     stripeClientSecret = res?.data?.clientSecret || '';
     stripeCustomerId = res?.data?.customerId || '';
 
     if (!stripeClientSecret || !stripeCustomerId) {
       throw new Error('Stripe SetupIntent did not return clientSecret/customerId');
     }
+  }
+
+  function withTimeout(ms, promise, label) {
+    let t;
+    const timeout = new Promise((_, reject) => {
+      t = setTimeout(() => reject(new Error((label ? label + ' ' : '') + `timed out after ${ms}ms`)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
   }
 
   function initStripeCardMount() {
@@ -1054,11 +1067,7 @@
       if (!city)                 { showError('detailsCityErr',    T('err_city')    || 'Please enter your city');             valid = false; }
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
-      if (!stripeCard || !stripeCardComplete) {
-        const errEl = document.getElementById('stripeCardError');
-        if (errEl) errEl.textContent = 'Please enter a valid card to continue.';
-        valid = false;
-      }
+      // Do not block booking on card validity. Card is best-effort and can be added later.
 
       if (valid) {
         state.serviceCity   = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
@@ -1068,6 +1077,16 @@
         state.halfBathrooms = document.getElementById('detailsHalfBaths')?.value   || state.halfBathrooms;
         state.notes         = document.getElementById('detailsNotes')?.value       || state.notes;
         state.user = { ...state.user, name, surname, phone, address, apt, city, zip };
+
+        // Best-effort: create SetupIntent when entering the card step.
+        (async () => {
+          try {
+            await ensureStripeSetupIntent(state.user?.email || '', `${state.user?.name || ''} ${state.user?.surname || ''}`.trim());
+          } catch (err) {
+            console.error('Stripe setup intent error (step 5):', err);
+          }
+        })();
+
         populateSummary();
         goToStep(6);
       }
@@ -1171,58 +1190,101 @@
     const confirmBtn = document.getElementById('confirmBooking');
     if (confirmBtn) {
       confirmBtn.addEventListener('click', async () => {
+        console.log('=== CONFIRM BOOKING START ===');
+
         confirmBtn.textContent = T('bk_processing') || 'Processing...';
         confirmBtn.disabled = true;
 
         const stripeErrEl = document.getElementById('stripeCardError');
         if (stripeErrEl) stripeErrEl.textContent = '';
 
+        const showNonBlockingWarning = (text) => {
+          if (!stripeErrEl) return;
+          stripeErrEl.textContent = text;
+        };
+
+        const resetConfirmBtn = () => {
+          confirmBtn.textContent = T('bk_confirm') || 'Confirm Booking';
+          confirmBtn.disabled = false;
+        };
+
         const refCode  = 'HL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
         const u        = state.user;
         const serviceNames = state.services.map(s => T(s.nameKey) || s.nameKey).join(', ') || '';
         const totalPrice   = calcTotal();
 
-        // Gate booking creation on saved card
+        console.log('Stripe instance:', !!stripeClient);
+        console.log('Card element:', !!stripeCard);
+        console.log('Client secret:', stripeClientSecret);
+
+        let cardSaved = false;
+        let stripeWarning = '';
+
+        // Attempt to save card, but NEVER block booking creation.
         try {
-          initStripeCardMount();
-          if (!stripeClient || !stripeCard) throw new Error('Stripe not initialized');
-          await ensureStripeSetupIntent(u?.email || '', `${u?.name || ''} ${u?.surname || ''}`.trim());
+          await withTimeout(15000, (async () => {
+            console.log('[Stripe] initStripeCardMount()');
+            initStripeCardMount();
+            console.log('Stripe instance:', !!stripeClient);
+            console.log('Card element:', !!stripeCard);
+            console.log('Client secret:', stripeClientSecret);
 
-          const billing_details = {
-            name: `${u?.name || ''} ${u?.surname || ''}`.trim() || undefined,
-            email: u?.email || undefined,
-            phone: u?.phone || undefined,
-            address: u?.address ? {
-              line1: u.address,
-              city: u.city || undefined,
-              postal_code: u.zip || undefined,
-              country: 'US',
-            } : undefined,
-          };
+            if (!stripeClient || !stripeCard) {
+              throw new Error('Stripe not initialized');
+            }
 
-          const setupRes = await stripeClient.confirmCardSetup(
-            stripeClientSecret,
-            {
-              payment_method: {
-                card: stripeCard,
-                billing_details,
+            if (!stripeClientSecret) {
+              console.log('[Stripe] clientSecret missing, creating SetupIntent...');
+              try {
+                await ensureStripeSetupIntent(u?.email || '', `${u?.name || ''} ${u?.surname || ''}`.trim());
+              } catch (e) {
+                console.error('[Stripe] create-setup-intent failed:', e);
+              }
+            }
+
+            console.log('[Stripe] clientSecret after ensure:', stripeClientSecret);
+            console.log('Client secret:', stripeClientSecret);
+
+            if (!stripeClientSecret) {
+              // Requirement: skip Stripe entirely if clientSecret is null/undefined
+              throw new Error('Missing client secret (skipping card save)');
+            }
+
+            const billing_details = {
+              name: `${u?.name || ''} ${u?.surname || ''}`.trim() || undefined,
+              email: u?.email || undefined,
+              phone: u?.phone || undefined,
+              address: u?.address ? {
+                line1: u.address,
+                city: u.city || undefined,
+                postal_code: u.zip || undefined,
+                country: 'US',
+              } : undefined,
+            };
+
+            console.log('[Stripe] confirmCardSetup start');
+            const setupRes = await stripeClient.confirmCardSetup(
+              stripeClientSecret,
+              {
+                payment_method: {
+                  card: stripeCard,
+                  billing_details,
+                },
               },
-            },
-            { redirect: 'if_required' },
-          );
+              { redirect: 'if_required' },
+            );
+            console.log('[Stripe] confirmCardSetup result:', { hasError: !!setupRes?.error });
 
-          if (setupRes?.error) {
-            if (stripeErrEl) stripeErrEl.textContent = setupRes.error.message || 'Card setup failed.';
-            confirmBtn.textContent = T('bk_confirm') || 'Confirm Booking';
-            confirmBtn.disabled = false;
-            return;
-          }
+            if (setupRes?.error) {
+              throw new Error(setupRes.error.message || 'Card setup failed.');
+            }
+
+            cardSaved = true;
+          })(), 'Stripe');
         } catch (stripeErr) {
-          console.error('Stripe confirmCardSetup error:', stripeErr);
-          if (stripeErrEl) stripeErrEl.textContent = (stripeErr && stripeErr.message) ? stripeErr.message : 'Card setup failed.';
-          confirmBtn.textContent = T('bk_confirm') || 'Confirm Booking';
-          confirmBtn.disabled = false;
-          return;
+          console.error('[Stripe] non-fatal error:', stripeErr);
+          stripeWarning = 'Card could not be saved. You can add it later.';
+          showNonBlockingWarning(stripeWarning);
         }
 
         const bookingData = {
@@ -1256,83 +1318,109 @@
           has_pets:     state.hasPets,
           stripe_customer_id: stripeCustomerId || null,
           payment_status: 'pending',
-          payment_method_saved: true
+          payment_method_saved: cardSaved
         };
 
-        if (window.supabase) {
+        try {
+          if (!window.supabase) throw new Error('Supabase not loaded');
+
           try {
-            const { data } = await window.supabase.auth.getUser();
+            console.log('[Booking] getUser start');
+            const { data } = await withTimeout(15000, window.supabase.auth.getUser(), 'Supabase getUser');
             if (data?.user?.id) bookingData.user_id = data.user.id;
-          } catch (e) { console.warn('getUser (non-fatal):', e); }
+            console.log('[Booking] getUser done:', { hasUserId: !!bookingData.user_id });
+          } catch (e) {
+            console.warn('[Booking] getUser (non-fatal):', e);
+          }
 
-          console.log('Inserting booking:', JSON.stringify(bookingData, null, 2));
+          console.log('[Booking] inserting booking:', JSON.stringify(bookingData, null, 2));
+          const { data: insertData, error } = await withTimeout(
+            15000,
+            window.supabase.from('bookings').insert([bookingData]).select(),
+            'Supabase insert booking'
+          );
+
+          if (error) {
+            console.error('[Booking] insert error:', error.message, error.details, error.hint);
+            showNonBlockingWarning('Booking could not be saved. Please try again.');
+            resetConfirmBtn();
+            return;
+          }
+
+          console.log('[Booking] saved OK:', insertData);
+
           try {
-            const { data: insertData, error } = await window.supabase
-              .from('bookings').insert([bookingData]).select();
-            if (error) {
-              console.error('Booking insert error:', error.message, error.details, error.hint);
-            } else {
-              console.log('Booking saved OK:', insertData);
-              try {
-                const basePayload = {
-                  email:        bookingData.email,
-                  first_name:   bookingData.first_name,
-                  last_name:    bookingData.last_name,
-                  ref_code:     bookingData.ref_code,
-                  service:      bookingData.service,
-                  booking_date: bookingData.booking_date,
-                  booking_time: bookingData.booking_time,
-                  price:        bookingData.price,
-                  address:      bookingData.address,
-                  city:         bookingData.city,
-                  service_city: state.serviceCity,
-                  sqft:         state.sqft,
-                  bedrooms:     state.bedrooms,
-                  bathrooms:    state.bathrooms,
-                  half_baths:   state.halfBathrooms,
-                  sofa_quantity: bookingData.sofa_quantity,
-                  mattress_quantity: bookingData.mattress_quantity,
-                  extras:       state.extras,
-                  included_extras: getIncludedExtrasList(),
-                  has_pets:     state.hasPets,
-                  notes:        state.notes,
-                  coupon_code:  state.couponCode || null,
-                  coupon_discount: state.couponDiscount || 0
-                };
+            console.log('[Email] start');
+            const basePayload = {
+              email:        bookingData.email,
+              first_name:   bookingData.first_name,
+              last_name:    bookingData.last_name,
+              ref_code:     bookingData.ref_code,
+              service:      bookingData.service,
+              booking_date: bookingData.booking_date,
+              booking_time: bookingData.booking_time,
+              price:        bookingData.price,
+              address:      bookingData.address,
+              city:         bookingData.city,
+              service_city: state.serviceCity,
+              sqft:         state.sqft,
+              bedrooms:     state.bedrooms,
+              bathrooms:    state.bathrooms,
+              half_baths:   state.halfBathrooms,
+              sofa_quantity: bookingData.sofa_quantity,
+              mattress_quantity: bookingData.mattress_quantity,
+              extras:       state.extras,
+              included_extras: getIncludedExtrasList(),
+              has_pets:     state.hasPets,
+              notes:        state.notes,
+              coupon_code:  state.couponCode || null,
+              coupon_discount: state.couponDiscount || 0
+            };
 
-                if (!window.supabase?.functions?.invoke) {
-                  throw new Error('Supabase Functions client not available');
-                }
-
-                const [reviewRes, adminRes] = await Promise.all([
-                  window.supabase.functions.invoke('send-booking-email', {
-                    body: { type: 'under_review', ...basePayload },
-                  }),
-                  window.supabase.functions.invoke('send-booking-email', {
-                    body: { type: 'admin_notification', phone: bookingData.phone, ...basePayload },
-                  }),
-                ]);
-
-                if (reviewRes?.error) console.error('under_review failed:', reviewRes.error);
-                else console.log('under_review email sent');
-
-                if (adminRes?.error) console.error('admin_notification failed:', adminRes.error);
-                else console.log('admin_notification sent');
-              } catch (emailErr) { console.error('Email function error:', emailErr); }
+            if (!window.supabase?.functions?.invoke) {
+              throw new Error('Supabase Functions client not available');
             }
-          } catch (e) { console.error('Booking insert exception:', e); }
-        }
 
-        document.getElementById('bookingConfirmId').textContent = refCode;
-        document.getElementById('step6').style.display = 'none';
-        const success = document.getElementById('stepSuccess');
-        if (success) { success.style.display = 'block'; success.style.animation = 'fade-in-up 0.5s ease both'; }
-        for (let i = 1; i <= 6; i++) {
-          const circle = document.getElementById(`progressStep${i}`);
-          if (circle) circle.classList.add('done');
+            const [reviewRes, adminRes] = await withTimeout(
+              15000,
+              Promise.all([
+                window.supabase.functions.invoke('send-booking-email', {
+                  body: { type: 'under_review', ...basePayload },
+                }),
+                window.supabase.functions.invoke('send-booking-email', {
+                  body: { type: 'admin_notification', phone: bookingData.phone, ...basePayload },
+                }),
+              ]),
+              'Send booking emails'
+            );
+
+            if (reviewRes?.error) console.error('[Email] under_review failed:', reviewRes.error);
+            else console.log('[Email] under_review sent');
+
+            if (adminRes?.error) console.error('[Email] admin_notification failed:', adminRes.error);
+            else console.log('[Email] admin_notification sent');
+          } catch (emailErr) {
+            console.error('[Email] non-fatal error:', emailErr);
+          }
+
+          document.getElementById('bookingConfirmId').textContent = refCode;
+          document.getElementById('step6').style.display = 'none';
+          const success = document.getElementById('stepSuccess');
+          if (success) {
+            success.style.display = 'block';
+            success.style.animation = 'fade-in-up 0.5s ease both';
+          }
+          for (let i = 1; i <= 6; i++) {
+            const circle = document.getElementById(`progressStep${i}`);
+            if (circle) circle.classList.add('done');
+          }
+          document.querySelectorAll('.progress-line').forEach(l => l.classList.add('done'));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (fatalErr) {
+          console.error('[Booking] fatal error:', fatalErr);
+          showNonBlockingWarning('Booking could not be completed. Please try again.');
+          resetConfirmBtn();
         }
-        document.querySelectorAll('.progress-line').forEach(l => l.classList.add('done'));
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
     const backBtn = document.getElementById('step6Back');
