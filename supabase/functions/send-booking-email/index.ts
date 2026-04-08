@@ -514,12 +514,46 @@ serve(async (req: Request) => {
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td>
                 </tr>` : ''}
                 ${notes ? `<tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">� Notes</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📝 Notes</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td>
                 </tr>` : ''}
                 <tr>
                   <td style="padding:12px 0 0;"><span style="font-size:15px;color:#1e3a5c;font-weight:700;">💳 Total Price</span></td>
                   <td style="padding:12px 0 0;text-align:right;"><span style="font-size:18px;color:#1e3a5c;font-weight:800;">$${price}</span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Payment Options -->
+          <tr>
+            <td style="padding:0 40px 28px;">
+              <h2 style="margin:0 0 14px;font-size:17px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">💳 Payment Options</h2>
+
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 10px;">
+                    <table cellpadding="0" cellspacing="0" style="width:100%;">
+                      <tr>
+                        <td align="center" style="padding:6px;width:50%;">
+                          <a href="https://homelinescleaning.com/pay.html?ref=${encodeURIComponent(ref_code || '')}" style="display:inline-block;background:#4db8e8;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;padding:14px 28px;border-radius:8px;">💳 Pay Now Online</a>
+                        </td>
+                        <td align="center" style="padding:6px;width:50%;">
+                          <span style="display:inline-block;border:2px solid #d1d5db;color:#6b7280;font-size:15px;font-weight:800;padding:14px 28px;border-radius:8px;">🏠 Pay on Arrival</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 0 10px;text-align:center;">
+                    <p style="margin:0;font-size:13px;color:#374151;line-height:1.6;">Pay online now for a faster check-in, or pay with cash, check, or card when our team arrives.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0;text-align:center;">
+                    <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.6;">📋 Cancellation Policy: Free cancellation 24+ hours before. Less than 24 hours: $50 fee. No-show: 50% of booking total.</p>
+                  </td>
                 </tr>
               </table>
             </td>
