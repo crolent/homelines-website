@@ -1334,11 +1334,18 @@
           }
 
           console.log('[Booking] inserting booking:', JSON.stringify(bookingData, null, 2));
-          const { data: insertData, error } = await withTimeout(
-            15000,
-            window.supabase.from('bookings').insert([bookingData]).select(),
-            'Supabase insert booking'
-          );
+          const insertController = new AbortController();
+          const insertTimeout = setTimeout(() => {
+            try { insertController.abort('timeout'); } catch (e) {}
+          }, 10000);
+
+          let insertQuery = window.supabase.from('bookings').insert([bookingData]).select();
+          if (typeof insertQuery?.abortSignal === 'function') {
+            insertQuery = insertQuery.abortSignal(insertController.signal);
+          }
+
+          const { data: insertData, error } = await insertQuery;
+          clearTimeout(insertTimeout);
 
           if (error) {
             console.error('[Booking] insert error:', error.message, error.details, error.hint);
