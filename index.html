@@ -837,12 +837,26 @@
     claimBtn.disabled = true;
     claimBtn.textContent = 'Claiming…';
 
+    function resetClaimBtn(msg) {
+      claimBtn.disabled = false;
+      claimBtn.textContent = 'Claim My $75 Savings →';
+      emailErr.textContent = msg || 'Something went wrong. Please try again.';
+      emailErr.style.display = 'block';
+    }
+
+    const claimTimeout = setTimeout(function() {
+      resetClaimBtn('Something went wrong. Please try again.');
+      console.warn('[Savings] claim timed out after 5s');
+    }, 5000);
+
     try {
       if (!window.supabase) throw new Error('Supabase not loaded');
 
       const { error } = await window.supabase
         .from('savings_claims')
         .upsert({ email }, { onConflict: 'email', ignoreDuplicates: true });
+
+      clearTimeout(claimTimeout);
 
       if (error && error.code !== '23505') {
         throw error;
@@ -855,11 +869,9 @@
       successEl.style.display = 'block';
       successEl.style.animation = 'savingsIn 0.38s cubic-bezier(.22,1,.36,1) both';
     } catch (e) {
+      clearTimeout(claimTimeout);
       console.error('Savings claim error:', e);
-      claimBtn.disabled = false;
-      claimBtn.textContent = 'Claim My $75 Savings →';
-      emailErr.textContent = 'Something went wrong. Please try again.';
-      emailErr.style.display = 'block';
+      resetClaimBtn('Something went wrong. Please try again.');
     }
   });
 
