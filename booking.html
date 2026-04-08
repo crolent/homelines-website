@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css?v=4" />
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     window.supabase = window.supabase.createClient(
@@ -446,6 +447,22 @@
             <label class="form-label" for="detailsZip" data-i18n="bk_zip">ZIP / Postal Code *</label>
             <input type="text" id="detailsZip" class="form-input" placeholder="10001" autocomplete="postal-code" />
             <span class="error-msg" id="detailsZipErr"></span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:18px;">
+          <label class="form-label" style="margin-bottom:8px;display:block;">💳 Payment Card</label>
+          <div style="font-size:0.92rem;color:var(--gray-mid);margin-bottom:10px;line-height:1.35;">
+            Your card will NOT be charged now. It is saved securely for payment after your cleaning is confirmed.
+          </div>
+          <div id="stripeCardMount" class="form-input" style="padding:12px;"></div>
+          <div id="stripeCardError" class="error-msg" style="display:block;margin-top:8px;"></div>
+
+          <div style="margin-top:10px;font-size:0.9rem;color:var(--gray-mid);line-height:1.35;">
+            🔒 Secured by Stripe. Your card details are encrypted.
+          </div>
+          <div style="margin-top:10px;font-size:0.9rem;color:var(--gray-mid);line-height:1.35;">
+            📋 Cancellation Policy: Free cancellation 24+ hours before scheduled time. Cancellation less than 24 hours: $50 fee. No-show: 50% of booking total will be charged.
           </div>
         </div>
         <div class="booking-nav" style="border-top: none; padding-top: 20px;">

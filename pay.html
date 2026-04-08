@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <title>Pay for Booking – Homelines Cleaning</title>
+  <meta name="description" content="Securely pay for your Homelines Cleaning booking." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.supabase = window.supabase.createClient(
+      'https://acfsvzbjfiynlcbjvtbq.supabase.co',
+      'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g'
+    );
+  </script>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg class="nav-logo-svg" viewBox="0 0 100 78" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="12,38 50,8 88,38" stroke="#1e3a5c" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="35" x2="16" y2="70" stroke="#1e3a5c" stroke-width="7" stroke-linecap="round"/>
+          <line x1="84" y1="35" x2="84" y2="70" stroke="#1e3a5c" stroke-width="7" stroke-linecap="round"/>
+          <polyline points="28,38 50,20 72,38" stroke="#4db6e8" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 32 70 Q 32 50 50 50 Q 68 50 68 70" stroke="#4db6e8" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="nav-logo-text">
+          <span>Homelines</span>
+          <span>Cleaning</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link" data-page="index.html">Home</a></li>
+        <li><a href="booking.html" class="nav-link" data-page="booking.html">Book Now</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact.html">Contact</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <div class="online-badge">
+          <div class="online-dot"></div>
+          <span>Online 24/7</span>
+        </div>
+        <div class="lang-picker"></div>
+        <a href="booking.html" class="btn btn-primary btn-sm nav-book-btn">Book a Clean</a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="menu-bubbles" id="menuBubbles"></div>
+  <a href="index.html" class="nav-link" data-page="index.html">Home</a>
+  <a href="booking.html" class="nav-link" data-page="booking.html">Book Now</a>
+  <a href="contact.html" class="nav-link" data-page="contact.html">Contact</a>
+  <div class="lang-picker mobile-lang-picker" style="margin-top:8px;"></div>
+</div>
+
+<main style="background: var(--gray-light); min-height: 100vh; padding-top: 96px; padding-bottom: 60px;">
+  <div class="container" style="max-width: 900px;">
+    <div style="text-align:center; margin-bottom: 30px;">
+      <div class="hero-badge" style="background: var(--blue-pale); border-color: rgba(77,182,232,0.3); color: var(--blue); display: inline-flex; margin-bottom: 16px;">
+        <span>💳 Secure Payment</span>
+      </div>
+      <h1 style="font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--navy);">Pay for Your Booking</h1>
+      <p style="color: var(--gray-dark); margin-top: 8px;">Use the card you saved during booking to pay securely online.</p>
+    </div>
+
+    <div class="booking-card" style="max-width: 720px; margin: 0 auto;">
+      <div id="payState" style="padding: 10px 2px;">
+        <div class="state-msg" style="padding: 22px 16px;">
+          <div class="spinner"></div>
+          Loading booking…
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/main.js"></script>
+<script src="js/pay.js"></script>
+</body>
+</html>

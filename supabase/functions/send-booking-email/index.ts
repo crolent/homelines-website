@@ -786,7 +786,7 @@ serve(async (req: Request) => {
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#14532d;font-weight:800;">${couponLabel}</span></td>
                 </tr>` : ''}
                 ${notes ? `<tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">� Notes</span></td>
+                  <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;"><span style="font-size:14px;color:#6b7280;font-weight:500;">📝 Notes</span></td>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-style:italic;">${notes}</span></td>
                 </tr>` : ''}
                 <tr>
@@ -887,6 +887,84 @@ serve(async (req: Request) => {
         });
       }
       return new Response(JSON.stringify({ success: true, customer: customerResult.id, admin: adminConfirmResult.id }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    if (type === 'payment_receipt') {
+      const receiptHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Receipt</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;">
+          <tr>
+            <td style="background:#1e3a5c;padding:26px 28px;">
+              <div style="font-size:18px;font-weight:800;color:#ffffff;">Homelines Cleaning</div>
+              <div style="margin-top:6px;font-size:13px;color:rgba(255,255,255,0.85);">Payment Receipt</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 28px 10px;">
+              <div style="font-size:18px;font-weight:900;color:#1e3a5c;">✅ Payment successful!</div>
+              <div style="margin-top:8px;font-size:14px;color:#374151;line-height:1.5;">Thank you — we’ve received your payment for booking <span style="font-weight:800;color:#1e3a5c;">${ref_code}</span>.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 16px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;">
+                <tr>
+                  <td style="padding:8px 0;"><span style="font-size:13px;color:#6b7280;font-weight:600;">Service</span></td>
+                  <td style="padding:8px 0;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:700;">${service}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;border-top:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:600;">Appointment</span></td>
+                  <td style="padding:8px 0;border-top:1px solid #f3f4f6;text-align:right;"><span style="font-size:13px;color:#111827;font-weight:700;">${booking_date} · ${booking_time}</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-top:1px solid #f3f4f6;"><span style="font-size:14px;color:#1e3a5c;font-weight:800;">Total Paid</span></td>
+                  <td style="padding:10px 0;border-top:1px solid #f3f4f6;text-align:right;"><span style="font-size:16px;color:#1e3a5c;font-weight:900;">$${price}</span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;padding:22px 28px;text-align:center;border-top:1px solid #e5e7eb;">
+              <p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Questions? Contact us at</p>
+              <a href="mailto:info@homelinescleaning.com" style="color:#1e3a5c;font-weight:700;font-size:14px;text-decoration:none;">info@homelinescleaning.com</a>
+              <p style="margin:14px 0 0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+      const res = await sendEmail({
+        from: FROM_EMAIL,
+        to: [email],
+        reply_to: ADMIN_TO_EMAIL,
+        subject: `🧾 Payment Receipt – ${ref_code} | Homelines Cleaning`,
+        html: receiptHtml,
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        console.error('Resend payment_receipt error:', result);
+        return new Response(JSON.stringify({ error: result }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, id: result.id }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });

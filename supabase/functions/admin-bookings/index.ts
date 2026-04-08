@@ -38,12 +38,20 @@ serve(async (req: Request) => {
   }
 
   if (req.method === 'PATCH') {
-    const { id, status } = await req.json();
-    if (!id || !status) return json({ error: 'id and status required' }, 400);
+    const { id, status, payment_status } = await req.json();
+    if (!id) return json({ error: 'id required' }, 400);
+
+    const updates: Record<string, unknown> = {};
+    if (status) updates.status = status;
+    if (payment_status) updates.payment_status = payment_status;
+
+    if (!Object.keys(updates).length) {
+      return json({ error: 'No updates provided' }, 400);
+    }
 
     const { data, error } = await supabase
       .from('bookings')
-      .update({ status })
+      .update(updates)
       .eq('id', id)
       .select()
       .single();

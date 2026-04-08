@@ -782,6 +782,9 @@
   const CORRECT_PWD = 'homelines2026';
   const SUPABASE_ANON_KEY = 'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g';
 
+  const SUPABASE_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co';
+  const CHARGE_EDGE = `${SUPABASE_URL}/functions/v1/charge-customer`;
+
   let allBookings = [];
   let dateFrom    = null;
   let dateTo      = null;
@@ -1014,6 +1017,26 @@
           </div>`
         : '';
 
+      const pStatus = String(b.payment_status || 'pending').toLowerCase();
+      const pBadge = pStatus === 'paid'
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.35);color:#14532d;font-size:0.78rem;font-weight:900;">✅ Paid</span>`
+        : (pStatus === 'pay_on_arrival' || pStatus === 'arrival')
+          ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(77,182,232,0.18);border:1px solid rgba(77,182,232,0.45);color:var(--navy);font-size:0.78rem;font-weight:900;">🏠 Pay on Arrival</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(202,138,4,0.14);border:1px solid rgba(202,138,4,0.35);color:#854d0e;font-size:0.78rem;font-weight:900;">⏳ Pending</span>`;
+
+      const cardSaved = !!b.payment_method_saved;
+      const cardSavedChip = cardSaved
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--navy);font-size:0.78rem;font-weight:900;">💳 Card saved</span>`
+        : '';
+
+      const chargeButtons = cardSaved ? `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="confirm-btn" style="background:var(--navy);" data-charge-full="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','full')">💰 Charge Full Amount</button>
+          <button class="confirm-btn" style="background:#ca8a04;" data-charge-cancel="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','cancel')">⚠️ Cancel Fee ($50)</button>
+          <button class="confirm-btn" style="background:#dc2626;" data-charge-noshow="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','noshow')">⚠️ No-Show Fee (50%)</button>
+        </div>
+      ` : '';
+
       return `
       <tr class="${rowCls}" data-id="${b.id}" onclick="toggleRow('${b.id}')">
         <td onclick="event.stopPropagation()" style="width:36px;"><input type="checkbox" class="row-check" data-id="${b.id}" ${isSelected?'checked':''} onchange="toggleSelect('${b.id}')"></td>
@@ -1055,6 +1078,11 @@
                 <div class="detail-field" style="display:block;">
                   <span class="detail-label" style="width:auto;">Included Extras</span>
                   <span class="detail-value" style="margin-top:8px;display:block;">${includedBadges}</span>
+                </div>
+                <div class="detail-field" style="display:block;">
+                  <span class="detail-label" style="width:auto;">Payment</span>
+                  <span class="detail-value" style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">${pBadge}${cardSavedChip}</span>
+                  ${chargeButtons ? `<div style="margin-top:12px;">${chargeButtons}</div>` : ''}
                 </div>
                 ${(petsBadge || couponRow) ? `<div class="detail-field" style="display:block;">
                   <span class="detail-label" style="width:auto;">Badges</span>
@@ -1363,6 +1391,76 @@
 
   /* ===== Confirm & Notify ===== */
   const EMAIL_EDGE = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email';
+
+  async function chargeBooking(id, mode) {
+    const booking = allBookings.find(b => b.id === id);
+    if (!booking) return;
+    if (!booking.payment_method_saved || !booking.stripe_customer_id) {
+      alert('No saved card for this booking.');
+      return;
+    }
+
+    const total = Number(booking.price) || 0;
+    const amount = mode === 'cancel' ? 50
+      : mode === 'noshow' ? Math.round(total * 0.5)
+      : total;
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      alert('Invalid amount to charge.');
+      return;
+    }
+
+    const label = mode === 'cancel' ? '$50 cancel fee'
+      : mode === 'noshow' ? '50% no-show fee'
+      : 'full amount';
+
+    if (!confirm(`Charge ${label} ($${amount}) for booking ${booking.ref_code}?`)) return;
+
+    const btnSel = mode === 'cancel' ? `[data-charge-cancel="${id}"]`
+      : mode === 'noshow' ? `[data-charge-noshow="${id}"]`
+      : `[data-charge-full="${id}"]`;
+    const btn = document.querySelector(btnSel);
+    const oldText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Charging…'; }
+
+    try {
+      const chargeRes = await fetch(CHARGE_EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_id: booking.stripe_customer_id,
+          amount,
+          description: `Homelines booking ${booking.ref_code} (${label})`,
+        }),
+      });
+
+      const chargeJson = await chargeRes.json().catch(() => ({}));
+      if (!chargeRes.ok || !chargeJson?.success) {
+        throw new Error(chargeJson?.error || `Charge failed: HTTP ${chargeRes.status}`);
+      }
+
+      const newPaymentStatus = mode === 'full' ? 'paid' : 'fee_charged';
+
+      const patchRes = await fetch(EDGE_URL, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': sessionStorage.getItem('hl_admin_pwd')
+        },
+        body: JSON.stringify({ id, payment_status: newPaymentStatus })
+      });
+      if (!patchRes.ok) throw new Error(`Failed to update payment status: HTTP ${patchRes.status}`);
+
+      booking.payment_status = newPaymentStatus;
+      renderTable(getFiltered());
+      showToast('💳 Charge successful');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      alert('Error: ' + msg);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = oldText; }
+    }
+  }
 
   async function confirmAndNotify(id) {
     const booking = allBookings.find(b => b.id === id);

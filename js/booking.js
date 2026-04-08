@@ -25,6 +25,17 @@
     couponPct: 0
   };
 
+  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TJhzfDTexy6QjOdztK8iY1LmAgSefKM74moqmthJ0YpBGM3TeX6l44rEJrgF4zYStIHakLcOKG3KUjSVE2czkdO00Da6MUxrx';
+  const SETUP_INTENT_FN = 'create-setup-intent';
+
+  let stripeClient = null;
+  let stripeElements = null;
+  let stripeCard = null;
+  let stripeClientSecret = '';
+  let stripeCustomerId = '';
+  let stripeCardComplete = false;
+  let stripeMountAttempted = false;
+
   const EXTRAS_LIST = [
     { name: 'Wash dishes',                           price: 15,  icon: 'images/extras/wash-dishes.svg' },
     { name: 'Inside kitchen cabinets (empty)',        price: 35,  icon: 'images/extras/cabinets-empty.svg' },
@@ -483,6 +494,69 @@
     state.step = n;
     updateProgress();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (n === 5) {
+      // Mount Stripe card field when entering details step
+      setTimeout(() => {
+        initStripeCardMount();
+      }, 0);
+    }
+  }
+
+  async function ensureStripeSetupIntent(email, name) {
+    if (stripeClientSecret && stripeCustomerId) return;
+    if (!window.supabase?.functions?.invoke) throw new Error('Supabase Functions client not available');
+
+    const res = await window.supabase.functions.invoke(SETUP_INTENT_FN, {
+      body: {
+        email,
+        name: name || '',
+      },
+    });
+
+    if (res?.error) throw res.error;
+    stripeClientSecret = res?.data?.clientSecret || '';
+    stripeCustomerId = res?.data?.customerId || '';
+
+    if (!stripeClientSecret || !stripeCustomerId) {
+      throw new Error('Stripe SetupIntent did not return clientSecret/customerId');
+    }
+  }
+
+  function initStripeCardMount() {
+    if (stripeMountAttempted) return;
+    stripeMountAttempted = true;
+
+    const mount = document.getElementById('stripeCardMount');
+    if (!mount) return;
+
+    if (!window.Stripe) {
+      const errEl = document.getElementById('stripeCardError');
+      if (errEl) errEl.textContent = 'Stripe failed to load. Please refresh and try again.';
+      return;
+    }
+
+    stripeClient = window.Stripe(STRIPE_PUBLISHABLE_KEY);
+    stripeElements = stripeClient.elements();
+    stripeCard = stripeElements.create('card', {
+      style: {
+        base: {
+          fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+          fontSize: '16px',
+          color: '#1e3a5c',
+          '::placeholder': { color: '#9ca3af' },
+        },
+        invalid: { color: '#dc2626' },
+      },
+    });
+
+    stripeCard.on('change', (evt) => {
+      stripeCardComplete = !!evt.complete;
+      const errEl = document.getElementById('stripeCardError');
+      if (errEl) errEl.textContent = evt.error?.message || '';
+    });
+
+    stripeCard.mount(mount);
   }
 
   /* ---- Step 1: Email ---- */
@@ -497,6 +571,16 @@
           return;
         }
         state.user = { name: '', surname: '', phone: '', email, address: '', apt: '', city: '', zip: '' };
+
+        // Create Stripe SetupIntent early so card can be saved later.
+        (async () => {
+          try {
+            await ensureStripeSetupIntent(email, '');
+          } catch (err) {
+            console.error('Stripe setup intent error:', err);
+          }
+        })();
+
         goToStep(2);
       });
     }
@@ -970,6 +1054,12 @@
       if (!city)                 { showError('detailsCityErr',    T('err_city')    || 'Please enter your city');             valid = false; }
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
+      if (!stripeCard || !stripeCardComplete) {
+        const errEl = document.getElementById('stripeCardError');
+        if (errEl) errEl.textContent = 'Please enter a valid card to continue.';
+        valid = false;
+      }
+
       if (valid) {
         state.serviceCity   = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
         state.sqft          = document.getElementById('detailsSqft')?.value        || state.sqft;
@@ -1084,10 +1174,56 @@
         confirmBtn.textContent = T('bk_processing') || 'Processing...';
         confirmBtn.disabled = true;
 
+        const stripeErrEl = document.getElementById('stripeCardError');
+        if (stripeErrEl) stripeErrEl.textContent = '';
+
         const refCode  = 'HL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
         const u        = state.user;
         const serviceNames = state.services.map(s => T(s.nameKey) || s.nameKey).join(', ') || '';
         const totalPrice   = calcTotal();
+
+        // Gate booking creation on saved card
+        try {
+          initStripeCardMount();
+          if (!stripeClient || !stripeCard) throw new Error('Stripe not initialized');
+          await ensureStripeSetupIntent(u?.email || '', `${u?.name || ''} ${u?.surname || ''}`.trim());
+
+          const billing_details = {
+            name: `${u?.name || ''} ${u?.surname || ''}`.trim() || undefined,
+            email: u?.email || undefined,
+            phone: u?.phone || undefined,
+            address: u?.address ? {
+              line1: u.address,
+              city: u.city || undefined,
+              postal_code: u.zip || undefined,
+              country: 'US',
+            } : undefined,
+          };
+
+          const setupRes = await stripeClient.confirmCardSetup(
+            stripeClientSecret,
+            {
+              payment_method: {
+                card: stripeCard,
+                billing_details,
+              },
+            },
+            { redirect: 'if_required' },
+          );
+
+          if (setupRes?.error) {
+            if (stripeErrEl) stripeErrEl.textContent = setupRes.error.message || 'Card setup failed.';
+            confirmBtn.textContent = T('bk_confirm') || 'Confirm Booking';
+            confirmBtn.disabled = false;
+            return;
+          }
+        } catch (stripeErr) {
+          console.error('Stripe confirmCardSetup error:', stripeErr);
+          if (stripeErrEl) stripeErrEl.textContent = (stripeErr && stripeErr.message) ? stripeErr.message : 'Card setup failed.';
+          confirmBtn.textContent = T('bk_confirm') || 'Confirm Booking';
+          confirmBtn.disabled = false;
+          return;
+        }
 
         const bookingData = {
           ref_code:     refCode,
@@ -1117,7 +1253,10 @@
           notes:        state.notes      || null,
           coupon_code:  state.couponCode || null,
           coupon_discount: state.couponDiscount || 0,
-          has_pets:     state.hasPets
+          has_pets:     state.hasPets,
+          stripe_customer_id: stripeCustomerId || null,
+          payment_status: 'pending',
+          payment_method_saved: true
         };
 
         if (window.supabase) {
