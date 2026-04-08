@@ -27,15 +27,6 @@
     return ref;
   }
 
-  function isAuthLockError(err) {
-    const msg = String(err?.message || err || '').toLowerCase();
-    return msg.includes('lock') && (msg.includes('auth') || msg.includes('navigator'));
-  }
-
-  async function sleep(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-  }
-
   function setStateHtml(html) {
     if (!PAY_STATE_EL) return;
     PAY_STATE_EL.innerHTML = html;
@@ -252,24 +243,11 @@
     try {
       console.log('[pay] loading booking by ref_code...');
 
-      let data;
-      let error;
-
-      for (let attempt = 0; attempt < 10; attempt++) {
-        ({ data, error } = await window.supabase
-          .from('bookings')
-          .select('id, ref_code, service, booking_date, booking_time, address, price, stripe_customer_id, payment_status, email')
-          .eq('ref_code', ref)
-          .single());
-
-        if (!error) break;
-        if (isAuthLockError(error)) {
-          console.warn('[pay] supabase auth lock, retrying...', { attempt, error });
-          await sleep(150 + attempt * 150);
-          continue;
-        }
-        break;
-      }
+      const { data, error } = await window.supabase
+        .from('bookings')
+        .select('id, ref_code, service, booking_date, booking_time, address, price, stripe_customer_id, payment_status, email')
+        .eq('ref_code', ref)
+        .single();
 
       if (error) throw error;
       if (!data) {
