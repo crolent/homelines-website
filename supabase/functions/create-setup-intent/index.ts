@@ -1,75 +1,89 @@
-import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' });
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
-Deno.serve(async (req: Request) => {
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+async function stripeRequest(path: string, init: RequestInit) {
+  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') || '';
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY');
+
+  const res = await fetch(`https://api.stripe.com/v1${path}`, {
+    ...init,
+    headers: {
+      'Authorization': `Bearer ${stripeKey}`,
+      ...(init.headers || {}),
+    },
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = (data as any)?.error?.message || `Stripe API error (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
-    });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    if (!STRIPE_SECRET_KEY) {
-      return new Response(JSON.stringify({ error: 'Missing STRIPE_SECRET_KEY' }), {
-        status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
     const { email, name } = await req.json();
     const cleanEmail = String(email ?? '').trim();
     const cleanName = String(name ?? '').trim();
 
-    if (!cleanEmail) {
-      return new Response(JSON.stringify({ error: 'Missing email' }), {
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
+    if (!cleanEmail) return json({ error: 'Missing email' }, 400);
+
+    const search = await stripeRequest(`/customers/search?query=${encodeURIComponent(`email:'${cleanEmail}'`)}`, {
+      method: 'GET',
+    });
+
+    let customerId: string | null = (search as any)?.data?.[0]?.id ?? null;
+
+    if (!customerId) {
+      const body = new URLSearchParams();
+      body.set('email', cleanEmail);
+      if (cleanName) body.set('name', cleanName);
+
+      const created = await stripeRequest('/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
       });
+
+      customerId = (created as any)?.id ?? null;
     }
 
-    const customers = await stripe.customers.list({ email: cleanEmail, limit: 1 });
-    let customer = customers.data[0];
-    if (!customer) {
-      customer = await stripe.customers.create({ email: cleanEmail, name: cleanName || undefined });
-    }
+    if (!customerId) throw new Error('Failed to resolve Stripe customer');
 
-    const setupIntent = await stripe.setupIntents.create({
-      customer: customer.id,
-      payment_method_types: ['card'],
+    const siBody = new URLSearchParams();
+    siBody.set('customer', customerId);
+    siBody.set('payment_method_types[0]', 'card');
+
+    const setupIntent = await stripeRequest('/setup_intents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: siBody,
     });
 
-    return new Response(
-      JSON.stringify({
-        clientSecret: setupIntent.client_secret,
-        customerId: customer.id,
-      }),
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-  } catch (err) {
-    return new Response(JSON.stringify({
-      error: err instanceof Error ? err.message : String(err),
-    }), {
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-    });
+    const clientSecret: string | null = (setupIntent as any)?.client_secret ?? null;
+    if (!clientSecret) throw new Error('Failed to create SetupIntent');
+
+    return json({ clientSecret, customerId });
+  } catch (error) {
+    console.error('Error:', error);
+    return json({
+      error: error instanceof Error ? error.message : String(error),
+    }, 500);
   }
 });

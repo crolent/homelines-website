@@ -1,98 +1,82 @@
-import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' });
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
-Deno.serve(async (req: Request) => {
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+async function stripeRequest(path: string, init: RequestInit) {
+  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') || '';
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY');
+
+  const res = await fetch(`https://api.stripe.com/v1${path}`, {
+    ...init,
+    headers: {
+      'Authorization': `Bearer ${stripeKey}`,
+      ...(init.headers || {}),
+    },
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = (data as any)?.error?.message || `Stripe API error (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
-    });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    if (!STRIPE_SECRET_KEY) {
-      return new Response(JSON.stringify({ error: 'Missing STRIPE_SECRET_KEY' }), {
-        status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
     const { customer_id, amount, description } = await req.json();
 
     const customerId = String(customer_id ?? '').trim();
     const cleanDesc = String(description ?? '').trim();
     const cleanAmount = Number(amount);
 
-    if (!customerId) {
-      return new Response(JSON.stringify({ error: 'Missing customer_id' }), {
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
+    if (!customerId) return json({ error: 'Missing customer_id' }, 400);
+    if (!Number.isFinite(cleanAmount) || cleanAmount <= 0) return json({ error: 'Invalid amount' }, 400);
 
-    if (!Number.isFinite(cleanAmount) || cleanAmount <= 0) {
-      return new Response(JSON.stringify({ error: 'Invalid amount' }), {
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    const methods = await stripe.paymentMethods.list({
-      customer: customerId,
-      type: 'card',
+    const pmList = await stripeRequest(`/payment_methods?customer=${encodeURIComponent(customerId)}&type=card`, {
+      method: 'GET',
     });
 
-    if (!methods.data.length) {
-      return new Response(JSON.stringify({ error: 'No saved card' }), {
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-    }
+    const paymentMethodId: string | null = (pmList as any)?.data?.[0]?.id ?? null;
+    if (!paymentMethodId) return json({ error: 'No saved card' }, 400);
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(cleanAmount * 100),
-      currency: 'usd',
-      customer: customerId,
-      payment_method: methods.data[0].id,
-      off_session: true,
-      confirm: true,
-      description: cleanDesc || undefined,
+    const piBody = new URLSearchParams();
+    piBody.set('amount', String(Math.round(cleanAmount * 100)));
+    piBody.set('currency', 'usd');
+    piBody.set('customer', customerId);
+    piBody.set('payment_method', paymentMethodId);
+    piBody.set('off_session', 'true');
+    piBody.set('confirm', 'true');
+    if (cleanDesc) piBody.set('description', cleanDesc);
+
+    const pi = await stripeRequest('/payment_intents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: piBody,
     });
 
-    return new Response(JSON.stringify({
-      success: true,
-      paymentId: paymentIntent.id,
-    }), {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-    });
+    const paymentId: string | null = (pi as any)?.id ?? null;
+    if (!paymentId) throw new Error('Stripe did not return payment id');
+
+    return json({ success: true, paymentId });
   } catch (err) {
-    return new Response(JSON.stringify({
+    console.error('Error:', err);
+    return json({
       error: err instanceof Error ? err.message : String(err),
-    }), {
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-    });
+    }, 500);
   }
 });
