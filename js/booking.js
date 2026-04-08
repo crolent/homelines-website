@@ -505,23 +505,35 @@
 
   async function ensureStripeSetupIntent(email, name) {
     if (stripeClientSecret && stripeCustomerId) return;
-    if (!window.supabase?.functions?.invoke) throw new Error('Supabase Functions client not available');
+    const url = 'https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/create-setup-intent';
 
-    console.log('ensureStripeSetupIntent: invoking create-setup-intent', {
+    console.log('ensureStripeSetupIntent: fetch create-setup-intent (start)', {
+      url,
       hasEmail: !!String(email || '').trim(),
       hasName: !!String(name || '').trim(),
     });
 
-    const res = await withTimeout(15000, window.supabase.functions.invoke(SETUP_INTENT_FN, {
-      body: { email, name },
+    const response = await withTimeout(15000, fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name }),
     }), 'create-setup-intent');
 
-    if (res?.error) {
-      console.error('Error creating setup intent:', res.error);
-      throw res.error;
+    console.log('ensureStripeSetupIntent: fetch create-setup-intent (response)', {
+      ok: response?.ok,
+      status: response?.status,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    console.log('ensureStripeSetupIntent: fetch create-setup-intent (json)', data);
+
+    if (!response.ok) {
+      throw new Error(data?.error || `create-setup-intent failed (HTTP ${response.status})`);
     }
-    stripeClientSecret = res?.data?.clientSecret || '';
-    stripeCustomerId = res?.data?.customerId || '';
+
+    stripeClientSecret = data?.clientSecret || '';
+    stripeCustomerId = data?.customerId || '';
 
     if (!stripeClientSecret || !stripeCustomerId) {
       throw new Error('Stripe SetupIntent did not return clientSecret/customerId');
