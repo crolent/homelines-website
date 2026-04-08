@@ -73,6 +73,41 @@
   });
 })();
 
+/* ===== AUTH-AWARE NAV LINKS ===== */
+(function initAuthNav() {
+  const navAccount = document.getElementById('navAccountLink');
+  const navSignIn = document.getElementById('navSignInLink');
+  const mNavAccount = document.getElementById('mNavAccountLink');
+  const mNavSignIn = document.getElementById('mNavSignInLink');
+
+  if (!navAccount && !navSignIn && !mNavAccount && !mNavSignIn) return;
+  if (!window.supabase?.auth?.getSession) return;
+
+  const show = (el, on) => {
+    if (!el) return;
+    el.style.display = on ? '' : 'none';
+  };
+
+  async function refresh() {
+    try {
+      const { data } = await window.supabase.auth.getSession();
+      const isLoggedIn = !!data?.session?.user;
+      show(navAccount, isLoggedIn);
+      show(mNavAccount, isLoggedIn);
+      show(navSignIn, !isLoggedIn);
+      show(mNavSignIn, !isLoggedIn);
+    } catch (e) {
+      show(navAccount, false);
+      show(mNavAccount, false);
+      show(navSignIn, true);
+      show(mNavSignIn, true);
+    }
+  }
+
+  refresh();
+  window.supabase.auth.onAuthStateChange(() => refresh());
+})();
+
 /* ===== SCROLL REVEAL ===== */
 (function initScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
