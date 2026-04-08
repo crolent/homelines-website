@@ -1336,14 +1336,18 @@
         try {
           if (!window.supabase) throw new Error('Supabase not loaded');
 
+          let userId = null
           try {
-            console.log('[Booking] getUser start');
-            const { data } = await withTimeout(15000, window.supabase.auth.getUser(), 'Supabase getUser');
-            if (data?.user?.id) bookingData.user_id = data.user.id;
-            console.log('[Booking] getUser done:', { hasUserId: !!bookingData.user_id });
+            const controller = new AbortController()
+            const timeout = setTimeout(() => controller.abort(), 3000)
+            const { data } = await window.supabase.auth.getUser()
+            clearTimeout(timeout)
+            userId = data?.user?.id || null
           } catch (e) {
-            console.warn('[Booking] getUser (non-fatal):', e);
+            console.log('getUser skipped, continuing without user_id')
+            userId = null
           }
+          bookingData.user_id = userId;
 
           console.log('[Booking] inserting booking:', JSON.stringify(bookingData, null, 2));
           const insertController = new AbortController();
