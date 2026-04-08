@@ -522,6 +522,81 @@
     .tab-btn.active { background: var(--navy); color: #fff; }
     .tab-btn:not(.active):hover { background: var(--border); color: var(--navy); }
 
+    /* ---- Mobile: Cards instead of table ---- */
+    @media (max-width: 767px) {
+      .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .tabs::-webkit-scrollbar { height: 6px; }
+      .tabs::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-bar .filter-label { width: 100%; }
+      .filter-bar .date-input,
+      .filter-bar .filter-btn,
+      .filter-bar .clear-btn { width: 100%; }
+
+      .table-wrap { overflow-x: visible; }
+
+      .mcard-list { display: grid; gap: 12px; padding: 14px 12px; }
+      .mcard {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .mcard-summary { padding: 12px 12px; }
+      .mrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .mrow + .mrow { margin-top: 6px; }
+      .mleft { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .mname { font-weight: 900; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .mservice { color: #334155; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .mmeta { color: var(--gray); font-weight: 700; white-space: nowrap; }
+      .mconfirm { margin-top: 10px; width: 100%; }
+      .mconfirm .confirm-btn-lg { width: 100%; }
+
+      .mcard-detail { border-top: 1px solid #dbeafe; background: #f0f7ff; }
+      .mcard-detail-inner { padding: 14px 12px 16px; display: none; }
+      .mcard-detail-inner.open { display: block; }
+
+      .msection { background: #fff; border: 1px solid rgba(226,232,240,0.95); border-radius: 12px; padding: 12px 12px; }
+      .msection + .msection { margin-top: 10px; }
+      .msection-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.6px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
+      .mkv { display: grid; grid-template-columns: 1fr; gap: 8px; }
+      .mkv .detail-value { word-break: break-word; overflow-wrap: anywhere; }
+
+      .mpills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+      .mfullbtn {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-weight: 900;
+        font-size: 0.92rem;
+        color: #fff;
+        cursor: pointer;
+      }
+      .mfullbtn:disabled { opacity: 0.6; cursor: not-allowed; }
+      .mfullbtn.navy { background: var(--navy); }
+      .mfullbtn.yellow { background: #ca8a04; }
+      .mfullbtn.red { background: #dc2626; }
+      .mstack { display: grid; gap: 10px; }
+
+      .mtotal {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: 1000;
+        color: var(--navy);
+      }
+      .mbottom-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
+      .mbottom-actions .status-select { width: 100%; }
+      .mbottom-actions .archive-btn,
+      .mbottom-actions .trash-btn,
+      .mbottom-actions .restore-btn,
+      .mbottom-actions .delete-btn { width: 100%; min-height: 40px; }
+      .mbottom-actions .status-wrap { grid-column: 1 / -1; }
+    }
+
     /* ---- Archive / Restore Buttons ---- */
     .archive-btn {
       background: #e2e8f0;
@@ -889,7 +964,309 @@
   }
 
   /* ===== Render Table ===== */
+  function isMobileView() {
+    return window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+  }
+
+  function renderMobileCards(data) {
+    if (!data.length) {
+      document.getElementById('tableContainer').innerHTML =
+        '<div class="state-msg"><span class="icon">📭</span>No bookings found.</div>';
+      return;
+    }
+
+    const safeNum = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    const rows = data.map(b => {
+      const name = [b.first_name, b.last_name].filter(Boolean).join(' ') || '—';
+      const date = b.booking_date
+        ? new Date(b.booking_date + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+        : '—';
+      const created = b.created_at
+        ? new Date(b.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+        : '—';
+
+      const status = b.status || 'pending';
+      const badgeClass = status === 'confirmed' ? 'badge-confirmed'
+                       : status === 'cancelled' ? 'badge-cancelled'
+                       : status === 'archived'  ? 'badge-archived'
+                       : status === 'trashed'   ? 'badge-trashed'
+                       : 'badge-pending';
+
+      const isPending = status === 'pending';
+      const isArchivable = (status === 'confirmed' || status === 'cancelled') && currentTab === 'active';
+      const isArchived = currentTab === 'archive';
+      const isTrash = currentTab === 'trash';
+
+      const isSelected = selectedIds.has(b.id);
+
+      const sofaQty = Math.max(0, parseInt(b.sofa_quantity || 0) || 0);
+      const matQty  = Math.max(0, parseInt(b.mattress_quantity || 0) || 0);
+      const showSofaMat = sofaQty > 0 || matQty > 0;
+
+      let extras = b.extras;
+      if (typeof extras === 'string') {
+        try { extras = JSON.parse(extras); } catch (e) { extras = null; }
+      }
+      if (!Array.isArray(extras)) extras = [];
+
+      const svcText = String(b.service || '').toLowerCase();
+      const includedBySvc = {
+        deep: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft'],
+        move: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft'],
+        postconstruction: ['Inside kitchen cabinets (empty)', 'Detail baseboards', 'Interior windows up to 1250 sqft']
+      };
+      const svcKey = svcText.includes('deep') ? 'deep'
+        : svcText.includes('move') ? 'move'
+        : (svcText.includes('post') || svcText.includes('construction')) ? 'postconstruction'
+        : null;
+      let includedExtras = b.included_extras;
+      if (typeof includedExtras === 'string') {
+        try { includedExtras = JSON.parse(includedExtras); } catch (e) { includedExtras = null; }
+      }
+      if (!Array.isArray(includedExtras)) includedExtras = svcKey ? (includedBySvc[svcKey] || []) : [];
+
+      const extrasBadges = extras.length
+        ? `<div class="mpills">${extras.map(e => `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e3a5c;font-size:0.8rem;font-weight:800;">${escHtml(e?.name || '')}<span style="color:#1d4ed8;font-weight:900;">+$${safeNum(e?.price)}</span></span>`).join('')}</div>`
+        : '<span style="color:var(--gray);font-weight:800;">—</span>';
+
+      const includedBadges = includedExtras.length
+        ? `<div class="mpills">${includedExtras.map(n => `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid rgba(34,197,94,0.35);background:rgba(34,197,94,0.10);color:#14532d;font-size:0.8rem;font-weight:900;">✅ Included<span style="font-weight:800;">${escHtml(n)}</span></span>`).join('')}</div>`
+        : '<span style="color:var(--gray);font-weight:800;">—</span>';
+
+      const notesBox = b.notes
+        ? `<div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;padding:12px 12px;">
+            <div style="font-size:0.78rem;font-weight:900;color:#374151;margin-bottom:6px;">📝 Notes</div>
+            <div style="font-size:0.9rem;color:#111827;line-height:1.45;white-space:pre-wrap;">${escHtml(b.notes)}</div>
+          </div>`
+        : '';
+
+      const pStatus = String(b.payment_status || 'pending').toLowerCase();
+      const pBadge = pStatus === 'paid'
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.35);color:#14532d;font-size:0.8rem;font-weight:900;">✅ Paid</span>`
+        : (pStatus === 'pay_on_arrival' || pStatus === 'arrival')
+          ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(77,182,232,0.18);border:1px solid rgba(77,182,232,0.45);color:var(--navy);font-size:0.8rem;font-weight:900;">🏠 Pay on Arrival</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(202,138,4,0.14);border:1px solid rgba(202,138,4,0.35);color:#854d0e;font-size:0.8rem;font-weight:900;">⏳ Pending</span>`;
+      const cardSaved = !!b.payment_method_saved;
+      const cardSavedChip = cardSaved
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--navy);font-size:0.8rem;font-weight:900;">💳 Card saved</span>`
+        : '';
+
+      const total = safeNum(b.price);
+
+      const chargeStack = cardSaved ? `
+        <div class="mstack">
+          <button class="mfullbtn navy" data-charge-full="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','full')">💰 Charge Full Amount</button>
+          <button class="mfullbtn yellow" data-charge-cancel="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','cancel')">⚠️ Cancel Fee ($50)</button>
+          <button class="mfullbtn red" data-charge-noshow="${b.id}" onclick="event.stopPropagation();chargeBooking('${b.id}','noshow')">⚠️ No-Show Fee (50%)</button>
+        </div>
+      ` : '<div style="color:var(--gray);font-weight:800;">No card on file.</div>';
+
+      const confirmBtnLg = isPending
+        ? `<div class="mconfirm"><button class="confirm-btn-lg" data-confirm-id="${b.id}" onclick="event.stopPropagation();confirmAndNotify('${b.id}')">✅ Confirm &amp; Notify</button></div>`
+        : '';
+
+      const archiveBtnLg = isArchivable
+        ? `<button class="archive-btn" data-archive-id="${b.id}" onclick="event.stopPropagation();archiveBooking('${b.id}')">📦 Archive</button>`
+        : '';
+      const trashBtnLg = !isTrash
+        ? `<button class="trash-btn" data-trash-id="${b.id}" onclick="event.stopPropagation();trashBooking('${b.id}')">🗑️ Trash</button>`
+        : '';
+      const restoreBtnLg = (isArchived || isTrash)
+        ? `<button class="restore-btn" data-restore-id="${b.id}" onclick="event.stopPropagation();restoreBooking('${b.id}')">↩ Restore</button>`
+        : '';
+      const deleteBtnLg  = isTrash
+        ? `<button class="delete-btn" data-delete-id="${b.id}" onclick="event.stopPropagation();deleteBooking('${b.id}')">🗑️ Delete</button>`
+        : '';
+      const statusSelect = (isArchived || isTrash) ? '' : `
+        <div class="status-wrap">
+          <select class="status-select" onchange="event.stopPropagation();updateStatus('${b.id}', this.value)">
+            <option value="pending"   ${status==='pending'  ?'selected':''}>Pending</option>
+            <option value="confirmed" ${status==='confirmed'?'selected':''}>Confirmed</option>
+            <option value="cancelled" ${status==='cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </div>`;
+
+      const sizeText = [
+        b.bedrooms ? `${b.bedrooms} bed` : '',
+        b.bathrooms ? `${b.bathrooms} bath` : '',
+        (b.half_baths && String(b.half_baths) !== '0') ? `${b.half_baths} half bath` : '',
+        b.sqft ? `${b.sqft} sqft` : ''
+      ].filter(Boolean).join(' · ') || '—';
+
+      const cityText = b.service_city || b.city || '—';
+      const zipText = b.zip || '—';
+
+      const sofaMatText = [
+        sofaQty > 0 ? `🛋️ Sofas: ×${sofaQty}` : '',
+        matQty > 0 ? `🛏️ Mattresses: ×${matQty}` : ''
+      ].filter(Boolean).join(' · ');
+
+      return `
+        <div class="mcard" data-id="${b.id}" onclick="toggleMobileCard('${b.id}')">
+          <div class="mcard-summary">
+            <div class="mrow">
+              <div class="mleft" style="min-width:0;">
+                <input type="checkbox" class="row-check" style="margin:0;" data-id="${b.id}" ${isSelected?'checked':''} onclick="event.stopPropagation();" onchange="toggleSelect('${b.id}')">
+                <span class="ref-code" style="color: var(--blue);">${escHtml(b.ref_code||'—')}</span>
+              </div>
+              <span class="badge ${badgeClass}">${status}</span>
+            </div>
+            <div class="mrow">
+              <div class="mname" title="${escHtml(name)}">${escHtml(name)}</div>
+            </div>
+            <div class="mrow">
+              <div class="mservice" title="${escHtml(b.service||'')}">${escHtml(b.service||'—')}</div>
+              <div class="mmeta" style="color: var(--navy);">$${total.toLocaleString()}</div>
+            </div>
+            <div class="mrow">
+              <div class="mmeta">${escHtml(date)} · ${escHtml(b.booking_time||'—')}</div>
+            </div>
+            ${confirmBtnLg}
+          </div>
+
+          <div class="mcard-detail">
+            <div class="mcard-detail-inner" id="mcard-detail-${b.id}">
+
+              <div class="msection">
+                <div class="msection-title">Customer</div>
+                <div class="mkv">
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">${escHtml(name)}</span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value"><a href="mailto:${escHtml(b.email||'')}" style="color:var(--navy);text-decoration:none;font-weight:800;">${escHtml(b.email||'—')}</a></span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value"><a href="tel:${escHtml(b.phone||'')}" style="color:var(--navy);text-decoration:none;font-weight:800;">${escHtml(b.phone||'—')}</a></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Location</div>
+                <div class="mkv">
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Address</span>
+                    <span class="detail-value">${escHtml(b.address||'—')}</span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">City</span>
+                    <span class="detail-value">${escHtml(cityText)}</span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">ZIP</span>
+                    <span class="detail-value">${escHtml(zipText)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Service</div>
+                <div class="mkv">
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Service</span>
+                    <span class="detail-value">${escHtml(b.service||'—')}</span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Size</span>
+                    <span class="detail-value">${escHtml(sizeText)}</span>
+                  </div>
+                  <div class="detail-field" style="border-bottom:none;padding:0;">
+                    <span class="detail-label">Date &amp; Time</span>
+                    <span class="detail-value">${escHtml(date)} · ${escHtml(b.booking_time||'—')}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${showSofaMat ? `
+                <div class="msection">
+                  <div class="msection-title">Sofa / Mattress</div>
+                  <div class="detail-value" style="font-weight:900;color:#1e293b;">${escHtml(sofaMatText)}</div>
+                </div>
+              ` : ''}
+
+              <div class="msection">
+                <div class="msection-title">Extras</div>
+                ${extrasBadges}
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Included Extras</div>
+                ${includedBadges}
+              </div>
+
+              ${notesBox ? `
+                <div class="msection">
+                  <div class="msection-title">Notes</div>
+                  ${notesBox}
+                </div>
+              ` : ''}
+
+              <div class="msection">
+                <div class="msection-title">Payment</div>
+                <div class="mpills">${pBadge}${cardSavedChip}</div>
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Action Buttons</div>
+                ${chargeStack}
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Total Price</div>
+                <div class="mtotal">$${total.toLocaleString()}</div>
+                <div style="margin-top:10px;color:#94a3b8;font-weight:800;font-size:0.8rem;text-align:center;">Created ${escHtml(created)}</div>
+              </div>
+
+              <div class="msection">
+                <div class="msection-title">Bottom Actions</div>
+                <div class="mbottom-actions">
+                  ${archiveBtnLg}
+                  ${trashBtnLg}
+                  ${restoreBtnLg}
+                  ${deleteBtnLg}
+                  ${statusSelect}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('tableContainer').innerHTML = `<div class="mcard-list">${rows}</div>`;
+    updateSelectAllState();
+  }
+
+  function toggleMobileCard(id) {
+    if (expandedId && expandedId !== id) {
+      const prev = document.getElementById(`mcard-detail-${expandedId}`);
+      if (prev) prev.classList.remove('open');
+    }
+    const inner = document.getElementById(`mcard-detail-${id}`);
+    if (!inner) return;
+    if (expandedId === id) {
+      inner.classList.remove('open');
+      expandedId = null;
+    } else {
+      inner.classList.add('open');
+      expandedId = id;
+    }
+  }
+
   function renderTable(data) {
+    if (isMobileView()) {
+      renderMobileCards(data);
+      return;
+    }
     if (!data.length) {
       document.getElementById('tableContainer').innerHTML =
         '<div class="state-msg"><span class="icon">📭</span>No bookings found.</div>';
