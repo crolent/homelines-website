@@ -599,7 +599,7 @@
 
       const claimRes = await fetch(
         SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(email) +
-        '&select=first_discount_used,third_discount_used,fifth_discount_used',
+        '&select=id,first_discount_used,third_discount_used,fifth_discount_used',
         { headers }
       );
       const claims = await claimRes.json();
@@ -626,7 +626,10 @@
       if (discountField) {
         state.savingsDiscount = 25;
         state.savingsDiscountField = discountField;
-        console.log('[Savings] $25 discount applied:', discountField);
+        window.savingsDiscount = 25;
+        window.savingsType = discountField.replace('_discount_used', '');
+        window.savingsClaimId = claim.id || null;
+        console.log('[Savings] $25 discount applies! Type:', window.savingsType);
 
         let banner = document.getElementById('savingsBanner');
         if (!banner) {
@@ -651,7 +654,7 @@
   function initStep1() {
     const emailForm = document.getElementById('emailForm');
     if (emailForm) {
-      emailForm.addEventListener('submit', (e) => {
+      emailForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = (document.getElementById('bookingEmail')?.value || '').trim();
         if (!validateEmail(email)) {
@@ -669,7 +672,7 @@
           }
         })();
 
-        checkSavingsDiscount(email);
+        await checkSavingsDiscount(email);
         goToStep(2);
       });
     }
