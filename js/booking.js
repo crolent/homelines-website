@@ -214,6 +214,7 @@
     const sub  = Math.max(0, base + sofaMattress + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
     const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
     state.couponDiscount = disc;
+    if (state.savingsDiscount) console.log('[Savings] applying discount in calcTotal:', state.savingsDiscount);
     return Math.max(0, sub - disc - (state.savingsDiscount || 0));
   }
 
@@ -593,6 +594,7 @@
 
   /* ---- Savings discount check ---- */
   async function checkSavingsDiscount(email) {
+    console.log('[Savings] checkSavingsDiscount called, email:', email);
     if (!email) return;
     try {
       const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
@@ -603,6 +605,7 @@
         { headers }
       );
       const claims = await claimRes.json();
+      console.log('[Savings] claims found:', claims);
       const claim = Array.isArray(claims) ? claims[0] : null;
       if (!claim) return;
 
@@ -613,6 +616,7 @@
       );
       const books = await bookRes.json();
       const existing = Array.isArray(books) ? books.length : 0;
+      console.log('[Savings] existing bookings count:', existing);
 
       let discountField = '';
       if (existing === 0 && !claim.first_discount_used) {
@@ -623,6 +627,7 @@
         discountField = 'fifth_discount_used';
       }
 
+      console.log('[Savings] discount field:', discountField || 'none (no discount)');
       if (discountField) {
         state.savingsDiscount = 25;
         state.savingsDiscountField = discountField;
