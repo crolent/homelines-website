@@ -1467,59 +1467,45 @@
             }).catch(e => console.warn('[Savings] mark-used error (non-fatal):', e));
           }
 
-          try {
-            console.log('[Email] start');
-            const basePayload = {
-              email:        bookingData.email,
-              first_name:   bookingData.first_name,
-              last_name:    bookingData.last_name,
-              ref_code:     bookingData.ref_code,
-              service:      bookingData.service,
-              booking_date: bookingData.booking_date,
-              booking_time: bookingData.booking_time,
-              price:        bookingData.price,
-              address:      bookingData.address,
-              city:         bookingData.city,
-              service_city: state.serviceCity,
-              sqft:         state.sqft,
-              bedrooms:     state.bedrooms,
-              bathrooms:    state.bathrooms,
-              half_baths:   state.halfBathrooms,
-              sofa_quantity: bookingData.sofa_quantity,
-              mattress_quantity: bookingData.mattress_quantity,
-              extras:       state.extras,
-              included_extras: getIncludedExtrasList(),
-              has_pets:     state.hasPets,
-              notes:        state.notes,
-              coupon_code:  state.couponCode || null,
-              coupon_discount: state.couponDiscount || 0
-            };
+          const emailPayload = {
+            email:        bookingData.email,
+            first_name:   bookingData.first_name,
+            last_name:    bookingData.last_name,
+            ref_code:     bookingData.ref_code,
+            service:      bookingData.service,
+            booking_date: bookingData.booking_date,
+            booking_time: bookingData.booking_time,
+            price:        bookingData.price,
+            address:      bookingData.address,
+            city:         bookingData.city,
+            phone:        bookingData.phone,
+            service_city: state.serviceCity,
+            sqft:         state.sqft,
+            bedrooms:     state.bedrooms,
+            bathrooms:    state.bathrooms,
+            half_baths:   state.halfBathrooms,
+            sofa_quantity: bookingData.sofa_quantity,
+            mattress_quantity: bookingData.mattress_quantity,
+            extras:       state.extras,
+            included_extras: getIncludedExtrasList(),
+            has_pets:     state.hasPets,
+            notes:        state.notes,
+            coupon_code:  state.couponCode || null,
+            coupon_discount: state.couponDiscount || 0
+          };
 
-            if (!window.supabase?.functions?.invoke) {
-              throw new Error('Supabase Functions client not available');
-            }
+          const EMAIL_FN = SUPABASE_URL + '/functions/v1/send-booking-email';
+          fetch(EMAIL_FN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'under_review', ...emailPayload })
+          }).catch(e => console.log('[Email] under_review error:', e));
 
-            const [reviewRes, adminRes] = await withTimeout(
-              15000,
-              Promise.all([
-                window.supabase.functions.invoke('send-booking-email', {
-                  body: { type: 'under_review', ...basePayload },
-                }),
-                window.supabase.functions.invoke('send-booking-email', {
-                  body: { type: 'admin_notification', phone: bookingData.phone, ...basePayload },
-                }),
-              ]),
-              'Send booking emails'
-            );
-
-            if (reviewRes?.error) console.error('[Email] under_review failed:', reviewRes.error);
-            else console.log('[Email] under_review sent');
-
-            if (adminRes?.error) console.error('[Email] admin_notification failed:', adminRes.error);
-            else console.log('[Email] admin_notification sent');
-          } catch (emailErr) {
-            console.error('[Email] non-fatal error:', emailErr);
-          }
+          fetch(EMAIL_FN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'admin_notification', ...emailPayload })
+          }).catch(e => console.log('[Email] admin_notification error:', e));
 
           document.getElementById('bookingConfirmId').textContent = refCode;
           document.getElementById('step6').style.display = 'none';
