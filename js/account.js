@@ -183,7 +183,7 @@
 
       const stepsHtml = steps.map(s => {
         const done = bookingCount >= s.n;
-        const icon = done ? '✅' : (s.disc ? '🔒' : '⬜');
+        const icon = done ? '✅' : '⬜';
         const lbl  = s.label + (s.disc ? ' −$25' : '');
         return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;">' +
           '<div style="font-size:1.1rem;">' + icon + '</div>' +
@@ -191,12 +191,18 @@
           '</div>';
       }).join('');
 
+      const savedAmount = (bookingCount >= 1 ? 25 : 0) + (bookingCount >= 3 ? 25 : 0) + (bookingCount >= 5 ? 25 : 0);
+      const savedLine   = savedAmount > 0
+        ? '<div style="margin-top:10px;font-size:0.85rem;font-weight:800;color:#166534;">💰 You\'ve saved $' + savedAmount + ' so far!</div>'
+        : '';
+
       const inner = claim
         ? '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">' +
             '<div style="font-size:0.88rem;font-weight:800;color:#1e3a5c;">🎉 $75 Savings Program</div>' +
             '<div style="font-size:0.8rem;color:#64748b;font-weight:700;">' + bookingCount + ' of 5 cleanings</div>' +
           '</div>' +
-          '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:2px;">' + stepsHtml + '</div>'
+          '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:2px;">' + stepsHtml + '</div>' +
+          savedLine
         : '<div style="font-size:0.85rem;font-weight:700;color:#64748b;">💡 ' +
             '<a href="index.html" style="color:#4db8e8;font-weight:800;">Claim your $75 Savings Program</a> on the homepage!' +
           '</div>';
@@ -259,7 +265,11 @@
       const data = await res.json();
       if (!res.ok) throw new Error((data?.message) || 'HTTP ' + res.status);
       const bookings = Array.isArray(data) ? data : [];
-      const savHtml  = await savingsProgressHtml(bookings.length);
+      const confirmedCount = bookings.filter(b => {
+        const s = String(b.status || '').toLowerCase();
+        return s === 'confirmed' || s === 'completed';
+      }).length;
+      const savHtml  = await savingsProgressHtml(confirmedCount);
       tabBookings.innerHTML = savHtml + buildBookingsHtml(bookings, email);
     } catch (e) {
       tabBookings.innerHTML = '<div class="state-msg" style="padding:18px 10px;">⚠️ Failed to load bookings: ' + esc(e instanceof Error ? e.message : String(e)) + '</div>';
