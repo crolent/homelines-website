@@ -20,11 +20,9 @@
     extras: [],      /* array of { name, price } */
     hasPets: false,
     notes: '',
-    couponCode: '',
-    couponDiscount: 0,
-    couponPct: 0,
-    savingsDiscount: 0,
-    savingsDiscountField: ''
+    promoCode: '',
+    promoDiscount: 0,
+    promoTimesUsed: -1
   };
 
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TJhzfDTexy6QjOdztK8iY1LmAgSefKM74moqmthJ0YpBGM3TeX6l44rEJrgF4zYStIHakLcOKG3KUjSVE2czkdO00Da6MUxrx';
@@ -104,7 +102,6 @@
     sofa:            [119, 119, 119, 119, 119, 119]
   };
   const SQFT_AVG   = { studio:750, 1:1000, 2:1350, 3:1750, 4:2250, 5:2850 };
-  const COUPON_CODES = { WELCOME10:0.10, FIRST20:0.20, CLEAN15:0.15 };
 
   const T = (k) => (window.i18nT && window.i18nT(k)) || k;
   const langLocale = () => ({ en:'en-US', ru:'ru-RU', tr:'tr-TR', es:'es-ES' })[localStorage.getItem('hl_lang') || 'en'] || 'en-US';
@@ -220,11 +217,8 @@
   function calcTotal() {
     const base = calcBasePrice();
     const sofaMattress = calcSofaMattressTotal();
-    const sub  = Math.max(0, base + sofaMattress + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
-    const disc = state.couponPct ? Math.round(sub * state.couponPct) : 0;
-    state.couponDiscount = disc;
-    if (state.savingsDiscount) console.log('[Savings] applying discount in calcTotal:', state.savingsDiscount);
-    return Math.max(0, sub - disc - (state.savingsDiscount || 0));
+    const sub = Math.max(0, base + sofaMattress + calcBathSurcharge() + calcHalfBathSurcharge() + calcSqftSurcharge() + calcExtrasTotal());
+    return Math.max(0, sub - (state.promoDiscount || 0));
   }
 
   function syncSofaQtyUI() {
@@ -304,11 +298,8 @@
     state.extras.forEach(e => {
       rows += `<div class="ps-row ps-add"><span class="ps-label">${e.name}</span><span class="ps-val">+$${e.price}</span></div>`;
     });
-    if (state.couponDiscount > 0) {
-      rows += `<div class="ps-row ps-disc"><span class="ps-label">Coupon (${state.couponCode})</span><span class="ps-val">−$${state.couponDiscount}</span></div>`;
-    }
-    if (state.savingsDiscount > 0) {
-      rows += `<div class="ps-row ps-disc" style="color:#16a34a"><span class="ps-label">🎉 Savings Program</span><span class="ps-val" style="color:#16a34a">−$${state.savingsDiscount}</span></div>`;
+    if (state.promoDiscount > 0) {
+      rows += `<div class="ps-row ps-disc"><span class="ps-label">🎁 Promo Code (${state.promoCode})</span><span class="ps-val" style="color:#16a34a">−$${state.promoDiscount}</span></div>`;
     }
     if (!rows) {
       rows = '<div class="ps-empty">Select a service to see pricing.</div>';
@@ -606,67 +597,70 @@
     stripeCard.mount(mount);
   }
 
-  /* ---- Savings discount check ---- */
-  async function checkSavingsDiscount(email) {
-    console.log('[Savings] checkSavingsDiscount called, email:', email);
-    if (!email) return;
-    try {
-      const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
-
-      const claimRes = await fetch(
-        SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(email) +
-        '&select=id,first_discount_used,third_discount_used,fifth_discount_used',
-        { headers }
-      );
-      const claims = await claimRes.json();
-      console.log('[Savings] claims found:', claims);
-      const claim = Array.isArray(claims) ? claims[0] : null;
-      if (!claim) return;
-
-      const bookRes = await fetch(
-        SUPABASE_URL + '/rest/v1/bookings?email=eq.' + encodeURIComponent(email) +
-        '&status=neq.trashed&select=id',
-        { headers }
-      );
-      const books = await bookRes.json();
-      const existing = Array.isArray(books) ? books.length : 0;
-      console.log('[Savings] existing bookings count:', existing);
-
-      let discountField = '';
-      if (existing === 0 && !claim.first_discount_used) {
-        discountField = 'first_discount_used';
-      } else if (existing === 2 && !claim.third_discount_used) {
-        discountField = 'third_discount_used';
-      } else if (existing === 4 && !claim.fifth_discount_used) {
-        discountField = 'fifth_discount_used';
-      }
-
-      console.log('[Savings] discount field:', discountField || 'none (no discount)');
-      if (discountField) {
-        state.savingsDiscount = 25;
-        state.savingsDiscountField = discountField;
-        window.savingsDiscount = 25;
-        window.savingsType = discountField.replace('_discount_used', '');
-        window.savingsClaimId = claim.id || null;
-        console.log('[Savings] $25 discount applies! Type:', window.savingsType);
-
-        let banner = document.getElementById('savingsBanner');
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.id = 'savingsBanner';
-          banner.style.cssText = 'display:flex;align-items:center;gap:8px;background:#dcfce7;color:#166534;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:0.92rem;margin:0 0 12px;';
-          banner.innerHTML = '🎉 $25 savings program discount applied!';
-          const ps = document.getElementById('priceSummary');
-          if (ps) ps.parentNode.insertBefore(banner, ps);
-        } else {
-          banner.style.display = 'flex';
-        }
-
-        updatePriceSummary();
-      }
-    } catch (e) {
-      console.warn('[Savings] check failed (non-fatal):', e);
+  /* ---- Promo code apply ---- */
+  async function applyPromoCode() {
+    const code = (document.getElementById('promoInput')?.value || '').trim().toUpperCase();
+    const msgEl = document.getElementById('promoMsg');
+    const removeEl = document.getElementById('promoRemoveBtn');
+    if (!code) {
+      if (msgEl) { msgEl.textContent = ''; msgEl.style.color = ''; }
+      return;
     }
+    const applyBtn = document.getElementById('promoApplyBtn');
+    if (applyBtn) { applyBtn.disabled = true; applyBtn.textContent = 'Checking…'; }
+    try {
+      const res = await fetch(
+        SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(code) + '&select=*',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+      );
+      const data = await res.json();
+      const claim = Array.isArray(data) ? data[0] : null;
+      if (!claim) {
+        state.promoCode = ''; state.promoDiscount = 0; state.promoTimesUsed = -1;
+        if (msgEl) { msgEl.textContent = '❌ Invalid promo code'; msgEl.style.color = '#dc2626'; }
+        if (removeEl) removeEl.style.display = 'none';
+      } else {
+        const used = claim.times_used || 0;
+        state.promoTimesUsed = used;
+        state.promoCode = code;
+        if (used === 0) {
+          state.promoDiscount = 25;
+          if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (1st booking discount)'; msgEl.style.color = '#16a34a'; }
+        } else if (used === 1) {
+          state.promoDiscount = 0;
+          if (msgEl) { msgEl.textContent = '💪 Keep going! $25 off your 3rd booking!'; msgEl.style.color = '#1d4ed8'; }
+        } else if (used === 2) {
+          state.promoDiscount = 25;
+          if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (3rd booking discount)'; msgEl.style.color = '#16a34a'; }
+        } else if (used === 3) {
+          state.promoDiscount = 0;
+          if (msgEl) { msgEl.textContent = '🎉 One more! $25 off your 5th booking!'; msgEl.style.color = '#1d4ed8'; }
+        } else if (used === 4) {
+          state.promoDiscount = 25;
+          if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (5th booking discount)'; msgEl.style.color = '#16a34a'; }
+        } else {
+          state.promoDiscount = 0;
+          if (msgEl) { msgEl.textContent = '🏆 You\'ve used all $75 in savings!'; msgEl.style.color = '#b45309'; }
+        }
+        if (removeEl) removeEl.style.display = state.promoDiscount > 0 ? '' : 'none';
+      }
+      updatePriceSummary();
+    } catch (e) {
+      if (msgEl) { msgEl.textContent = '❌ Could not verify code. Please try again.'; msgEl.style.color = '#dc2626'; }
+    } finally {
+      if (applyBtn) { applyBtn.disabled = false; applyBtn.textContent = 'Apply'; }
+    }
+  }
+
+  function clearPromoCode() {
+    state.promoCode = ''; state.promoDiscount = 0; state.promoTimesUsed = -1;
+    const inp = document.getElementById('promoInput');
+    const msgEl = document.getElementById('promoMsg');
+    const removeEl = document.getElementById('promoRemoveBtn');
+    if (inp) inp.value = '';
+    if (msgEl) { msgEl.textContent = ''; msgEl.style.color = ''; }
+    if (removeEl) removeEl.style.display = 'none';
+    updatePriceSummary();
   }
 
   /* ---- Step 1: Email ---- */
@@ -691,7 +685,6 @@
           }
         })();
 
-        await checkSavingsDiscount(email);
         goToStep(2);
       });
     }
@@ -948,27 +941,9 @@
     document.getElementById('detailsHalfBaths')?.addEventListener('change', (e) => { state.halfBathrooms = e.target.value; updatePriceSummary(); });
     document.getElementById('detailsSqft')?.addEventListener('change',      (e) => { state.sqft          = e.target.value; updatePriceSummary(); });
 
-    document.getElementById('couponApplyBtn')?.addEventListener('click', () => {
-      const code = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
-      const msg  = document.getElementById('couponMsg');
-      if (!code) { if (msg) msg.textContent = ''; return; }
-      const pct = COUPON_CODES[code];
-      if (pct) {
-        state.couponCode = code;
-        state.couponPct  = pct;
-        const total = calcTotal();
-        if (msg) {
-          msg.textContent = `✅ "${code}" applied — ${pct * 100}% off (−$${state.couponDiscount})!`;
-          msg.style.color = '#16a34a';
-        }
-      } else {
-        state.couponCode     = '';
-        state.couponPct      = 0;
-        state.couponDiscount = 0;
-        if (msg) { msg.textContent = 'Invalid coupon code.'; msg.style.color = '#dc2626'; }
-      }
-      updatePriceSummary();
-    });
+    document.getElementById('promoApplyBtn')?.addEventListener('click', () => applyPromoCode());
+    document.getElementById('promoInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } });
+    document.getElementById('promoRemoveBtn')?.addEventListener('click', () => clearPromoCode());
 
     const nextBtn = document.getElementById('step3Next');
     if (nextBtn) {
@@ -1258,12 +1233,12 @@
       showRow('sumNotesRow', false);
     }
 
-    /* coupon */
-    if (state.couponDiscount > 0) {
-      set('sumCoupon', `-$${state.couponDiscount} (${state.couponCode})`);
-      showRow('sumCouponRow', true);
+    /* promo code */
+    if (state.promoDiscount > 0) {
+      set('sumPromo', `-$${state.promoDiscount} (${state.promoCode})`);
+      showRow('sumPromoRow', true);
     } else {
-      showRow('sumCouponRow', false);
+      showRow('sumPromoRow', false);
     }
 
     /* total */
@@ -1284,7 +1259,7 @@
       if (halfBath > 0) parts.push(`+$${halfBath} half bath`);
       if (sq > 0)       parts.push(`+$${sq} sqft`);
       if (extrasTotal > 0) parts.push(`+$${extrasTotal} extras`);
-      if (state.couponDiscount > 0) parts.push(`−$${state.couponDiscount} coupon`);
+      if (state.promoDiscount > 0) parts.push(`−$${state.promoDiscount} promo`);
       if (parts.length > 1) priceStr += ` (${parts.join(', ')})`;
     }
     set('sumPrice', priceStr);
@@ -1417,8 +1392,7 @@
           extras:       state.extras.length ? state.extras : null,
           included_extras: getIncludedExtrasList(),
           notes:        state.notes      || null,
-          coupon_code:  state.couponCode || null,
-          coupon_discount: state.couponDiscount || 0,
+          promo_code:   state.promoCode || null,
           has_pets:     state.hasPets,
           is_night_booking: isNightBooking(),
           stripe_customer_id: stripeCustomerId || null,
@@ -1478,9 +1452,9 @@
 
           console.log('[Booking] saved OK:', insertData);
 
-          if (state.savingsDiscount > 0 && state.savingsDiscountField) {
+          if (state.promoCode && state.promoDiscount > 0) {
             fetch(
-              SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(bookingData.email),
+              SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(state.promoCode),
               {
                 method: 'PATCH',
                 headers: {
@@ -1488,12 +1462,12 @@
                   'apikey': SUPABASE_KEY,
                   'Authorization': 'Bearer ' + SUPABASE_KEY
                 },
-                body: JSON.stringify({ [state.savingsDiscountField]: true })
+                body: JSON.stringify({ times_used: state.promoTimesUsed + 1 })
               }
             ).then(r => {
-              if (r.ok) console.log('[Savings] marked used:', state.savingsDiscountField);
-              else console.warn('[Savings] mark-used failed:', r.status);
-            }).catch(e => console.warn('[Savings] mark-used error (non-fatal):', e));
+              if (r.ok) console.log('[Promo] times_used incremented');
+              else console.warn('[Promo] increment failed:', r.status);
+            }).catch(e => console.warn('[Promo] increment error (non-fatal):', e));
           }
 
           const emailPayload = {
@@ -1519,8 +1493,7 @@
             included_extras: getIncludedExtrasList(),
             has_pets:     state.hasPets,
             notes:        state.notes,
-            coupon_code:  state.couponCode || null,
-            coupon_discount: state.couponDiscount || 0
+            promo_code:   state.promoCode || null
           };
 
           const EMAIL_FN = SUPABASE_URL + '/functions/v1/send-booking-email';

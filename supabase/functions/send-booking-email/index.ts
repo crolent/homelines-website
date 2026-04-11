@@ -44,6 +44,7 @@ serve(async (req: Request) => {
       coupon_code,
       coupon_discount,
       message,
+      promo_code,
     } = await req.json();
 
     const sofaQty = Math.max(0, parseInt(String(sofa_quantity ?? '0')) || 0);
@@ -893,6 +894,76 @@ serve(async (req: Request) => {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }
+
+    if (type === 'savings_claimed') {
+      const savingsHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your $75 Savings Code</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(30,58,92,0.12);">
+        <tr><td style="background:#1a2b4a;padding:32px 40px;text-align:center;">
+          <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+            <span style="font-size:28px;">🏠</span>
+            <span style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Homelines<span style="color:#4db8e8;"> Cleaning</span></span>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:8px;">Your Savings Code Is Ready</div>
+        </td></tr>
+        <tr><td style="background:#f0fdf4;padding:28px 40px;text-align:center;border-bottom:1px solid #bbf7d0;">
+          <div style="font-size:40px;margin-bottom:8px;">🎉</div>
+          <h1 style="margin:0 0 6px;font-size:22px;font-weight:900;color:#166534;">Your Personal Savings Code</h1>
+          <p style="margin:0;font-size:14px;color:#4b7a5a;">Use it at checkout to start saving!</p>
+        </td></tr>
+        <tr><td style="padding:32px 40px;text-align:center;">
+          <p style="margin:0 0 16px;font-size:15px;color:#374151;font-weight:600;">Your personal savings code:</p>
+          <div style="display:inline-block;background:#1e3a5c;color:#fff;font-size:28px;font-weight:900;letter-spacing:6px;padding:16px 36px;border-radius:14px;font-family:monospace;margin-bottom:10px;">${promo_code || '—'}</div>
+          <p style="margin:12px 0 0;font-size:14px;color:#6b7280;">Use this code when booking to save <strong>$25</strong>!</p>
+        </td></tr>
+        <tr><td style="padding:0 40px 28px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:12px;padding:20px 24px;">
+            <tr><td style="padding:8px 0;"><span style="font-size:15px;">✅</span> <span style="font-size:14px;font-weight:700;color:#166534;"> 1st booking — Save $25</span></td></tr>
+            <tr><td style="padding:8px 0;"><span style="font-size:15px;">⏳</span> <span style="font-size:14px;font-weight:700;color:#64748b;"> 3rd booking — Save $25</span></td></tr>
+            <tr><td style="padding:8px 0;"><span style="font-size:15px;">🔒</span> <span style="font-size:14px;font-weight:700;color:#64748b;"> 5th booking — Save $25</span></td></tr>
+            <tr><td style="padding:12px 0 4px;border-top:1px solid #e2e8f0;"><span style="font-size:15px;">💰</span> <span style="font-size:14px;font-weight:900;color:#1e3a5c;"> Total savings: $75</span></td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:0 40px 32px;text-align:center;">
+          <a href="https://homelinescleaning.com/booking.html" style="display:inline-block;background:#4db6e8;color:#fff;font-size:16px;font-weight:800;text-decoration:none;padding:15px 40px;border-radius:12px;">Book Now →</a>
+        </td></tr>
+        <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. All rights reserved.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+      const savingsRes = await sendEmail({
+        from: FROM_EMAIL,
+        to: [email],
+        subject: '🎉 Your $75 Savings Code — Homelines Cleaning',
+        html: savingsHtml,
+      });
+      const savingsResult = await savingsRes.json();
+      if (!savingsRes.ok) {
+        console.error('Resend savings_claimed error:', savingsResult);
+        return new Response(JSON.stringify({ error: savingsResult }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, id: savingsResult.id }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
 
     if (type === 'under_review') {
       const res = await sendEmail({

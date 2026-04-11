@@ -161,28 +161,29 @@
   }
 
   /* ── Savings progress bar ─────────────────────────────────── */
-  async function savingsProgressHtml(bookingCount) {
+  async function savingsProgressHtml() {
     const email = currentUser?.email || '';
     if (!email) return '';
     try {
       const res = await fetch(
         SUPABASE_URL + '/rest/v1/savings_claims?email=eq.' + encodeURIComponent(email) +
-        '&select=first_discount_used,third_discount_used,fifth_discount_used',
+        '&select=promo_code,times_used',
         { headers: authHeaders() }
       );
       const data = await res.json();
       const claim = Array.isArray(data) ? data[0] : null;
+      const timesUsed = claim?.times_used || 0;
 
       const steps = [
-        { n:1, label:'1st', disc:true,  field:'first_discount_used' },
+        { n:1, label:'1st', disc:true },
         { n:2, label:'2nd', disc:false },
-        { n:3, label:'3rd', disc:true,  field:'third_discount_used' },
+        { n:3, label:'3rd', disc:true },
         { n:4, label:'4th', disc:false },
-        { n:5, label:'5th', disc:true,  field:'fifth_discount_used' },
+        { n:5, label:'5th', disc:true },
       ];
 
       const stepsHtml = steps.map(s => {
-        const done = bookingCount >= s.n;
+        const done = timesUsed >= s.n;
         const icon = done ? '✅' : '⬜';
         const lbl  = s.label + (s.disc ? ' −$25' : '');
         return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;">' +
@@ -191,18 +192,21 @@
           '</div>';
       }).join('');
 
-      const savedAmount = (bookingCount >= 1 ? 25 : 0) + (bookingCount >= 3 ? 25 : 0) + (bookingCount >= 5 ? 25 : 0);
+      const savedAmount = (timesUsed >= 1 ? 25 : 0) + (timesUsed >= 3 ? 25 : 0) + (timesUsed >= 5 ? 25 : 0);
       const savedLine   = savedAmount > 0
         ? '<div style="margin-top:10px;font-size:0.85rem;font-weight:800;color:#166534;">💰 You\'ve saved $' + savedAmount + ' so far!</div>'
+        : '';
+      const codeHint = claim?.promo_code
+        ? '<div style="font-size:0.75rem;color:#64748b;margin-top:6px;">Your code: <strong>' + esc(claim.promo_code) + '</strong></div>'
         : '';
 
       const inner = claim
         ? '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">' +
             '<div style="font-size:0.88rem;font-weight:800;color:#1e3a5c;">🎉 $75 Savings Program</div>' +
-            '<div style="font-size:0.8rem;color:#64748b;font-weight:700;">' + bookingCount + ' of 5 cleanings</div>' +
+            '<div style="font-size:0.8rem;color:#64748b;font-weight:700;">' + timesUsed + ' of 5 used</div>' +
           '</div>' +
           '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:2px;">' + stepsHtml + '</div>' +
-          savedLine
+          savedLine + codeHint
         : '<div style="font-size:0.85rem;font-weight:700;color:#64748b;">💡 ' +
             '<a href="index.html" style="color:#4db8e8;font-weight:800;">Claim your $75 Savings Program</a> on the homepage!' +
           '</div>';
@@ -269,7 +273,7 @@
         const s = String(b.status || '').toLowerCase();
         return s === 'confirmed' || s === 'completed';
       }).length;
-      const savHtml  = await savingsProgressHtml(confirmedCount);
+      const savHtml  = await savingsProgressHtml();
       tabBookings.innerHTML = savHtml + buildBookingsHtml(bookings, email);
     } catch (e) {
       tabBookings.innerHTML = '<div class="state-msg" style="padding:18px 10px;">⚠️ Failed to load bookings: ' + esc(e instanceof Error ? e.message : String(e)) + '</div>';

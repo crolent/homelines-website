@@ -345,15 +345,6 @@
         <textarea id="detailsNotes" class="form-input" rows="3" placeholder="Would you like to add any notes for our team?" style="resize:vertical;"></textarea>
       </div>
 
-      <!-- Coupon -->
-      <div style="margin-bottom:24px;">
-        <label class="form-label" style="margin-bottom:8px;display:block;">🏷️ Coupon Code <span style="font-weight:400;color:var(--gray-mid);">(optional)</span></label>
-        <div class="coupon-row">
-          <input type="text" id="couponInput" class="form-input" placeholder="Enter Coupon Code" style="flex:1;" />
-          <button type="button" id="couponApplyBtn" class="btn btn-outline" style="white-space:nowrap;">Apply</button>
-        </div>
-        <p id="couponMsg" style="margin-top:6px;font-size:0.85rem;"></p>
-      </div>
 
       <div class="booking-nav">
         <button class="btn btn-outline" id="step3Back" style="color:var(--navy);border-color:var(--gray);">← Back</button>
@@ -449,6 +440,17 @@
           </div>
         </div>
 
+        <!-- Promo Code -->
+        <div style="margin:20px 0;">
+          <label class="form-label" style="margin-bottom:8px;display:block;">🎁 Promo Code <span style="font-weight:400;color:var(--gray-mid);">(optional)</span></label>
+          <div class="coupon-row">
+            <input type="text" id="promoInput" class="form-input" placeholder="e.g. SAVE-A7X2K9" style="flex:1;" autocomplete="off" />
+            <button type="button" id="promoApplyBtn" class="btn btn-outline" style="white-space:nowrap;">Apply</button>
+          </div>
+          <p id="promoMsg" style="margin-top:6px;font-size:0.85rem;"></p>
+          <button type="button" id="promoRemoveBtn" style="display:none;background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.82rem;font-weight:700;padding:0;margin-top:4px;font-family:inherit;">✕ Remove promo code</button>
+        </div>
+
         <div class="form-group" style="margin-top:18px;">
           <label class="form-label" style="margin-bottom:8px;display:block;">💳 Payment Card</label>
           <div style="font-size:0.92rem;color:var(--gray-mid);margin-bottom:10px;line-height:1.35;">
@@ -533,9 +535,9 @@
           <span class="label">📝 Notes</span>
           <span class="value" id="sumNotes" style="text-align:right;font-size:0.88rem;white-space:pre-wrap;">—</span>
         </div>
-        <div class="summary-row" id="sumCouponRow" style="display:none;">
-          <span class="label" style="color:#16a34a;">🏷️ Coupon</span>
-          <span class="value" id="sumCoupon" style="color:#16a34a;">—</span>
+        <div class="summary-row" id="sumPromoRow" style="display:none;">
+          <span class="label" style="color:#16a34a;">� Promo Code</span>
+          <span class="value" id="sumPromo" style="color:#16a34a;">—</span>
         </div>
         <div class="summary-row total">
           <span class="label" style="font-weight:700; color:var(--navy);">💳 <span data-i18n="sum_price">Estimated Price</span></span>
