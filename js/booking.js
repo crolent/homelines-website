@@ -123,7 +123,7 @@
   const minItems  = ['00', '15', '30', '45'];
   let pickerHourIdx = 8;
   let pickerMinIdx  = 0;
-  let pickerAmPm    = 'AM';
+  let pickerAmPm    = 'PM';
 
   const stepEl = (n) => document.getElementById(`step${n}`);
 
