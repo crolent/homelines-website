@@ -151,6 +151,14 @@
     if (n >= 5) return 5;
     return n;
   }
+  function isNightBooking() {
+    const h12 = parseInt(hourItems[pickerHourIdx]);
+    const h24 = pickerAmPm === 'AM'
+      ? (h12 === 12 ? 0 : h12)
+      : (h12 === 12 ? 12 : h12 + 12);
+    return h24 >= 20 || h24 < 6;
+  }
+
   function hasSofaSelected() {
     return state.services.some(s => s.id === 'sofa');
   }
@@ -163,11 +171,12 @@
   }
   function calcBasePrice() {
     if (!state.services.length) return 0;
-    return state.services.reduce((sum, s) => {
+    const raw = state.services.reduce((sum, s) => {
       if (s.id === 'sofa') return sum;
       const row = BASE_PRICES[s.id];
       return sum + (row ? row[getBedIdx()] : 0);
     }, 0);
+    return isNightBooking() ? raw * 2 : raw;
   }
   function calcSofaMattressTotal() {
     const sofaQty = Math.max(0, parseInt(state.sofaQuantity) || 0);
@@ -276,7 +285,12 @@
       rows += `<div class="ps-row ps-add"><span class="ps-label">🛋️ Sofas (×${sofaQty})</span><span class="ps-val">$${sofaLine}</span></div>`;
     }
     if (base) {
-      rows += `<div class="ps-row ps-base"><span class="ps-label">Base price</span><span class="ps-val">$${base}</span></div>`;
+      if (isNightBooking()) {
+        rows += `<div class="ps-row ps-base"><span class="ps-label">🌙 Night service (2×)</span><span class="ps-val">$${base}</span></div>`;
+        rows += `<div class="ps-row"><span class="ps-label" style="font-size:0.75rem;color:#f59e0b;font-style:italic;">Night rate applies 8 PM – 6 AM</span></div>`;
+      } else {
+        rows += `<div class="ps-row ps-base"><span class="ps-label">Base price</span><span class="ps-val">$${base}</span></div>`;
+      }
     }
     if (bath) {
       rows += `<div class="ps-row ps-add"><span class="ps-label">Bathroom surcharge</span><span class="ps-val">+$${bath}</span></div>`;
@@ -1076,6 +1090,7 @@
     document.getElementById('amBtn')?.classList.toggle('tp-ampm-active', pickerAmPm === 'AM');
     document.getElementById('pmBtn')?.classList.toggle('tp-ampm-active', pickerAmPm === 'PM');
     checkStep4();
+    updatePriceSummary();
   }
 
   function checkStep4() {
@@ -1405,6 +1420,7 @@
           coupon_code:  state.couponCode || null,
           coupon_discount: state.couponDiscount || 0,
           has_pets:     state.hasPets,
+          is_night_booking: isNightBooking(),
           stripe_customer_id: stripeCustomerId || null,
           payment_status: 'pending',
           payment_method_saved: cardSaved
