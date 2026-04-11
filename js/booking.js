@@ -1083,6 +1083,7 @@
     document.getElementById('amBtn')?.addEventListener('click', () => { pickerAmPm = 'AM'; updateTimePicker(); });
     document.getElementById('pmBtn')?.addEventListener('click', () => { pickerAmPm = 'PM'; updateTimePicker(); });
     updateTimePicker();
+    state.time = ''; // display-only init; night rate must not fire until user selects a time
 
     document.getElementById('calPrev')?.addEventListener('click', () => {
       state.calendar.month--;
