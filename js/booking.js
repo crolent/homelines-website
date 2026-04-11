@@ -1149,7 +1149,14 @@
       if (!address)              { showError('detailsAddressErr', T('err_address') || 'Please enter your street address');   valid = false; }
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
-      // Do not block booking on card validity. Card is best-effort and can be added later.
+      if (!stripeCardComplete) {
+        const cardErrEl = document.getElementById('stripeCardError');
+        if (cardErrEl) {
+          cardErrEl.textContent = 'Please enter your credit card to continue';
+          cardErrEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        valid = false;
+      }
 
       if (valid) {
         state.serviceCity   = document.getElementById('detailsCitySelect')?.value || state.serviceCity;
