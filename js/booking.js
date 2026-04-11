@@ -601,6 +601,7 @@
   /* ---- Promo code apply ---- */
   async function applyPromoCode() {
     const code = (document.getElementById('promoInput')?.value || '').trim().toUpperCase();
+    console.log('[Promo] Apply clicked, code:', code);
     const msgEl = document.getElementById('promoMsg');
     const removeEl = document.getElementById('promoRemoveBtn');
     if (!code) {
@@ -610,12 +611,15 @@
     const applyBtn = document.getElementById('promoApplyBtn');
     if (applyBtn) { applyBtn.disabled = true; applyBtn.textContent = 'Checking…'; }
     try {
-      const res = await fetch(
-        SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(code) + '&select=*',
+      const url = SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(code) + '&select=*';
+      console.log('[Promo] Fetching:', url);
+      const res = await fetch(url,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
       );
       const data = await res.json();
+      console.log('[Promo] Fetch result:', data);
       const claim = Array.isArray(data) ? data[0] : null;
+      console.log('[Promo] claim found:', claim, '| times_used:', claim?.times_used);
       if (!claim) {
         state.promoCode = ''; state.promoDiscount = 0; state.promoTimesUsed = -1;
         if (msgEl) { msgEl.textContent = '❌ Invalid promo code'; msgEl.style.color = '#dc2626'; }
@@ -942,10 +946,6 @@
     document.getElementById('detailsHalfBaths')?.addEventListener('change', (e) => { state.halfBathrooms = e.target.value; updatePriceSummary(); });
     document.getElementById('detailsSqft')?.addEventListener('change',      (e) => { state.sqft          = e.target.value; updatePriceSummary(); });
 
-    document.getElementById('promoApplyBtn')?.addEventListener('click', () => applyPromoCode());
-    document.getElementById('promoInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } });
-    document.getElementById('promoRemoveBtn')?.addEventListener('click', () => clearPromoCode());
-
     const nextBtn = document.getElementById('step3Next');
     if (nextBtn) {
       nextBtn.addEventListener('click', () => {
@@ -1172,6 +1172,10 @@
         goToStep(6);
       }
     });
+    document.getElementById('promoApplyBtn')?.addEventListener('click', () => applyPromoCode());
+    document.getElementById('promoInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } });
+    document.getElementById('promoRemoveBtn')?.addEventListener('click', () => clearPromoCode());
+
     const backBtn = document.getElementById('step5Back');
     if (backBtn) backBtn.addEventListener('click', () => goToStep(4));
   }
