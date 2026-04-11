@@ -333,9 +333,7 @@
   if (faqList) {
     faqs.forEach((item, i) => {
       const wrap = document.createElement('div');
-      wrap.className = 'reveal';
       wrap.style.cssText = `background: var(--white); border: 1px solid var(--gray); border-radius: var(--radius); overflow: hidden; transition: var(--transition);`;
-      wrap.setAttribute(`reveal-delay-${(i % 3) + 1}`, '');
 
       const btn = document.createElement('button');
       btn.style.cssText = `width:100%; display:flex; justify-content:space-between; align-items:center; padding: 20px 24px; background:none; border:none; cursor:pointer; font-weight:600; font-size:0.97rem; color:var(--navy); text-align:left; gap:12px;`;
