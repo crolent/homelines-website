@@ -315,12 +315,18 @@
 <script>
   /* FAQ Accordion */
   const faqs = [
-    { q: 'How do I book a cleaning?', a: 'Simply click "Book a Clean" and follow our 4-step process: enter your contact info, choose a service, pick a date and time, and confirm. It takes less than 3 minutes!' },
-    { q: 'Are you really available 24/7?', a: 'Yes! We offer cleaning services around the clock, including weekends and public holidays. Just pick any time slot that works for you when booking.' },
-    { q: 'Do I need to provide cleaning supplies?', a: 'No — our cleaners bring all professional equipment and eco-friendly products. Just let us know if you have any specific product preferences.' },
-    { q: 'Are your cleaners insured and background-checked?', a: 'Absolutely. Every member of our team is fully vetted, background-checked, and insured. Your safety and peace of mind are our top priority.' },
-    { q: 'What is your cancellation policy?', a: 'You can cancel or reschedule for free up to 24 hours before your appointment. Cancellations within 24 hours may incur a small fee.' },
-    { q: 'What areas do you serve?', a: 'We currently serve Fort Lauderdale and the surrounding South Florida area. Contact us to confirm availability in your specific location.' },
+    { q: 'How do I book a cleaning?', a: 'Simply click \u2018Book a Cleaning\u2019 on our website, enter your email, choose your service, select a date and time, fill in your details, and confirm. The whole process takes less than 3 minutes.' },
+    { q: 'What cleaning products do you use?', a: 'We use professional-grade, eco-friendly cleaning products that are safe for children, pets, and all surfaces. If you prefer specific products, you can let us know in the special notes during booking.' },
+    { q: 'Are your cleaners insured and background-checked?', a: 'Yes, all our cleaning professionals are fully insured, bonded, and have passed thorough background checks for your peace of mind.' },
+    { q: 'What is your cancellation policy?', a: 'Free cancellation 24+ hours before your scheduled cleaning. Cancellations less than 24 hours before will incur a $50 fee. No-shows will be charged 50% of the booking total.' },
+    { q: 'What areas do you serve?', a: 'We serve all of South Florida including Fort Lauderdale, Miami, Boca Raton, Pompano Beach, Hollywood, Dania Beach, Coral Gables, Brickell, and surrounding areas.' },
+    { q: 'Do I need to provide cleaning supplies?', a: 'No \u2014 our team arrives with all necessary professional equipment and eco-friendly cleaning supplies. Everything is included in the price.' },
+    { q: 'How long does a cleaning take?', a: 'Standard cleaning takes 1.5\u20133 hours, deep cleaning 2.5\u20135 hours, and move in/out cleaning 3\u20137 hours depending on the size of your home.' },
+    { q: 'Can I schedule recurring cleanings?', a: 'Yes! We offer weekly, bi-weekly, and monthly cleaning plans. Contact us to set up a recurring schedule and enjoy consistent cleanliness.' },
+    { q: 'What if I\u2019m not satisfied with the cleaning?', a: 'Your satisfaction is our guarantee. If you\u2019re not happy with any aspect of our service, contact us within 24 hours and we\u2019ll come back to re-clean at no extra charge.' },
+    { q: 'Do you offer same-day booking?', a: 'We accept bookings 24/7 and will do our best to accommodate same-day requests based on availability. Book online and our team will confirm within 1 hour.' },
+    { q: 'Is my payment information secure?', a: 'Absolutely. All payments are processed through Stripe, a PCI-compliant payment processor. We never store your card details on our servers.' },
+    { q: 'What is the $75 Savings Program?', a: 'New customers can save $75 total \u2014 get $25 off your 1st, 3rd, and 5th cleaning. Claim your savings on our homepage and use your promo code when booking.' },
   ];
 
   const faqList = document.getElementById('faqList');
