@@ -1125,7 +1125,7 @@
     fill('detailsPhone',   u.phone);
     fill('detailsAddress', u.address);
     fill('detailsApt',     u.apt);
-    fill('detailsCity',    u.city);
+    fill('detailsCity',    state.serviceCity);
     fill('detailsZip',     u.zip);
   }
 
@@ -1141,14 +1141,12 @@
       const phone   = document.getElementById('detailsPhone').value.trim();
       const address = document.getElementById('detailsAddress').value.trim();
       const apt     = document.getElementById('detailsApt').value.trim();
-      const city    = document.getElementById('detailsCity').value.trim();
       const zip     = document.getElementById('detailsZip').value.trim();
 
       if (!name)                 { showError('detailsNameErr',    T('err_name')    || 'Please enter your first name');       valid = false; }
       if (!surname)              { showError('detailsSurnameErr', T('err_surname') || 'Please enter your last name');        valid = false; }
       if (!validatePhone(phone)) { showError('detailsPhoneErr',   T('err_phone')   || 'Please enter a valid phone number'); valid = false; }
       if (!address)              { showError('detailsAddressErr', T('err_address') || 'Please enter your street address');   valid = false; }
-      if (!city)                 { showError('detailsCityErr',    T('err_city')    || 'Please enter your city');             valid = false; }
       if (!zip)                  { showError('detailsZipErr',     T('err_zip')     || 'Please enter your ZIP code');         valid = false; }
 
       // Do not block booking on card validity. Card is best-effort and can be added later.
@@ -1160,7 +1158,7 @@
         state.bathrooms     = document.getElementById('detailsBaths')?.value       || state.bathrooms;
         state.halfBathrooms = document.getElementById('detailsHalfBaths')?.value   || state.halfBathrooms;
         state.notes         = document.getElementById('detailsNotes')?.value       || state.notes;
-        state.user = { ...state.user, name, surname, phone, address, apt, city, zip };
+        state.user = { ...state.user, name, surname, phone, address, apt, city: state.serviceCity, zip };
 
         // Best-effort: create SetupIntent when entering the card step.
         (async () => {
