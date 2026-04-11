@@ -600,9 +600,9 @@
 
   /* ---- Promo code apply ---- */
   async function applyPromoCode() {
-    const code = (document.getElementById('promoInput')?.value || '').trim().toUpperCase();
+    const code = (document.getElementById('promoCodeInput')?.value || '').trim().toUpperCase();
     console.log('[Promo] Apply clicked, code:', code);
-    const msgEl = document.getElementById('promoMsg');
+    const msgEl = document.getElementById('promoMessage');
     const removeEl = document.getElementById('promoRemoveBtn');
     if (!code) {
       if (msgEl) { msgEl.textContent = ''; msgEl.style.color = ''; }
@@ -621,30 +621,33 @@
       const claim = Array.isArray(data) ? data[0] : null;
       console.log('[Promo] claim found:', claim, '| times_used:', claim?.times_used);
       if (!claim) {
-        state.promoCode = ''; state.promoDiscount = 0; state.promoTimesUsed = -1;
+        state.promoCode = ''; state.promoDiscount = 0; window.promoDiscount = 0; state.promoTimesUsed = -1;
         if (msgEl) { msgEl.textContent = '❌ Invalid promo code'; msgEl.style.color = '#dc2626'; }
         if (removeEl) removeEl.style.display = 'none';
       } else {
         const used = claim.times_used || 0;
         state.promoTimesUsed = used;
         state.promoCode = code;
+        window.promoCodeValue = code;
+        window.promoClaimId = claim.id;
+        window.promoTimesUsed = used;
         if (used === 0) {
-          state.promoDiscount = 25;
+          state.promoDiscount = 25; window.promoDiscount = 25;
           if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (1st booking discount)'; msgEl.style.color = '#16a34a'; }
         } else if (used === 1) {
-          state.promoDiscount = 0;
+          state.promoDiscount = 0; window.promoDiscount = 0;
           if (msgEl) { msgEl.textContent = '💪 Keep going! $25 off your 3rd booking!'; msgEl.style.color = '#1d4ed8'; }
         } else if (used === 2) {
-          state.promoDiscount = 25;
+          state.promoDiscount = 25; window.promoDiscount = 25;
           if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (3rd booking discount)'; msgEl.style.color = '#16a34a'; }
         } else if (used === 3) {
-          state.promoDiscount = 0;
+          state.promoDiscount = 0; window.promoDiscount = 0;
           if (msgEl) { msgEl.textContent = '🎉 One more! $25 off your 5th booking!'; msgEl.style.color = '#1d4ed8'; }
         } else if (used === 4) {
-          state.promoDiscount = 25;
+          state.promoDiscount = 25; window.promoDiscount = 25;
           if (msgEl) { msgEl.textContent = '🎉 $25 off applied! (5th booking discount)'; msgEl.style.color = '#16a34a'; }
         } else {
-          state.promoDiscount = 0;
+          state.promoDiscount = 0; window.promoDiscount = 0;
           if (msgEl) { msgEl.textContent = '🏆 You\'ve used all $75 in savings!'; msgEl.style.color = '#b45309'; }
         }
         if (removeEl) removeEl.style.display = state.promoDiscount > 0 ? '' : 'none';
@@ -658,9 +661,10 @@
   }
 
   function clearPromoCode() {
-    state.promoCode = ''; state.promoDiscount = 0; state.promoTimesUsed = -1;
-    const inp = document.getElementById('promoInput');
-    const msgEl = document.getElementById('promoMsg');
+    state.promoCode = ''; state.promoDiscount = 0; window.promoDiscount = 0; state.promoTimesUsed = -1;
+    window.promoCodeValue = ''; window.promoClaimId = null;
+    const inp = document.getElementById('promoCodeInput');
+    const msgEl = document.getElementById('promoMessage');
     const removeEl = document.getElementById('promoRemoveBtn');
     if (inp) inp.value = '';
     if (msgEl) { msgEl.textContent = ''; msgEl.style.color = ''; }
@@ -1173,7 +1177,7 @@
       }
     });
     document.getElementById('promoApplyBtn')?.addEventListener('click', () => applyPromoCode());
-    document.getElementById('promoInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } });
+    document.getElementById('promoCodeInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } });
     document.getElementById('promoRemoveBtn')?.addEventListener('click', () => clearPromoCode());
 
     const backBtn = document.getElementById('step5Back');
