@@ -149,6 +149,7 @@
     return n;
   }
   function isNightBooking() {
+    if (!state.time) return false;
     const h12 = parseInt(hourItems[pickerHourIdx]);
     const h24 = pickerAmPm === 'AM'
       ? (h12 === 12 ? 0 : h12)
