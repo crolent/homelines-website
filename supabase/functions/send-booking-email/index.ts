@@ -43,6 +43,7 @@ serve(async (req: Request) => {
       notes,
       coupon_code,
       coupon_discount,
+      message,
     } = await req.json();
 
     const sofaQty = Math.max(0, parseInt(String(sofa_quantity ?? '0')) || 0);
@@ -812,6 +813,86 @@ serve(async (req: Request) => {
   </table>
 </body>
 </html>`;
+
+    if (type === 'contact_message') {
+      const contactFullName = [first_name, last_name].filter(Boolean).join(' ');
+      const contactHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Contact Message</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(30,58,92,0.12);">
+        <tr><td style="background:#1a2b4a;padding:32px 40px;text-align:center;">
+          <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+            <span style="font-size:28px;">🏠</span>
+            <span style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Homelines<span style="color:#4db8e8;"> Cleaning</span></span>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:8px;">Admin Notification</div>
+        </td></tr>
+        <tr><td style="background:#fffbeb;padding:24px 40px;text-align:center;border-bottom:1px solid #fde68a;">
+          <div style="font-size:36px;">📩</div>
+          <h1 style="margin:10px 0 4px;font-size:22px;font-weight:800;color:#92400e;">New Contact Message!</h1>
+          <p style="margin:0;font-size:14px;color:#b45309;">Reply directly to this email to respond to the customer.</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 0;">
+          <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">👤 Customer Details</h2>
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Name</span></td>
+              <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:700;">${contactFullName || '—'}</span></td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Email</span></td>
+              <td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><a href="mailto:${email}" style="font-size:14px;color:#1e3a5c;font-weight:700;text-decoration:none;">${email || '—'}</a></td>
+            </tr>
+            ${phone ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Phone</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><a href="tel:${phone}" style="font-size:14px;color:#1e3a5c;font-weight:700;text-decoration:none;">${phone}</a></td></tr>` : ''}
+            ${service ? `<tr><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;"><span style="font-size:13px;color:#6b7280;font-weight:500;">Service</span></td><td style="padding:9px 0;border-bottom:1px solid #f3f4f6;text-align:right;"><span style="font-size:14px;color:#111827;font-weight:700;">${service}</span></td></tr>` : ''}
+          </table>
+        </td></tr>
+        <tr><td style="padding:24px 40px 0;">
+          <h2 style="margin:0 0 12px;font-size:16px;font-weight:700;color:#1e3a5c;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">💬 Message</h2>
+          <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap;">${message || '—'}</div>
+        </td></tr>
+        <tr><td style="padding:28px 40px;text-align:center;">
+          <a href="mailto:${email}?subject=Re:%20Your%20message%20to%20Homelines%20Cleaning" style="display:inline-block;background:#1e3a5c;color:#fff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:10px;">✉️ Reply to Customer →</a>
+        </td></tr>
+        <tr><td style="padding:0 40px 20px;text-align:center;">
+          <a href="https://homelinescleaning.com/admin.html" style="display:inline-block;background:#f1f5f9;color:#1e3a5c;font-size:14px;font-weight:700;text-decoration:none;padding:11px 28px;border-radius:10px;">🖥️ View in Admin Panel →</a>
+        </td></tr>
+        <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">© 2026 Homelines LLC. Automated admin notification.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+      const contactRes = await sendEmail({
+        from: FROM_EMAIL,
+        to: ['info@homelinescleaning.com', ADMIN_TO_EMAIL],
+        reply_to: email,
+        subject: `📩 New Contact Message — ${contactFullName || email}`,
+        html: contactHtml,
+      });
+      const contactResult = await contactRes.json();
+      if (!contactRes.ok) {
+        console.error('Resend contact_message error:', contactResult);
+        return new Response(JSON.stringify({ error: contactResult }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, id: contactResult.id }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
 
     if (type === 'under_review') {
       const res = await sendEmail({

@@ -245,11 +245,27 @@
     }
 
     try {
-      if (!window.supabase) throw new Error('Supabase not loaded');
-      const { error } = await window.supabase.from('contact_messages').insert([data]);
-      if (error) throw error;
+      const res = await fetch('https://acfsvzbjfiynlcbjvtbq.supabase.co/rest/v1/contact_messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g',
+          'Authorization': 'Bearer sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `HTTP ${res.status}`);
+      }
+      fetch('https://acfsvzbjfiynlcbjvtbq.supabase.co/functions/v1/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'contact_message', ...data })
+      });
       form.reset();
-      showMsg('\u2705 Your message has been sent!', false);
+      showMsg('\u2705 Message sent! We\'ll get back to you within 1 hour.', false);
     } catch (err) {
       console.error('Contact form error:', err);
       showMsg('\u274c Something went wrong. Please try again.', true);
