@@ -1756,6 +1756,40 @@ textarea.form-input { resize: vertical; min-height: 140px; }
   .map-wrap iframe { height: 250px; }
 }
 
+/* ===== FLOATING CALL BUTTON ===== */
+@keyframes pulse-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+  50%  { box-shadow: 0 0 20px 10px rgba(37, 211, 102, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+}
+.call-btn {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  animation: pulse-glow 2s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+.call-btn:hover { transform: scale(1.1); }
+.call-btn svg { width: 22px; height: 22px; fill: #fff; flex-shrink: 0; }
+@media (max-width: 1100px) {
+  .booking-page .call-btn { bottom: 80px; }
+}
+
 /* ===== LANGUAGE PICKER ===== */
 .lang-picker {
   position: relative;
