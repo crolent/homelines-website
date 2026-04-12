@@ -799,6 +799,15 @@ serve(async (req: Request) => {
             </td>
           </tr>
 
+          <!-- Dashboard CTA -->
+          <tr>
+            <td style="padding:28px 40px;text-align:center;background:#f0f9ff;border-top:1px solid #bae6fd;">
+              <p style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e3a5c;">📊 Track your booking and earn rewards in your personal dashboard</p>
+              <p style="margin:0 0 16px;font-size:13px;color:#475569;line-height:1.5;">View status updates, savings progress, and manage your payments — all in one place.</p>
+              <a href="https://homelinescleaning.com/account.html" style="display:inline-block;background:#4db8e8;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:12px 28px;border-radius:8px;">View My Dashboard →</a>
+            </td>
+          </tr>
+
           <!-- Footer -->
           <tr>
             <td style="background:#f9fafb;padding:24px 40px;text-align:center;border-top:1px solid #e5e7eb;">
