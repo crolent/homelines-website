@@ -208,6 +208,9 @@
         }
       }
 
+      if (typeof gtag === 'function') {
+        gtag('event', 'payment_completed', { ref_code: booking.ref_code, amount: total });
+      }
       renderSuccess();
     } catch (e) {
       console.error('Payment error:', e);

@@ -651,6 +651,9 @@
           if (msgEl) { msgEl.textContent = '🏆 You\'ve used all $75 in savings!'; msgEl.style.color = '#b45309'; }
         }
         if (removeEl) removeEl.style.display = state.promoDiscount > 0 ? '' : 'none';
+        if (state.promoDiscount > 0 && typeof gtag === 'function') {
+          gtag('event', 'promo_applied', { promo_code: code, discount: state.promoDiscount });
+        }
       }
       updatePriceSummary();
     } catch (e) {
@@ -1462,6 +1465,11 @@
           }
 
           console.log('[Booking] saved OK:', insertData);
+
+          if (typeof gtag === 'function') {
+            const svcName = state.services.map(s => s.nameKey || s.id).join(' + ');
+            gtag('event', 'booking_submitted', { service: svcName, total: calcTotal() });
+          }
 
           if (state.promoCode) {
             const currentTimesUsed = state.promoTimesUsed;
