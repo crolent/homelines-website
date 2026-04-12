@@ -1573,9 +1573,31 @@
 
   function initSupabaseAuth() {
     if (!window.supabase) return;
+
+    const hasOAuthHash = window.location.hash.includes('access_token');
+    if (hasOAuthHash) {
+      console.log('[Auth] OAuth callback detected, processing...');
+      setTimeout(async () => {
+        try {
+          const { data } = await window.supabase.auth.getSession();
+          if (data?.session) {
+            console.log('[Auth] Logged in as:', data.session.user.email);
+            handleOAuthSession(data.session);
+            history.replaceState(null, '', window.location.pathname);
+          } else {
+            console.log('[Auth] OAuth session not ready yet — onAuthStateChange will handle it');
+          }
+        } catch (e) {
+          console.log('[Auth] OAuth processing failed:', e);
+        }
+      }, 1500);
+    }
+
     window.supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Auth] event:', event, session?.user?.email || '');
       if (session && state.step === 1 && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
         handleOAuthSession(session);
+        if (hasOAuthHash) history.replaceState(null, '', window.location.pathname);
       }
     });
   }
