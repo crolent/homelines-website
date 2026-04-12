@@ -242,9 +242,10 @@
         '<div class="bk-top"><div class="bk-ref">' + esc(b.ref_code||'—') + '</div><span class="badge ' + sCls + '">' + esc(status) + '</span></div>' +
         '<div class="bk-line"><div><div class="bk-label">Service</div><div class="bk-val">' + esc(b.service||'—') + '</div></div>' +
           '<div style="text-align:right;"><div class="bk-label">Total</div><div class="bk-val" style="color:var(--navy);">$' + Number(b.price||0).toLocaleString() + '</div></div></div>' +
+        (b.promo_code && Number(b.coupon_discount) > 0 ? '<div class="bk-line"><div style="color:#16a34a;font-size:0.85rem;font-weight:700;">🎁 Promo ' + esc(b.promo_code) + ': -$' + Number(b.coupon_discount) + '</div></div>' : '') +
+        '<div class="bk-line"><div><div class="bk-label">Payment</div><span class="badge ' + pCls + '">' + esc(pay) + '</span></div></div>' +
         '<div class="bk-line"><div><div class="bk-label">Date & Time</div><div class="bk-val">' + esc(fmtDt(b.booking_date,b.booking_time)) + '</div></div></div>' +
         '<div class="bk-line"><div style="min-width:0;"><div class="bk-label">Address</div><div class="bk-val" style="word-break:break-word;">' + esc(b.address||'—') + '</div></div></div>' +
-        '<div class="bk-line"><div><div class="bk-label">Payment</div><span class="badge ' + pCls + '">' + esc(pay) + '</span></div></div>' +
         (showPay ? '<div class="bk-pay"><a class="btn btn-primary btn-lg" href="pay.html?ref=' + encodeURIComponent(b.ref_code||'') + '">💳 Pay Now</a></div>' : '') +
         '</div>';
     };
@@ -263,7 +264,7 @@
     try {
       const res = await fetch(
         SUPABASE_URL + '/rest/v1/bookings?email=eq.' + encodeURIComponent(email) +
-        '&order=created_at.desc&select=id,ref_code,service,booking_date,booking_time,address,status,price,payment_status',
+        '&order=created_at.desc&select=id,ref_code,service,booking_date,booking_time,address,status,price,payment_status,promo_code,coupon_discount',
         { headers: authHeaders() }
       );
       const data = await res.json();

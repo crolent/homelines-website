@@ -1463,6 +1463,8 @@
           console.log('[Booking] saved OK:', insertData);
 
           if (state.promoCode && state.promoDiscount > 0) {
+            const currentTimesUsed = state.promoTimesUsed;
+            console.log('[Promo] Updating times_used from', currentTimesUsed, 'to', currentTimesUsed + 1);
             fetch(
               SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(state.promoCode),
               {
@@ -1470,13 +1472,19 @@
                 headers: {
                   'Content-Type': 'application/json',
                   'apikey': SUPABASE_KEY,
-                  'Authorization': 'Bearer ' + SUPABASE_KEY
+                  'Authorization': 'Bearer ' + SUPABASE_KEY,
+                  'Prefer': 'return=representation'
                 },
-                body: JSON.stringify({ times_used: state.promoTimesUsed + 1 })
+                body: JSON.stringify({ times_used: currentTimesUsed + 1 })
               }
-            ).then(r => {
-              if (r.ok) console.log('[Promo] times_used incremented');
-              else console.warn('[Promo] increment failed:', r.status);
+            ).then(async r => {
+              if (r.ok) {
+                const result = await r.json();
+                console.log('[Promo] times_used incremented, new value:', result?.[0]?.times_used);
+              } else {
+                const err = await r.text();
+                console.warn('[Promo] increment failed:', r.status, err);
+              }
             }).catch(e => console.warn('[Promo] increment error (non-fatal):', e));
           }
 
