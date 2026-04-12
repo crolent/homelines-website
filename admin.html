@@ -1081,6 +1081,12 @@
       const cardSavedChip = cardSaved
         ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--navy);font-size:0.8rem;font-weight:900;">💳 Card saved</span>`
         : '';
+      const payMethodChip = b.payment_method
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d;font-size:0.8rem;font-weight:900;">via ${b.payment_method === 'paypal' ? '🅿 PayPal' : '💳 Card'}</span>`
+        : '';
+      const txnChip = b.payment_transaction_id
+        ? `<div style="margin-top:6px;font-size:0.75rem;color:#64748b;font-weight:700;">TXN: ${escHtml(b.payment_transaction_id)}</div>`
+        : '';
 
       const total = safeNum(b.price);
 
@@ -1238,7 +1244,8 @@
 
               <div class="msection">
                 <div class="msection-title">Payment</div>
-                <div class="mpills">${pBadge}${cardSavedChip}</div>
+                <div class="mpills">${pBadge}${cardSavedChip}${payMethodChip}</div>
+                ${txnChip}
               </div>
 
               <div class="msection">
@@ -1432,6 +1439,12 @@
       const cardSavedChip = cardSaved
         ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--navy);font-size:0.78rem;font-weight:900;">💳 Card saved</span>`
         : '';
+      const payMethodChip = b.payment_method
+        ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d;font-size:0.78rem;font-weight:900;">via ${b.payment_method === 'paypal' ? '🅿 PayPal' : '💳 Card'}</span>`
+        : '';
+      const txnChip = b.payment_transaction_id
+        ? `<div style="margin-top:6px;font-size:0.75rem;color:#64748b;font-weight:700;">TXN: ${escHtml(b.payment_transaction_id)}</div>`
+        : '';
 
       const chargeButtons = cardSaved ? `
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -1485,7 +1498,8 @@
                 </div>
                 <div class="detail-field" style="display:block;">
                   <span class="detail-label" style="width:auto;">Payment</span>
-                  <span class="detail-value" style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">${pBadge}${cardSavedChip}</span>
+                  <span class="detail-value" style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">${pBadge}${cardSavedChip}${payMethodChip}</span>
+                  ${txnChip}
                   ${chargeButtons ? `<div style="margin-top:12px;">${chargeButtons}</div>` : ''}
                 </div>
                 ${(petsBadge || couponRow) ? `<div class="detail-field" style="display:block;">

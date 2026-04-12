@@ -56,14 +56,121 @@
     `);
   }
 
-  function renderSuccess() {
+  function renderSuccess(method) {
+    const via = method === 'paypal' ? 'PayPal' : 'saved card';
     setStateHtml(`
       <div style="text-align:center; padding: 18px 10px;">
         <div style="font-size: 2.2rem; margin-bottom: 10px;">✅</div>
         <div style="font-weight: 900; color: var(--navy); font-size: 1.15rem;">Payment successful! Thank you.</div>
-        <div style="color: var(--gray-dark); margin-top: 6px;">We’ve received your payment and will see you soon.</div>
+        <div style="color: var(--gray-dark); margin-top: 6px;">We've received your payment via ${escHtml(via)} and will see you soon.</div>
       </div>
     `);
+  }
+
+  async function updateBookingPayment(refCode, status, method, transactionId) {
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/bookings?ref_code=eq.' + encodeURIComponent(refCode), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          payment_status: status,
+          payment_method: method,
+          payment_transaction_id: transactionId
+        })
+      });
+    } catch (e) {
+      console.warn('[pay] updateBookingPayment failed:', e);
+    }
+  }
+
+  window.switchPayTab = function(tab) {
+    const cardSection   = document.getElementById('cardPaySection');
+    const paypalSection = document.getElementById('paypalSection');
+    const tabCard       = document.getElementById('tabCard');
+    const tabPaypal     = document.getElementById('tabPaypal');
+    if (!cardSection || !paypalSection) return;
+    if (tab === 'card') {
+      cardSection.style.display   = '';
+      paypalSection.style.display = 'none';
+      tabCard.style.background    = 'var(--navy)';
+      tabCard.style.color         = 'white';
+      tabPaypal.style.background  = '#f0f4f8';
+      tabPaypal.style.color       = '#64748b';
+    } else {
+      cardSection.style.display   = 'none';
+      paypalSection.style.display = '';
+      tabCard.style.background    = '#f0f4f8';
+      tabCard.style.color         = '#64748b';
+      tabPaypal.style.background  = '#003087';
+      tabPaypal.style.color       = 'white';
+    }
+  };
+
+  function initPayPalButtons(booking, total) {
+    if (!window.paypal) {
+      console.warn('[PayPal] SDK not loaded yet — retrying in 1s');
+      setTimeout(() => initPayPalButtons(booking, total), 1000);
+      return;
+    }
+    const container = document.getElementById('paypal-button-container');
+    if (!container) return;
+
+    window.paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: total.toFixed(2) },
+            description: 'Homelines Cleaning - ' + (booking.ref_code || '')
+          }]
+        });
+      },
+      onApprove: async function(data, actions) {
+        const details = await actions.order.capture();
+        console.log('[PayPal] Payment completed:', details);
+        const txId = details.id || '';
+        await updateBookingPayment(booking.ref_code, 'paid', 'paypal', txId);
+        const email = String(booking.email || '').trim();
+        if (email) {
+          fetch(EMAIL_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              type: 'payment_receipt',
+              email,
+              ref_code: booking.ref_code,
+              service: booking.service,
+              booking_date: booking.booking_date,
+              booking_time: booking.booking_time,
+              price: booking.price,
+            }),
+          }).catch(e => console.warn('[PayPal] Receipt email failed:', e));
+        }
+        if (typeof gtag === 'function') {
+          gtag('event', 'payment_completed', { method: 'paypal', ref_code: booking.ref_code, amount: total });
+        }
+        renderSuccess('paypal');
+      },
+      onError: function(err) {
+        console.error('[PayPal] Error:', err);
+        const ps = document.getElementById('paypalSection');
+        if (ps) {
+          const box = document.createElement('div');
+          box.style.cssText = 'margin-top:10px;color:#b91c1c;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.25);padding:10px 12px;border-radius:12px;font-weight:700;font-size:0.9rem;';
+          box.textContent = '❌ PayPal payment failed. Please try again.';
+          ps.appendChild(box);
+        }
+      }
+    }).render('#paypal-button-container');
   }
 
   function renderBooking(booking) {
@@ -111,11 +218,20 @@
             <div style="font-size: 1.6rem; font-weight: 900; color: var(--navy);">$${total.toLocaleString()}</div>
           </div>
 
-          <div style="margin-top: 14px;">
-            <button id="payBtn" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center;" ${payDisabledReason ? 'disabled' : ''}>
-              Pay $${total.toLocaleString()}
-            </button>
-            ${payDisabledReason ? `<div style="margin-top:10px;color:#b91c1c;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.25);padding:10px 12px;border-radius:12px;font-weight:700;font-size:0.9rem;">${escHtml(payDisabledReason)}</div>` : ''}
+          <div style="margin-top: 16px;">
+            <div style="display:flex; gap:0; margin-bottom:14px; border-radius:12px; overflow:hidden; border:1px solid rgba(226,232,240,0.9);">
+              <button id="tabCard" onclick="switchPayTab('card')" style="flex:1;padding:12px 8px;border:none;cursor:pointer;font-weight:800;font-size:0.9rem;background:var(--navy);color:white;transition:all 0.2s;">💳 Pay with Card</button>
+              <button id="tabPaypal" onclick="switchPayTab('paypal')" style="flex:1;padding:12px 8px;border:none;border-left:1px solid rgba(226,232,240,0.9);cursor:pointer;font-weight:800;font-size:0.9rem;background:#f0f4f8;color:#64748b;transition:all 0.2s;">🅿 Pay with PayPal</button>
+            </div>
+            <div id="cardPaySection">
+              <button id="payBtn" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;" ${payDisabledReason ? 'disabled' : ''}>
+                Pay $${total.toLocaleString()}
+              </button>
+              ${payDisabledReason ? `<div style="margin-top:10px;color:#b91c1c;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.25);padding:10px 12px;border-radius:12px;font-weight:700;font-size:0.9rem;">${escHtml(payDisabledReason)}</div>` : ''}
+            </div>
+            <div id="paypalSection" style="display:none;">
+              <div id="paypal-button-container"></div>
+            </div>
           </div>
 
           <div style="margin-top: 14px; color: #64748b; font-size: 0.85rem; line-height: 1.45;">
@@ -137,6 +253,7 @@
         await handlePayClick(booking);
       });
     }
+    initPayPalButtons(booking, total);
   }
 
   async function handlePayClick(booking) {
@@ -208,10 +325,11 @@
         }
       }
 
+      await updateBookingPayment(booking.ref_code, 'paid', 'stripe', paymentId);
       if (typeof gtag === 'function') {
-        gtag('event', 'payment_completed', { ref_code: booking.ref_code, amount: total });
+        gtag('event', 'payment_completed', { method: 'stripe', ref_code: booking.ref_code, amount: total });
       }
-      renderSuccess();
+      renderSuccess('stripe');
     } catch (e) {
       console.error('Payment error:', e);
       btn.disabled = false;
