@@ -1402,7 +1402,8 @@
           extras:       state.extras.length ? state.extras : null,
           included_extras: getIncludedExtrasList(),
           notes:        state.notes      || null,
-          promo_code:   state.promoCode || null,
+          promo_code:      state.promoCode    || null,
+          coupon_discount: state.promoDiscount || 0,
           has_pets:     state.hasPets,
           is_night_booking: isNightBooking(),
           stripe_customer_id: stripeCustomerId || null,
@@ -1462,9 +1463,10 @@
 
           console.log('[Booking] saved OK:', insertData);
 
-          if (state.promoCode && state.promoDiscount > 0) {
+          if (state.promoCode) {
             const currentTimesUsed = state.promoTimesUsed;
-            console.log('[Promo] Updating times_used from', currentTimesUsed, 'to', currentTimesUsed + 1);
+            console.log('[Promo] Current times_used:', window.promoTimesUsed);
+            console.log('[Promo] Incrementing to:', window.promoTimesUsed + 1);
             fetch(
               SUPABASE_URL + '/rest/v1/savings_claims?promo_code=eq.' + encodeURIComponent(state.promoCode),
               {
