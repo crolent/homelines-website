@@ -446,7 +446,11 @@
   }
 
   /* ── Session init ─────────────────────────────────────────── */
+  let dashInitialized = false;
+
   async function initDash(user, token) {
+    if (dashInitialized) return;
+    dashInitialized = true;
     currentUser  = user;
     currentToken = token;
     showDash(user);
@@ -458,26 +462,17 @@
   async function initSession() {
     if (!window.supabase) { showLogin(); return; }
 
-    let session = null;
-    try {
-      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000));
-      const result  = await Promise.race([window.supabase.auth.getSession(), timeout]);
-      session = result?.data?.session || null;
-    } catch (e) {
-      console.warn('[Account] getSession timed out — showing login');
-      showLogin();
-      return;
+    const isMagicLink = window.location.hash.includes('access_token');
+    if (isMagicLink) {
+      console.log('[Account] Magic link callback detected');
     }
 
-    if (session?.user) {
-      await initDash(session.user, session.access_token);
-    } else {
-      showLogin();
-    }
-
+    // Register FIRST — must not miss SIGNED_IN fired by hash processing
     try {
       window.supabase.auth.onAuthStateChange((event, newSession) => {
+        console.log('[Account] Auth event:', event, newSession?.user?.email || '');
         if (event === 'SIGNED_OUT') {
+          dashInitialized = false;
           currentUser = null; currentToken = null;
           showLogin();
         } else if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && newSession?.user) {
@@ -487,6 +482,25 @@
     } catch (e) {
       console.warn('[Account] onAuthStateChange error:', e);
     }
+
+    let session = null;
+    try {
+      const waitMs = isMagicLink ? 8000 : 3000;
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), waitMs));
+      const result  = await Promise.race([window.supabase.auth.getSession(), timeout]);
+      session = result?.data?.session || null;
+    } catch (e) {
+      console.warn('[Account] getSession timed out');
+      if (!isMagicLink) showLogin();
+      return;
+    }
+
+    if (session?.user) {
+      await initDash(session.user, session.access_token);
+    } else if (!isMagicLink) {
+      showLogin();
+    }
+    // If magic link and no session yet: onAuthStateChange SIGNED_IN will handle it
   }
 
   /* ── UI bindings ──────────────────────────────────────────── */
