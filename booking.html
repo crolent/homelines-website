@@ -553,15 +553,18 @@
         </div>
       </div>
 
-      <div style="padding:16px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:var(--radius); margin-bottom:24px;">
-        <p style="font-size:0.88rem; color:#16a34a; font-weight:500;" data-i18n="bk_agree">✅ By confirming you agree to our Terms of Service. A confirmation will be sent to your email.</p>
+      <div style="margin-bottom:18px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px;color:#64748b;line-height:1.5;">
+          <input type="checkbox" id="tosCheckbox" style="margin-top:3px;accent-color:#4db8e8;width:16px;height:16px;flex-shrink:0;">
+          <span>I agree to the <a href="/terms-of-service.html" target="_blank" style="color:#4db8e8;text-decoration:underline;font-weight:700;">Terms of Service</a> and <a href="/privacy-policy.html" target="_blank" style="color:#4db8e8;text-decoration:underline;font-weight:700;">Privacy Policy</a></span>
+        </label>
+        <p id="tosError" style="display:none;margin-top:8px;margin-left:26px;font-size:13px;color:#dc2626;font-weight:600;">Please accept the Terms of Service and Privacy Policy to continue.</p>
       </div>
 
       <div class="booking-nav">
         <button class="btn btn-outline" id="step6Back" style="color:var(--navy); border-color:var(--gray);">← Edit Booking</button>
-        <button class="btn btn-primary btn-lg" id="confirmBooking" data-i18n="bk_confirm_btn">✓ Confirm Booking</button>
+        <button class="btn btn-primary btn-lg" id="confirmBooking" data-i18n="bk_confirm_btn" disabled style="opacity:0.5;cursor:not-allowed;">✓ Confirm Booking</button>
       </div>
-      <p style="margin-top:10px;text-align:center;font-size:13px;color:#94a3b8;">By booking, you agree to our <a href="/terms-of-service.html" style="color:#64748b;text-decoration:underline;">Terms of Service</a> and <a href="/privacy-policy.html" style="color:#64748b;text-decoration:underline;">Privacy Policy</a>.</p>
     </div>
 
     <!-- ===== SUCCESS SCREEN ===== -->

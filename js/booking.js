@@ -1279,9 +1279,29 @@
   }
 
   function initStep6() {
-    const confirmBtn = document.getElementById('confirmBooking');
+    const tosCheckbox = document.getElementById('tosCheckbox');
+    const tosError    = document.getElementById('tosError');
+    const confirmBtn  = document.getElementById('confirmBooking');
+    if (tosCheckbox && confirmBtn) {
+      tosCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+          confirmBtn.disabled = false;
+          confirmBtn.style.opacity = '';
+          confirmBtn.style.cursor  = '';
+          if (tosError) tosError.style.display = 'none';
+        } else {
+          confirmBtn.disabled = true;
+          confirmBtn.style.opacity = '0.5';
+          confirmBtn.style.cursor  = 'not-allowed';
+        }
+      });
+    }
     if (confirmBtn) {
       confirmBtn.addEventListener('click', async () => {
+        if (tosCheckbox && !tosCheckbox.checked) {
+          if (tosError) tosError.style.display = '';
+          return;
+        }
         console.log('=== CONFIRM BOOKING START ===');
 
         confirmBtn.textContent = T('bk_processing') || 'Processing...';
