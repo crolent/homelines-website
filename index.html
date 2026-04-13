@@ -126,34 +126,45 @@
 
               <!-- Slide 1: Call Now -->
               <div class="hc-slide hc-slide-1">
+                <!-- Background watermark -->
+                <div aria-hidden="true" style="position:absolute;bottom:-14px;right:-8px;font-size:8.5rem;font-weight:900;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;user-select:none;letter-spacing:-4px;">35%</div>
+                <!-- Subtle grid -->
                 <div class="hc-grid-pattern" aria-hidden="true"></div>
+
                 <div style="position:relative;z-index:1;">
 
-                  <div style="display:flex;justify-content:center;margin-bottom:22px;">
-                    <span style="display:inline-block;background:#e53e3e;color:#fff;font-size:0.68rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:5px 14px;border-radius:999px;box-shadow:0 0 18px rgba(229,62,62,0.5);">LIMITED OFFER</span>
+                  <!-- Badge row -->
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#e53e3e;box-shadow:0 0 8px rgba(229,62,62,0.8);flex-shrink:0;"></span>
+                    <span style="font-size:0.67rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Limited Time Offer</span>
                   </div>
 
-                  <div style="text-align:center;">
-                    <div style="font-size:3.6rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-2px;">35% OFF</div>
-                    <div style="font-size:0.97rem;font-weight:400;color:rgba(255,255,255,0.58);margin-top:7px;letter-spacing:0.4px;">Your First Cleaning</div>
+                  <!-- Main headline -->
+                  <div style="margin-bottom:4px;">
+                    <div style="font-size:4rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-3px;text-shadow:0 2px 24px rgba(229,62,62,0.25);">35<span style="color:#e53e3e;">%</span>&nbsp;OFF</div>
                   </div>
+                  <div style="font-size:0.9rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:22px;text-transform:uppercase;font-size:0.72rem;">Your First Cleaning</div>
 
-                  <div style="border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;"></div>
+                  <!-- Divider -->
+                  <div style="border-top:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"></div>
 
-                  <div style="text-align:center;margin-bottom:5px;">
-                    <span id="hcCountdown" style="font-size:1.6rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;font-family:monospace;letter-spacing:4px;background:rgba(255,255,255,0.07);padding:10px 18px;border-radius:10px;display:inline-block;border:1px solid rgba(255,255,255,0.11);">00:00:00</span>
+                  <!-- Timer block -->
+                  <div style="margin-bottom:6px;">
+                    <div style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:7px;">Offer ends in</div>
+                    <span id="hcCountdown" style="font-size:1.7rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;font-family:'Courier New',monospace;letter-spacing:3px;background:rgba(255,255,255,0.06);padding:9px 16px;border-radius:8px;display:inline-block;border:1px solid rgba(255,255,255,0.09);">00:00:00</span>
                   </div>
-                  <div style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.38);letter-spacing:0.5px;margin-bottom:22px;">Offer resets at midnight</div>
+                  <div style="font-size:0.67rem;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-bottom:22px;">Resets daily at midnight</div>
 
+                  <!-- Phone CTA -->
                   <a href="tel:+17546105038"
                      onclick="if(typeof gtag==='function')gtag('event','call_now_clicked');"
-                     style="display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 20px;border:1.5px solid rgba(229,62,62,0.65);border-radius:10px;text-decoration:none;background:rgba(229,62,62,0.1);transition:background 0.25s,border-color 0.25s;"
-                     onmouseover="this.style.background='rgba(229,62,62,0.22)';this.style.borderColor='#e53e3e';"
-                     onmouseout="this.style.background='rgba(229,62,62,0.1)';this.style.borderColor='rgba(229,62,62,0.65)';">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 0H5.18a2 2 0 012 1.72 12.8 12.8 0 00.7 2.81A2 2 0 017.3 6.7L6.09 7.91a16 16 0 006 6l1.21-1.21a2 2 0 012.16-.45 12.8 12.8 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-                    <div style="text-align:left;">
-                      <div style="font-size:0.97rem;font-weight:700;color:#fff;">+1 (754) 610-5038</div>
-                      <div style="font-size:0.72rem;color:rgba(255,255,255,0.48);font-weight:400;">Tap to call now</div>
+                     style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-radius:9px;text-decoration:none;background:#e53e3e;transition:background 0.2s;"
+                     onmouseover="this.style.background='#c53030';"
+                     onmouseout="this.style.background='#e53e3e';">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.9;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 0H5.18a2 2 0 012 1.72 12.8 12.8 0 00.7 2.81A2 2 0 017.3 6.7L6.09 7.91a16 16 0 006 6l1.21-1.21a2 2 0 012.16-.45 12.8 12.8 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+                    <div>
+                      <div style="font-size:1rem;font-weight:700;color:#fff;line-height:1.2;">+1 (754) 610-5038</div>
+                      <div style="font-size:0.7rem;color:rgba(255,255,255,0.72);margin-top:2px;">Call now &mdash; Get 35% off</div>
                     </div>
                   </a>
 
@@ -162,31 +173,48 @@
 
               <!-- Slide 2: Free Extra -->
               <div class="hc-slide hc-slide-2">
+                <!-- Background watermark -->
+                <div aria-hidden="true" style="position:absolute;bottom:-10px;right:-6px;font-size:7.5rem;font-weight:900;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;user-select:none;letter-spacing:-3px;">FREE</div>
                 <div class="hc-grid-pattern" aria-hidden="true"></div>
+
                 <div style="position:relative;z-index:1;">
 
-                  <div style="display:flex;justify-content:center;margin-bottom:22px;">
-                    <span style="display:inline-block;background:rgba(77,184,232,0.14);color:#4db8e8;font-size:0.68rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:5px 14px;border-radius:999px;border:1px solid rgba(77,184,232,0.35);">FIRST BOOKING BONUS</span>
+                  <!-- Badge row -->
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4db8e8;box-shadow:0 0 8px rgba(77,184,232,0.8);flex-shrink:0;"></span>
+                    <span style="font-size:0.67rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">First Booking Bonus</span>
                   </div>
 
-                  <div style="text-align:center;">
-                    <div style="font-size:3.2rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-1.5px;">1 Free Extra</div>
-                    <div style="font-size:0.97rem;font-weight:400;color:rgba(255,255,255,0.58);margin-top:7px;letter-spacing:0.4px;">On Your First Online Booking</div>
+                  <!-- Main headline -->
+                  <div style="margin-bottom:4px;">
+                    <div style="font-size:3.6rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-2px;">1 Free<span style="color:#4db8e8;"> Extra</span></div>
+                  </div>
+                  <div style="font-size:0.72rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:22px;text-transform:uppercase;">On Your First Online Booking</div>
+
+                  <!-- Divider -->
+                  <div style="border-top:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"></div>
+
+                  <!-- Extras list -->
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Inside Oven &amp; Fridge</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Windows &amp; Balcony Door</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Any extra &mdash; worth up to <strong style="color:#4db8e8;font-weight:700;">$45</strong></span>
+                    </div>
                   </div>
 
-                  <div style="border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;"></div>
-
-                  <div style="text-align:center;font-size:0.82rem;color:rgba(255,255,255,0.48);letter-spacing:0.3px;margin-bottom:10px;">
-                    Inside Oven &nbsp;&middot;&nbsp; Inside Fridge &nbsp;&middot;&nbsp; Windows &nbsp;&middot;&nbsp; and more
-                  </div>
-                  <div style="text-align:center;margin-bottom:24px;">
-                    <span style="font-size:1.15rem;font-weight:700;color:#4db8e8;letter-spacing:-0.3px;">Worth up to $45</span>
-                  </div>
-
+                  <!-- Book Now CTA -->
                   <a href="booking.html"
-                     style="display:block;background:transparent;color:#fff;font-weight:600;font-size:0.97rem;padding:13px 20px;border-radius:10px;text-align:center;text-decoration:none;border:1.5px solid rgba(255,255,255,0.45);letter-spacing:0.3px;transition:background 0.25s,border-color 0.25s,color 0.25s;"
-                     onmouseover="this.style.background='#fff';this.style.color='#1a2b4a';this.style.borderColor='#fff';"
-                     onmouseout="this.style.background='transparent';this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.45)';">Book Now &rarr;</a>
+                     style="display:block;background:#4db8e8;color:#0b1929;font-weight:700;font-size:0.97rem;padding:13px 20px;border-radius:9px;text-align:center;text-decoration:none;letter-spacing:0.2px;transition:background 0.2s;"
+                     onmouseover="this.style.background='#38a8d8';"
+                     onmouseout="this.style.background='#4db8e8';">Book Now &rarr;</a>
 
                 </div>
               </div>
@@ -860,8 +888,14 @@
   flex-direction: column;
   justify-content: center;
 }
-.hc-slide-1 { background: linear-gradient(150deg,#1a2b4a 0%,#0f1b2d 100%); }
-.hc-slide-2 { background: linear-gradient(150deg,#0d2233 0%,#0a1a2a 100%); }
+.hc-slide-1 {
+  background: #080f1a;
+  border-top: 3px solid #e53e3e;
+}
+.hc-slide-2 {
+  background: #080f1a;
+  border-top: 3px solid #4db8e8;
+}
 .hc-slide-3 {
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.15);
