@@ -688,6 +688,22 @@
         }
         state.user = { name: '', surname: '', phone: '', email, address: '', apt: '', city: '', zip: '' };
 
+        // Check if first-time customer → show Free Extra banner
+        (async () => {
+          try {
+            const countRes = await fetch(
+              SUPABASE_URL + '/rest/v1/bookings?email=eq.' + encodeURIComponent(email) + '&select=id&limit=1',
+              { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+            );
+            const countData = await countRes.json();
+            state.isFirstTimeCustomer = Array.isArray(countData) && countData.length === 0;
+          } catch (e) {
+            state.isFirstTimeCustomer = false;
+          }
+          const banner = document.getElementById('freeExtraBanner');
+          if (banner) banner.style.display = state.isFirstTimeCustomer ? '' : 'none';
+        })();
+
         // Create Stripe SetupIntent early so card can be saved later.
         (async () => {
           try {
@@ -1431,7 +1447,8 @@
           is_night_booking: isNightBooking(),
           stripe_customer_id: stripeCustomerId || null,
           payment_status: 'pending',
-          payment_method_saved: cardSaved
+          payment_method_saved: cardSaved,
+          free_extra_earned: !!state.isFirstTimeCustomer
         };
 
         try {
@@ -1489,6 +1506,9 @@
           if (typeof gtag === 'function') {
             const svcName = state.services.map(s => s.nameKey || s.id).join(' + ');
             gtag('event', 'booking_submitted', { service: svcName, total: calcTotal() });
+            if (state.isFirstTimeCustomer) {
+              gtag('event', 'free_extra_earned');
+            }
           }
 
           if (state.promoCode) {
@@ -1558,6 +1578,8 @@
           }).catch(e => console.log('[Email] admin_notification error:', e));
 
           document.getElementById('bookingConfirmId').textContent = refCode;
+          const freeExtraMsg = document.getElementById('freeExtraSuccessMsg');
+          if (freeExtraMsg) freeExtraMsg.style.display = state.isFirstTimeCustomer ? '' : 'none';
           document.getElementById('step6').style.display = 'none';
           const success = document.getElementById('stepSuccess');
           if (success) {
