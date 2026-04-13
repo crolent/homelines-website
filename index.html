@@ -126,45 +126,33 @@
 
               <!-- Slide 1: Call Now -->
               <div class="hc-slide hc-slide-1">
-                <!-- Background watermark -->
-                <div aria-hidden="true" style="position:absolute;bottom:-14px;right:-8px;font-size:8.5rem;font-weight:900;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;user-select:none;letter-spacing:-4px;">35%</div>
-                <!-- Subtle grid -->
-                <div class="hc-grid-pattern" aria-hidden="true"></div>
+                <!-- Floating orbs -->
+                <div class="hc-orb" style="width:100px;height:100px;top:-30px;left:-30px;background:radial-gradient(circle,rgba(255,107,53,0.28) 0%,transparent 70%);animation-duration:5s;"></div>
+                <div class="hc-orb" style="width:60px;height:60px;bottom:18%;right:-18px;background:radial-gradient(circle,rgba(229,62,62,0.22) 0%,transparent 70%);animation-duration:4s;animation-delay:1.5s;"></div>
+                <div class="hc-orb" style="width:36px;height:36px;top:38%;right:18%;background:radial-gradient(circle,rgba(255,107,53,0.18) 0%,transparent 70%);animation-duration:6.5s;animation-delay:0.8s;"></div>
 
-                <div style="position:relative;z-index:1;">
+                <div style="position:relative;z-index:1;width:100%;">
 
-                  <!-- Badge row -->
-                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#e53e3e;box-shadow:0 0 8px rgba(229,62,62,0.8);flex-shrink:0;"></span>
-                    <span style="font-size:0.67rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Limited Time Offer</span>
+                  <div style="margin-bottom:14px;">
+                    <span style="font-size:0.63rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ff6b35;text-shadow:0 0 10px rgba(255,107,53,0.8);">Limited Time Offer</span>
                   </div>
 
-                  <!-- Main headline -->
-                  <div style="margin-bottom:4px;">
-                    <div style="font-size:4rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-3px;text-shadow:0 2px 24px rgba(229,62,62,0.25);">35<span style="color:#e53e3e;">%</span>&nbsp;OFF</div>
+                  <div class="hc-headline-red" style="font-size:5.2rem;font-weight:900;line-height:1;letter-spacing:-3px;margin-bottom:8px;">35%</div>
+                  <div style="font-size:1.05rem;font-weight:500;color:rgba(255,255,255,0.88);margin-bottom:20px;">OFF Your First Cleaning</div>
+
+                  <div class="hc-timer-box hc-timer-red" style="margin-bottom:16px;">
+                    <div style="font-size:0.58rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:7px;">Offer ends in</div>
+                    <span id="hcCountdown" style="font-size:1.65rem;font-weight:800;color:#fff;font-family:'Courier New',monospace;letter-spacing:3px;font-variant-numeric:tabular-nums;">00:00:00</span>
+                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.28);margin-top:5px;letter-spacing:0.5px;">Resets daily at midnight</div>
                   </div>
-                  <div style="font-size:0.9rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:22px;text-transform:uppercase;font-size:0.72rem;">Your First Cleaning</div>
 
-                  <!-- Divider -->
-                  <div style="border-top:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"></div>
-
-                  <!-- Timer block -->
-                  <div style="margin-bottom:6px;">
-                    <div style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:7px;">Offer ends in</div>
-                    <span id="hcCountdown" style="font-size:1.7rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;font-family:'Courier New',monospace;letter-spacing:3px;background:rgba(255,255,255,0.06);padding:9px 16px;border-radius:8px;display:inline-block;border:1px solid rgba(255,255,255,0.09);">00:00:00</span>
-                  </div>
-                  <div style="font-size:0.67rem;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-bottom:22px;">Resets daily at midnight</div>
-
-                  <!-- Phone CTA -->
                   <a href="tel:+17546105038"
-                     onclick="if(typeof gtag==='function')gtag('event','call_now_clicked');"
-                     style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-radius:9px;text-decoration:none;background:#e53e3e;transition:background 0.2s;"
-                     onmouseover="this.style.background='#c53030';"
-                     onmouseout="this.style.background='#e53e3e';">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.9;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 0H5.18a2 2 0 012 1.72 12.8 12.8 0 00.7 2.81A2 2 0 017.3 6.7L6.09 7.91a16 16 0 006 6l1.21-1.21a2 2 0 012.16-.45 12.8 12.8 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-                    <div>
-                      <div style="font-size:1rem;font-weight:700;color:#fff;line-height:1.2;">+1 (754) 610-5038</div>
-                      <div style="font-size:0.7rem;color:rgba(255,255,255,0.72);margin-top:2px;">Call now &mdash; Get 35% off</div>
+                     class="hc-btn-red"
+                     onclick="if(typeof gtag==='function')gtag('event','call_now_clicked');">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 0H5.18a2 2 0 012 1.72 12.8 12.8 0 00.7 2.81A2 2 0 017.3 6.7L6.09 7.91a16 16 0 006 6l1.21-1.21a2 2 0 012.16-.45 12.8 12.8 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+                    <div style="text-align:left;">
+                      <div style="font-size:0.97rem;font-weight:700;line-height:1.2;">+1 (754) 610-5038</div>
+                      <div style="font-size:0.68rem;opacity:0.7;margin-top:1px;">Call now &mdash; 35% off your first clean</div>
                     </div>
                   </a>
 
@@ -173,48 +161,36 @@
 
               <!-- Slide 2: Free Extra -->
               <div class="hc-slide hc-slide-2">
-                <!-- Background watermark -->
-                <div aria-hidden="true" style="position:absolute;bottom:-10px;right:-6px;font-size:7.5rem;font-weight:900;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;user-select:none;letter-spacing:-3px;">FREE</div>
-                <div class="hc-grid-pattern" aria-hidden="true"></div>
+                <!-- Floating orbs (green) -->
+                <div class="hc-orb" style="width:90px;height:90px;top:-22px;right:-25px;background:radial-gradient(circle,rgba(72,187,120,0.26) 0%,transparent 70%);animation-duration:5.5s;"></div>
+                <div class="hc-orb" style="width:55px;height:55px;bottom:15%;left:-15px;background:radial-gradient(circle,rgba(56,178,172,0.2) 0%,transparent 70%);animation-duration:4.5s;animation-delay:1s;"></div>
+                <div class="hc-orb" style="width:32px;height:32px;top:42%;left:22%;background:radial-gradient(circle,rgba(72,187,120,0.16) 0%,transparent 70%);animation-duration:7s;animation-delay:2s;"></div>
 
-                <div style="position:relative;z-index:1;">
+                <div style="position:relative;z-index:1;width:100%;">
 
-                  <!-- Badge row -->
-                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-                    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4db8e8;box-shadow:0 0 8px rgba(77,184,232,0.8);flex-shrink:0;"></span>
-                    <span style="font-size:0.67rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">First Booking Bonus</span>
+                  <div style="margin-bottom:14px;">
+                    <span style="font-size:0.63rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#48bb78;text-shadow:0 0 10px rgba(72,187,120,0.8);">First Booking Bonus</span>
                   </div>
 
-                  <!-- Main headline -->
-                  <div style="margin-bottom:4px;">
-                    <div style="font-size:3.6rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-2px;">1 Free<span style="color:#4db8e8;"> Extra</span></div>
-                  </div>
-                  <div style="font-size:0.72rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:22px;text-transform:uppercase;">On Your First Online Booking</div>
+                  <div class="hc-headline-green" style="font-size:3.8rem;font-weight:900;line-height:1;letter-spacing:-2px;margin-bottom:8px;">1 Free Extra</div>
+                  <div style="font-size:0.97rem;font-weight:400;color:rgba(255,255,255,0.75);margin-bottom:20px;">On Your First Online Booking</div>
 
-                  <!-- Divider -->
-                  <div style="border-top:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"></div>
-
-                  <!-- Extras list -->
-                  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Inside Oven &amp; Fridge</span>
+                  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+                    <div style="display:flex;align-items:center;gap:11px;">
+                      <span class="hc-dot-glow"></span>
+                      <span style="font-size:0.85rem;color:rgba(255,255,255,0.65);">Inside Oven &amp; Fridge</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Windows &amp; Balcony Door</span>
+                    <div style="display:flex;align-items:center;gap:11px;">
+                      <span class="hc-dot-glow"></span>
+                      <span style="font-size:0.85rem;color:rgba(255,255,255,0.65);">Windows &amp; Balcony</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style="font-size:0.83rem;color:rgba(255,255,255,0.55);">Any extra &mdash; worth up to <strong style="color:#4db8e8;font-weight:700;">$45</strong></span>
+                    <div style="display:flex;align-items:center;gap:11px;">
+                      <span class="hc-dot-glow"></span>
+                      <span style="font-size:0.85rem;color:rgba(255,255,255,0.65);">Any extra &mdash; worth up to <strong style="color:#48bb78;font-weight:700;">$45</strong></span>
                     </div>
                   </div>
 
-                  <!-- Book Now CTA -->
-                  <a href="booking.html"
-                     style="display:block;background:#4db8e8;color:#0b1929;font-weight:700;font-size:0.97rem;padding:13px 20px;border-radius:9px;text-align:center;text-decoration:none;letter-spacing:0.2px;transition:background 0.2s;"
-                     onmouseover="this.style.background='#38a8d8';"
-                     onmouseout="this.style.background='#4db8e8';">Book Now &rarr;</a>
+                  <a href="booking.html" class="hc-btn-green">Book Now &rarr;</a>
 
                 </div>
               </div>
@@ -888,30 +864,112 @@
   flex-direction: column;
   justify-content: center;
 }
-.hc-slide-1 {
-  background: #080f1a;
-  border-top: 3px solid #e53e3e;
-}
-.hc-slide-2 {
-  background: #080f1a;
-  border-top: 3px solid #4db8e8;
-}
+.hc-slide-1, .hc-slide-2 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
 .hc-slide-3 {
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(20px);
 }
-.hc-grid-pattern {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 36px 36px;
-  pointer-events: none;
-  border-radius: inherit;
-}
 .hc-slide { position: relative; overflow: hidden; }
+/* Floating orbs */
+.hc-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: hc-float-orb 5s ease-in-out infinite;
+}
+@keyframes hc-float-orb {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-20px); }
+}
+/* Gradient headline text + filter glow pulse */
+.hc-headline-red {
+  background: linear-gradient(135deg, #ff6b35, #e53e3e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hc-glow-red 2s ease-in-out infinite;
+}
+.hc-headline-green {
+  background: linear-gradient(135deg, #48bb78, #38b2ac);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hc-glow-green 2s ease-in-out infinite;
+}
+@keyframes hc-glow-red {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(255,107,53,0.55)) drop-shadow(0 0 18px rgba(255,107,53,0.25)); }
+  50%     { filter: drop-shadow(0 0 16px rgba(255,107,53,1))    drop-shadow(0 0 38px rgba(255,107,53,0.55)); }
+}
+@keyframes hc-glow-green {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(72,187,120,0.55)) drop-shadow(0 0 18px rgba(72,187,120,0.25)); }
+  50%     { filter: drop-shadow(0 0 16px rgba(72,187,120,1))   drop-shadow(0 0 38px rgba(72,187,120,0.55)); }
+}
+/* Timer box */
+.hc-timer-box {
+  background: rgba(0,0,0,0.38);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+.hc-timer-red  { border-color: rgba(255,107,53,0.35); box-shadow: 0 0 14px rgba(255,107,53,0.12), inset 0 1px 0 rgba(255,255,255,0.04); }
+/* Glowing buttons */
+.hc-btn-red {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 2px solid #ff6b35;
+  background: transparent;
+  box-shadow: 0 0 12px rgba(255,107,53,0.4), inset 0 0 10px rgba(255,107,53,0.04);
+  animation: hc-btn-pulse-red 2.5s ease-in-out infinite;
+  transition: background 0.22s, box-shadow 0.22s;
+}
+.hc-btn-red:hover { background: rgba(255,107,53,0.18); box-shadow: 0 0 28px rgba(255,107,53,0.75), inset 0 0 14px rgba(255,107,53,0.1); }
+@keyframes hc-btn-pulse-red {
+  0%,100% { box-shadow: 0 0 10px rgba(255,107,53,0.35), inset 0 0 8px rgba(255,107,53,0.03); }
+  50%     { box-shadow: 0 0 24px rgba(255,107,53,0.7),  inset 0 0 12px rgba(255,107,53,0.07); }
+}
+.hc-btn-green {
+  display: block;
+  padding: 13px 18px;
+  border-radius: 10px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 2px solid #48bb78;
+  background: transparent;
+  box-shadow: 0 0 12px rgba(72,187,120,0.4), inset 0 0 10px rgba(72,187,120,0.04);
+  animation: hc-btn-pulse-green 2.5s ease-in-out infinite;
+  transition: background 0.22s, box-shadow 0.22s;
+}
+.hc-btn-green:hover { background: rgba(72,187,120,0.18); box-shadow: 0 0 28px rgba(72,187,120,0.75), inset 0 0 14px rgba(72,187,120,0.1); }
+@keyframes hc-btn-pulse-green {
+  0%,100% { box-shadow: 0 0 10px rgba(72,187,120,0.35), inset 0 0 8px rgba(72,187,120,0.03); }
+  50%     { box-shadow: 0 0 24px rgba(72,187,120,0.7),  inset 0 0 12px rgba(72,187,120,0.07); }
+}
+/* Glowing dot bullet */
+.hc-dot-glow {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #48bb78;
+  box-shadow: 0 0 6px rgba(72,187,120,0.9), 0 0 14px rgba(72,187,120,0.45);
+  flex-shrink: 0;
+}
+@media (max-width: 520px) {
+  .hc-headline-red  { font-size: 4rem !important; }
+  .hc-headline-green { font-size: 3rem !important; }
+  .hc-btn-red, .hc-btn-green { font-size: 0.88rem; padding: 12px 14px; }
+}
 #hcDots {
   display: flex;
   justify-content: center;
