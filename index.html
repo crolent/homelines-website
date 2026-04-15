@@ -971,11 +971,6 @@
   box-shadow: 0 0 6px rgba(72,187,120,0.9), 0 0 14px rgba(72,187,120,0.45);
   flex-shrink: 0;
 }
-@media (max-width: 520px) {
-  .hc-headline-red  { font-size: 4rem !important; }
-  .hc-headline-green { font-size: 3rem !important; }
-  .hc-btn-red, .hc-btn-green { font-size: 0.88rem; padding: 12px 14px; }
-}
 #hcDots {
   position: absolute;
   bottom: 12px;
@@ -998,10 +993,21 @@
   transition: background 0.25s, transform 0.25s;
 }
 .hc-dot.hc-dot-active { background: #fff; transform: scale(1.2); }
-@media (max-width: 520px) {
+@media (max-width: 768px) {
   #heroVisualWrap { display: flex !important; }
-  .hc-slide { padding: 24px 18px 20px; min-height: 400px; }
-  #heroCarousel { max-width: 100%; }
+  #heroCarousel { max-width: 100%; animation: none; box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .hc-slide { padding: 26px 22px 46px; min-height: 0; }
+  .hc-headline-red   { font-size: 4.2rem !important; }
+  .hc-headline-green { font-size: 3.2rem !important; }
+  .hc-btn-red-full   { font-size: 1.1rem !important; }
+}
+@media (max-width: 480px) {
+  .hc-slide { padding: 22px 18px 44px; }
+  .hc-headline-red   { font-size: 3.4rem !important; }
+  .hc-headline-green { font-size: 2.8rem !important; }
+  .hc-btn-red-full   { font-size: 0.97rem !important; padding: 14px 16px !important; }
+  .hc-btn-green      { font-size: 0.9rem; padding: 12px 14px; }
+  .hc-timer-box span { font-size: 1.4rem !important; }
 }
 </style>
 
