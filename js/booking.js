@@ -25,7 +25,7 @@
     promoTimesUsed: -1
   };
 
-  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TJhzfDTexy6QjOdztK8iY1LmAgSefKM74moqmthJ0YpBGM3TeX6l44rEJrgF4zYStIHakLcOKG3KUjSVE2czkdO00Da6MUxrx';
+  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TQc7FJNUD7MUHejs69JBUD7vWDvDpbOylGcjur3rm6fjYjmOcm8REn2gpGDISoMomsAkbnroNjOyPP63ntVmpZO00gTxwqyR9';
   const SETUP_INTENT_FN = 'create-setup-intent';
   const SUPABASE_URL = 'https://acfsvzbjfiynlcbjvtbq.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_3tsuAIyp2yIn2MVadqgcRA_RKvkgf8g';
